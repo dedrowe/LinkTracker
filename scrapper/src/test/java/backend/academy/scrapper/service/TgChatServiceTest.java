@@ -38,12 +38,12 @@ public class TgChatServiceTest {
     @Test
     public void deleteSuccessTest() {
         when(tgChatRepository.getByChatId(Mockito.anyLong())).thenReturn(Optional.of(new TgChat(1L, 123)));
-        when(linkDataRepository.getByChatId(Mockito.anyInt())).thenReturn(List.of(new LinkData(), new LinkData()));
+        when(linkDataRepository.getByChatId(Mockito.anyLong())).thenReturn(List.of(new LinkData(), new LinkData()));
 
         tgChatService.deleteTgChat(123);
 
         verify(tgChatRepository, times(1)).getByChatId(Mockito.anyLong());
-        verify(linkDataRepository, times(1)).getByChatId(Mockito.anyInt());
+        verify(linkDataRepository, times(1)).getByChatId(Mockito.anyLong());
         verify(linkDataRepository, times(2)).delete(Mockito.any());
         verify(tgChatRepository, times(1)).delete(Mockito.any());
     }
