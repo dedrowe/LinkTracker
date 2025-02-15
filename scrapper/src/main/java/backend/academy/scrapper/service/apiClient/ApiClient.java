@@ -1,0 +1,30 @@
+package backend.academy.scrapper.service.apiClient;
+
+import backend.academy.scrapper.exceptionHandling.exceptions.ApiCallException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.web.client.RestClient;
+
+public abstract class ApiClient {
+
+    protected RestClient client;
+
+    protected RestClient.ResponseSpec getRequest(URI uri) {
+        return client.get()
+                .uri(uri.getPath())
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+                    String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+                    throw new ApiCallException(
+                            "Ошибка при обращении по ссылке " + uri,
+                            body,
+                            response.getStatusCode().value());
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                    throw new ApiCallException(
+                            "Сервис по ссылке " + uri + " сейчас недоступен",
+                            response.getStatusCode().value());
+                });
+    }
+}

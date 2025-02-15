@@ -3,6 +3,8 @@ app:
   stackoverflow:
     key: ${SO_TOKEN_KEY}
     access-token: ${SO_ACCESS_TOKEN}
+  github-base-url: ${GITHUB_URL}
+  so-base-url: ${SO_URL}
 
 spring:
   application:
@@ -13,6 +15,8 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+  config:
+    import: optional:.env.properties
 
 server:
   port: 8081
