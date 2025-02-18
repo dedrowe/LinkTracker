@@ -14,6 +14,8 @@ public interface LinkDataRepository {
 
     List<LinkData> getByChatId(long chatId);
 
+    List<LinkData> getByLinkId(long linkId);
+
     List<LinkData> getByChatId(long chatId, int offset, int limit);
 
     Optional<LinkData> getByChatIdLinkId(long chatId, long linkId);

@@ -46,6 +46,11 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
     }
 
     @Override
+    public List<LinkData> getByLinkId(long linkId) {
+        return List.copyOf(data.stream().filter(l -> l.linkId() == linkId).toList());
+    }
+
+    @Override
     public List<LinkData> getByChatId(long chatId, int offset, int limit) {
         List<LinkData> result = data.stream().filter(l -> l.chatId() == chatId).toList();
         result = result.subList(offset, Math.min(result.size(), offset + limit));

@@ -26,6 +26,11 @@ public class InMemoryLinkRepository implements LinkRepository {
     }
 
     @Override
+    public List<Link> getAll() {
+        return List.copyOf(links);
+    }
+
+    @Override
     public Optional<Link> getById(long id) {
         return links.stream().filter(l -> l.id() == id).findFirst();
     }
