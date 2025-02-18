@@ -28,6 +28,13 @@ public class InMemoryLinkRepositoryTest {
     }
 
     @Test
+    public void getAllTest() {
+        List<Link> links = repository.getAll();
+
+        assertThat(links.size()).isEqualTo(1);
+    }
+
+    @Test
     public void getByIdSuccessTest() {
         int id = 1;
 

@@ -81,6 +81,15 @@ public class InMemoryLinkDataRepositoryTest {
     }
 
     @Test
+    public void getByLinkIdTest() {
+        int linkId = 1;
+
+        List<LinkData> data = repository.getByLinkId(linkId);
+
+        assertThat(data.size()).isEqualTo(1);
+    }
+
+    @Test
     public void getByChatIdLinkIdSuccessTest() {
         int chatId = 1;
         int linkId = 1;
