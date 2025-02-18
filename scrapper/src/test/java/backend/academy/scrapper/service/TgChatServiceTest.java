@@ -57,6 +57,26 @@ public class TgChatServiceTest {
     }
 
     @Test
+    public void getByIdSuccessTest() {
+        TgChat tgChat = new TgChat(1L, 123);
+        when(tgChatRepository.getById(Mockito.anyLong())).thenReturn(Optional.of(tgChat));
+
+        TgChat actualChat = tgChatService.getById(123);
+
+        assertThat(actualChat.chatId()).isEqualTo(tgChat.chatId());
+        assertThat(actualChat.id()).isEqualTo(tgChat.id());
+        verify(tgChatRepository, times(1)).getById(Mockito.anyLong());
+    }
+
+    @Test
+    public void getByIdFailTest() {
+        when(tgChatRepository.getById(Mockito.anyLong())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> tgChatService.getById(123)).isInstanceOf(NotFoundException.class);
+        verify(tgChatRepository, times(1)).getById(Mockito.anyLong());
+    }
+
+    @Test
     public void getByChatIdSuccessTest() {
         TgChat tgChat = new TgChat(1L, 123);
         when(tgChatRepository.getByChatId(Mockito.anyLong())).thenReturn(Optional.of(tgChat));
