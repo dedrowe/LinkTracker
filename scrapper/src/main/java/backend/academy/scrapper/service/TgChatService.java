@@ -39,6 +39,19 @@ public class TgChatService {
     }
 
     /**
+     * Возвращает TgChat с переданным id, если он существует, иначе выбрасывает NotRegisteredException
+     *
+     * @param id id чата
+     * @return TgChat с переданным id
+     * @throws NotFoundException если чат не найден
+     */
+    public TgChat getById(long id) {
+        return tgChatRepository
+            .getById(id)
+            .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
+    }
+
+    /**
      * Возвращает TgChat с переданным chatId, если он существует, иначе выбрасывает NotRegisteredException
      *
      * @param chatId id чата в telegram
