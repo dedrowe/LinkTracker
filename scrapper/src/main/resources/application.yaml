@@ -5,6 +5,7 @@ app:
     access-token: ${SO_ACCESS_TOKEN}
   github-base-url: ${GITHUB_URL}
   so-base-url: ${SO_URL}
+  bot-url: ${BOT_URL}
 
 spring:
   application:
