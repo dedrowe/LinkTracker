@@ -2,15 +2,16 @@ package backend.academy.scrapper.service;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
-import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
 import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
+import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,35 +25,41 @@ public class UpdatesCheckerService {
 
     private final LinkRepository linkRepository;
 
+    private final LinkMapper linkMapper;
+
+    private final TgBotClient tgBotClient;
+
+    private final TgChatService tgChatService;
+
     public UpdatesCheckerService(
-            LinkDispatcher linkDispatcher, LinkDataRepository linkDataRepository, LinkRepository linkRepository) {
+        LinkDispatcher linkDispatcher, LinkDataRepository linkDataRepository, LinkRepository linkRepository, LinkMapper linkMapper, TgBotClient tgBotClient,
+        TgChatService tgChatService) {
         this.linkDispatcher = linkDispatcher;
         this.linkDataRepository = linkDataRepository;
         this.linkRepository = linkRepository;
+        this.linkMapper = linkMapper;
+        this.tgBotClient = tgBotClient;
+        this.tgChatService = tgChatService;
     }
 
     @Scheduled(fixedRate = 5000)
     public void checkUpdates() {
-        List<LinkData> links = linkDataRepository.getAll();
-        for (LinkData linkData : links) {
-            Link link = linkRepository
-                    .getById(linkData.linkId())
-                    .orElseThrow(() -> new NotFoundException("Ссылка не найдена"));
-            LocalDateTime lastCheck = linkData.lastCheck();
-            if (!link.lastUpdate().isAfter(lastCheck)) {
-                URI uri = URI.create(link.link());
-                ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
+        List<Link> links = linkRepository.getAll();
 
-                link.lastUpdate(client.getLastUpdate(uri));
+        for (Link link : links) {
+            URI uri = URI.create(link.link());
+            ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
+            LocalDateTime lastUpdate = client.getLastUpdate(uri);
+            if (lastUpdate.isAfter(link.lastUpdate())) {
+                link.lastUpdate(lastUpdate);
                 linkRepository.update(link);
 
-                linkData.lastCheck(LocalDateTime.now(ZoneOffset.UTC));
-                linkDataRepository.update(linkData);
-            }
-            if (link.lastUpdate().isAfter(lastCheck)) {
-                System.out.println("Update for link " + link.link());
-            } else {
-                System.out.println("No updates for link " + link.link());
+                List<LinkData> linkDataList = linkDataRepository.getByLinkId(link.id());
+                List<Long> chatIds = new ArrayList<>();
+                for (LinkData linkData : linkDataList) {
+                    chatIds.add(tgChatService.getById(linkData.chatId()).chatId());
+                }
+                tgBotClient.sendUpdates(linkMapper.createLinkUpdate(link.id(), link.link(), "Update for link " + link.link(), chatIds));
             }
         }
     }
