@@ -1,4 +1,4 @@
-package backend.academy.scrapper.dto;
+package backend.academy.shared.dto;
 
 import java.util.List;
 

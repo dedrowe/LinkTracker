@@ -1,6 +1,6 @@
 package backend.academy.scrapper.exceptionHandling;
 
-import backend.academy.scrapper.dto.ApiErrorResponse;
+import backend.academy.shared.dto.ApiErrorResponse;
 import backend.academy.scrapper.exceptionHandling.exceptions.ApiCallException;
 import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
 import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
