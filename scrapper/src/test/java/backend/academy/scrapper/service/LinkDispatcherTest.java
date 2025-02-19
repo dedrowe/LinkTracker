@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.wrapper.GithubWrapper;
 import backend.academy.scrapper.service.apiClient.wrapper.StackOverflowWrapper;
 import java.net.URI;
@@ -35,7 +35,7 @@ public class LinkDispatcherTest {
     public void wrongServiceTest() {
         URI uri = URI.create("https://google.com/");
 
-        assertThatThrownBy(() -> dispatcher.dispatchLink(uri)).isInstanceOf(ScrapperBaseException.class);
+        assertThatThrownBy(() -> dispatcher.dispatchLink(uri)).isInstanceOf(BaseException.class);
         assertThatThrownBy(() -> dispatcher.dispatchLink(uri))
                 .hasMessage("Отслеживание ссылок этого сервиса не поддерживается");
     }

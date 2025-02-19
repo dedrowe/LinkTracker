@@ -3,7 +3,7 @@ package backend.academy.scrapper.service.apiClient;
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.github.GHRepository;
 import backend.academy.scrapper.dto.github.Issue;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -35,7 +35,7 @@ public class GithubClient extends ApiClient {
     public LocalDateTime getIssueUpdate(URI uri) {
         Issue issue = getRequest(uri).body(Issue.class);
         if (issue == null) {
-            throw new ScrapperBaseException("Ошибка при обращении по ссылке " + uri);
+            throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         return ZonedDateTime.parse(issue.updatedAt()).toLocalDateTime();
     }
@@ -43,7 +43,7 @@ public class GithubClient extends ApiClient {
     public LocalDateTime getRepositoryUpdate(URI uri) {
         GHRepository repository = getRequest(uri).body(GHRepository.class);
         if (repository == null) {
-            throw new ScrapperBaseException("Ошибка при обращении по ссылке " + uri);
+            throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         return ZonedDateTime.parse(repository.updatedAt()).toLocalDateTime();
     }

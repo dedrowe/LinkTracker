@@ -2,7 +2,7 @@ package backend.academy.scrapper.service;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
@@ -70,7 +70,7 @@ public class UpdatesCheckerService {
             ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
             client.getLastUpdate(uri);
         } catch (URISyntaxException e) {
-            throw new ScrapperBaseException("Ошибка в синтаксисе ссылки", e);
+            throw new BaseException("Ошибка в синтаксисе ссылки", e);
         }
     }
 }

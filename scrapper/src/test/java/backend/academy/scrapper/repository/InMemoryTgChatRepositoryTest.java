@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.repository.tgchat.InMemoryTgChatRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +79,7 @@ public class InMemoryTgChatRepositoryTest {
     public void createExistingTest() {
         TgChat tgChat = new TgChat(123);
 
-        assertThatThrownBy(() -> repository.create(tgChat)).isInstanceOf(ScrapperBaseException.class);
+        assertThatThrownBy(() -> repository.create(tgChat)).isInstanceOf(BaseException.class);
     }
 
     @Test

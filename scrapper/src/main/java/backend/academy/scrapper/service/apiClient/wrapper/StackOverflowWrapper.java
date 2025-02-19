@@ -1,6 +1,6 @@
 package backend.academy.scrapper.service.apiClient.wrapper;
 
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ public class StackOverflowWrapper implements ApiClientWrapper {
         if (path.length == 4 && path[2].equals("questions")) {
             return apiClient.getQuestionUpdate(uri);
         } else {
-            throw new ScrapperBaseException("Ресурс не поддерживается " + uri);
+            throw new BaseException("Ресурс не поддерживается " + uri);
         }
     }
 }

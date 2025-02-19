@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.dto.github.GHRepository;
 import backend.academy.scrapper.dto.github.Issue;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.GithubClient;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -64,7 +64,7 @@ public class GithubClientTest {
         String url = "https://github.com/-1/-1/issues/-1";
 
         assertThatThrownBy(() -> githubClient.getIssueUpdate(URI.create(url)))
-                .isInstanceOf(ScrapperBaseException.class);
+                .isInstanceOf(BaseException.class);
         assertThatThrownBy(() -> githubClient.getIssueUpdate(URI.create(url)))
                 .hasMessage("Ошибка при обращении по ссылке " + url);
     }
@@ -90,7 +90,7 @@ public class GithubClientTest {
         String url = "https://github.com/-1/-1";
 
         assertThatThrownBy(() -> githubClient.getRepositoryUpdate(URI.create(url)))
-                .isInstanceOf(ScrapperBaseException.class);
+                .isInstanceOf(BaseException.class);
         assertThatThrownBy(() -> githubClient.getRepositoryUpdate(URI.create(url)))
                 .hasMessage("Ошибка при обращении по ссылке " + url);
     }

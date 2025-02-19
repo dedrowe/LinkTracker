@@ -1,6 +1,6 @@
-package backend.academy.scrapper.exceptionHandling.exceptions;
+package backend.academy.shared.exceptions;
 
-public class ScrapperBaseException extends RuntimeException {
+public class BaseException extends RuntimeException {
 
     protected String description;
 
@@ -14,34 +14,34 @@ public class ScrapperBaseException extends RuntimeException {
         return code;
     }
 
-    public ScrapperBaseException(String message) {
+    public BaseException(String message) {
         super(message);
         this.description = message;
     }
 
-    public ScrapperBaseException(String message, int code) {
+    public BaseException(String message, int code) {
         super(message);
         this.description = message;
         this.code = code;
     }
 
-    public ScrapperBaseException(String description, String message) {
+    public BaseException(String description, String message) {
         super(message);
         this.description = description;
     }
 
-    public ScrapperBaseException(String description, String message, int code) {
+    public BaseException(String description, String message, int code) {
         super(message);
         this.description = description;
         this.code = code;
     }
 
-    public ScrapperBaseException(String description, String message, Throwable cause) {
+    public BaseException(String description, String message, Throwable cause) {
         super(message, cause);
         this.description = description;
     }
 
-    public ScrapperBaseException(String message, Throwable cause) {
+    public BaseException(String message, Throwable cause) {
         super(message, cause);
         this.description = message;
     }

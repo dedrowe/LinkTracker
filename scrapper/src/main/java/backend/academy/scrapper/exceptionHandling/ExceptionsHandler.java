@@ -3,7 +3,7 @@ package backend.academy.scrapper.exceptionHandling;
 import backend.academy.shared.dto.ApiErrorResponse;
 import backend.academy.scrapper.exceptionHandling.exceptions.ApiCallException;
 import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +40,7 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ApiErrorResponse> exception(ScrapperBaseException ex) {
+    public ResponseEntity<ApiErrorResponse> exception(BaseException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ex.getDescription(),
                 String.valueOf(ex.getCode()),

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import java.net.URI;
 import java.time.Instant;
@@ -69,7 +69,7 @@ public class StackOverflowClientTest {
         String url = "https://api.stackexchange.com/2.3/questions/-1";
 
         assertThatThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(url)))
-                .isInstanceOf(ScrapperBaseException.class);
+                .isInstanceOf(BaseException.class);
         assertThatThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(url)))
                 .hasMessage("Ошибка при обращении по ссылке " + url);
     }
@@ -89,7 +89,7 @@ public class StackOverflowClientTest {
         String url = "https://api.stackexchange.com/2.3/questions/-1";
 
         assertThatThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(url)))
-                .isInstanceOf(ScrapperBaseException.class);
+                .isInstanceOf(BaseException.class);
         assertThatThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(url)))
                 .hasMessage("Ошибка при обращении по ссылке " + url);
     }

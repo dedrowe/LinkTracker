@@ -1,7 +1,7 @@
 package backend.academy.scrapper.repository.link;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public class InMemoryLinkRepository implements LinkRepository {
     @Override
     public void create(Link link) {
         if (getByLink(link.link()).isPresent()) {
-            throw new ScrapperBaseException("Эта ссылка уже существует");
+            throw new BaseException("Эта ссылка уже существует");
         }
         link.id(idSequence++);
         links.add(link);

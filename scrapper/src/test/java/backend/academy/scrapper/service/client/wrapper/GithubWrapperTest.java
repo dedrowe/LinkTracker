@@ -6,7 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.GithubClient;
 import backend.academy.scrapper.service.apiClient.wrapper.GithubWrapper;
 import java.net.URI;
@@ -56,7 +56,7 @@ public class GithubWrapperTest {
     public void getWrongUrlUpdateTest(String url) {
         URI uri = URI.create(url);
 
-        assertThatThrownBy(() -> githubWrapper.getLastUpdate(uri)).isInstanceOf(ScrapperBaseException.class);
+        assertThatThrownBy(() -> githubWrapper.getLastUpdate(uri)).isInstanceOf(BaseException.class);
         assertThatThrownBy(() -> githubWrapper.getLastUpdate(uri)).hasMessage("Ресурс не поддерживается " + uri);
     }
 }

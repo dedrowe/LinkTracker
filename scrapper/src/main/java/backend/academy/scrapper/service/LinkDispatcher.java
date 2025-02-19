@@ -1,6 +1,6 @@
 package backend.academy.scrapper.service;
 
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import java.net.URI;
 import java.util.Map;
@@ -20,7 +20,7 @@ public class LinkDispatcher {
     public ApiClientWrapper dispatchLink(URI uri) {
         ApiClientWrapper apiClient = apiClients.getOrDefault(uri.getAuthority(), null);
         if (apiClient == null) {
-            throw new ScrapperBaseException("Отслеживание ссылок этого сервиса не поддерживается");
+            throw new BaseException("Отслеживание ссылок этого сервиса не поддерживается");
         }
         return apiClient;
     }

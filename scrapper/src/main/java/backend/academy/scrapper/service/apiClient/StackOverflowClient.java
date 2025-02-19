@@ -2,7 +2,7 @@ package backend.academy.scrapper.service.apiClient;
 
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class StackOverflowClient extends ApiClient {
     public LocalDateTime getQuestionUpdate(URI uri) {
         SOResponse responseBody = getRequest(uri).body(SOResponse.class);
         if (responseBody == null || responseBody.items().isEmpty()) {
-            throw new ScrapperBaseException("Ошибка при обращении по ссылке " + uri);
+            throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         Instant instant = Instant.ofEpochMilli(responseBody.items().getFirst().lastActivityDate());
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.repository.link.InMemoryLinkRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -94,14 +94,14 @@ public class InMemoryLinkRepositoryTest {
         }
 
         assertThat(actualLink.get()).isEqualTo(link);
-        assertThatThrownBy(() -> repository.create(link)).isInstanceOf(ScrapperBaseException.class);
+        assertThatThrownBy(() -> repository.create(link)).isInstanceOf(BaseException.class);
     }
 
     @Test
     public void createExistingLinkTest() {
         Link link = new Link("string");
 
-        assertThatThrownBy(() -> repository.create(link)).isInstanceOf(ScrapperBaseException.class);
+        assertThatThrownBy(() -> repository.create(link)).isInstanceOf(BaseException.class);
     }
 
     @Test

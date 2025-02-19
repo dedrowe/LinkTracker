@@ -1,6 +1,8 @@
 package backend.academy.scrapper.exceptionHandling.exceptions;
 
-public class NotFoundException extends ScrapperBaseException {
+import backend.academy.shared.exceptions.BaseException;
+
+public class NotFoundException extends BaseException {
 
     {
         code = 404;

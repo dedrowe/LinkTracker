@@ -1,7 +1,7 @@
 package backend.academy.scrapper.repository.linkdata;
 
 import backend.academy.scrapper.entity.LinkData;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +68,7 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
     public void create(LinkData linkData) {
         Optional<LinkData> curLink = getByChatIdLinkId(linkData.chatId(), linkData.linkId());
         if (curLink.isPresent()) {
-            throw new ScrapperBaseException("Ссылка уже зарегистрирована");
+            throw new BaseException("Ссылка уже зарегистрирована");
         }
         linkData.id(idSequence++);
         data.add(linkData);

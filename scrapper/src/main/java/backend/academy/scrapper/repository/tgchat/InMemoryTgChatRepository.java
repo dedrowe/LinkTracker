@@ -1,7 +1,7 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.scrapper.exceptionHandling.exceptions.ScrapperBaseException;
+import backend.academy.shared.exceptions.BaseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class InMemoryTgChatRepository implements TgChatRepository {
     public void create(TgChat tgChat) {
         Optional<TgChat> curChat = getByChatId(tgChat.chatId());
         if (curChat.isPresent()) {
-            throw new ScrapperBaseException("Чат с таким id уже зарегистрирован");
+            throw new BaseException("Чат с таким id уже зарегистрирован");
         }
         tgChat.id(idSequence++);
         data.add(tgChat);
