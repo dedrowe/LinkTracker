@@ -1,6 +1,6 @@
 package backend.academy.scrapper.service.apiClient;
 
-import backend.academy.scrapper.exceptionHandling.exceptions.ApiCallException;
+import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpStatusCode;

@@ -1,6 +1,4 @@
-package backend.academy.scrapper.exceptionHandling.exceptions;
-
-import backend.academy.shared.exceptions.BaseException;
+package backend.academy.shared.exceptions;
 
 public class ApiCallException extends BaseException {
 

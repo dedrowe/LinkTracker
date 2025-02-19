@@ -1,9 +1,9 @@
 package backend.academy.scrapper.controller;
 
-import backend.academy.scrapper.dto.AddLinkRequest;
-import backend.academy.scrapper.dto.LinkResponse;
-import backend.academy.scrapper.dto.ListLinkResponse;
-import backend.academy.scrapper.dto.RemoveLinkRequest;
+import backend.academy.shared.dto.AddLinkRequest;
+import backend.academy.shared.dto.LinkResponse;
+import backend.academy.shared.dto.ListLinkResponse;
+import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.scrapper.service.LinkDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;

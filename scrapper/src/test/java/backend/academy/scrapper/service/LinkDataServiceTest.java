@@ -5,9 +5,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.dto.AddLinkRequest;
-import backend.academy.scrapper.dto.LinkResponse;
-import backend.academy.scrapper.dto.RemoveLinkRequest;
+import backend.academy.shared.dto.AddLinkRequest;
+import backend.academy.shared.dto.LinkResponse;
+import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
