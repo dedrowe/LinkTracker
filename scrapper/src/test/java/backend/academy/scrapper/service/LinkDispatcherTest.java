@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.wrapper.GithubWrapper;
 import backend.academy.scrapper.service.apiClient.wrapper.StackOverflowWrapper;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

@@ -2,12 +2,12 @@ package backend.academy.scrapper.service;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -32,8 +32,12 @@ public class UpdatesCheckerService {
     private final TgChatService tgChatService;
 
     public UpdatesCheckerService(
-        LinkDispatcher linkDispatcher, LinkDataRepository linkDataRepository, LinkRepository linkRepository, LinkMapper linkMapper, TgBotClient tgBotClient,
-        TgChatService tgChatService) {
+            LinkDispatcher linkDispatcher,
+            LinkDataRepository linkDataRepository,
+            LinkRepository linkRepository,
+            LinkMapper linkMapper,
+            TgBotClient tgBotClient,
+            TgChatService tgChatService) {
         this.linkDispatcher = linkDispatcher;
         this.linkDataRepository = linkDataRepository;
         this.linkRepository = linkRepository;
@@ -59,7 +63,8 @@ public class UpdatesCheckerService {
                 for (LinkData linkData : linkDataList) {
                     chatIds.add(tgChatService.getById(linkData.chatId()).chatId());
                 }
-                tgBotClient.sendUpdates(linkMapper.createLinkUpdate(link.id(), link.link(), "Update for link " + link.link(), chatIds));
+                tgBotClient.sendUpdates(
+                        linkMapper.createLinkUpdate(link.id(), link.link(), "Update for link " + link.link(), chatIds));
             }
         }
     }

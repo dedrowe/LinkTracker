@@ -1,7 +1,7 @@
 package backend.academy.scrapper.service;
 
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;

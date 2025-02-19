@@ -5,10 +5,10 @@ import com.pengrad.telegrambot.Callback;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.io.IOException;
 
 @Service
 @Slf4j
@@ -27,12 +27,13 @@ public class TgApiService {
             @Override
             public void onResponse(SendMessage sendMessage, SendResponse sendResponse) {
                 if (!sendResponse.isOk()) {
-                    log.error(sendResponse.description());
+                    log.error("Запрос вернул ошибку {}", sendResponse);
                 }
             }
+
             @Override
             public void onFailure(SendMessage sendMessage, IOException e) {
-                log.error(e.getMessage());
+                log.error("Произошла ошибка при запросе {}", e.getMessage());
             }
         });
     }

@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.repository.tgchat.InMemoryTgChatRepository;
+import backend.academy.shared.exceptions.BaseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

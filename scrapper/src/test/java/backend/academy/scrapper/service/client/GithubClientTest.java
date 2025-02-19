@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.dto.github.GHRepository;
 import backend.academy.scrapper.dto.github.Issue;
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.GithubClient;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -63,8 +63,7 @@ public class GithubClientTest {
 
         String url = "https://github.com/-1/-1/issues/-1";
 
-        assertThatThrownBy(() -> githubClient.getIssueUpdate(URI.create(url)))
-                .isInstanceOf(BaseException.class);
+        assertThatThrownBy(() -> githubClient.getIssueUpdate(URI.create(url))).isInstanceOf(BaseException.class);
         assertThatThrownBy(() -> githubClient.getIssueUpdate(URI.create(url)))
                 .hasMessage("Ошибка при обращении по ссылке " + url);
     }

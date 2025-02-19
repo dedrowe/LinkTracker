@@ -1,8 +1,8 @@
 package backend.academy.scrapper.exceptionHandling;
 
+import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
 import backend.academy.shared.dto.ApiErrorResponse;
 import backend.academy.shared.exceptions.ApiCallException;
-import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
 import backend.academy.shared.exceptions.BaseException;
 import java.util.Arrays;
 import org.springframework.http.HttpStatus;

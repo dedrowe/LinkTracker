@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;

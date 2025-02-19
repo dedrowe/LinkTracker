@@ -6,9 +6,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.GithubClient;
 import backend.academy.scrapper.service.apiClient.wrapper.GithubWrapper;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.extension.ExtendWith;

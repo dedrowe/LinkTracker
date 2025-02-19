@@ -1,12 +1,12 @@
 package backend.academy.scrapper.mapper;
 
+import backend.academy.scrapper.entity.LinkData;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
-import backend.academy.scrapper.entity.LinkData;
+import backend.academy.shared.dto.LinkUpdate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import backend.academy.shared.dto.LinkUpdate;
 import org.springframework.stereotype.Component;
 
 @Component

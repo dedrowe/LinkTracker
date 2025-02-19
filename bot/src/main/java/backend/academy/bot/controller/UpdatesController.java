@@ -1,7 +1,7 @@
 package backend.academy.bot.controller;
 
-import backend.academy.shared.dto.LinkUpdate;
 import backend.academy.bot.service.TgApiService;
+import backend.academy.shared.dto.LinkUpdate;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

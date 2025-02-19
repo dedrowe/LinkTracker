@@ -6,9 +6,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import backend.academy.scrapper.service.apiClient.wrapper.StackOverflowWrapper;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

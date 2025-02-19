@@ -47,8 +47,8 @@ public class TgChatService {
      */
     public TgChat getById(long id) {
         return tgChatRepository
-            .getById(id)
-            .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
+                .getById(id)
+                .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
     }
 
     /**

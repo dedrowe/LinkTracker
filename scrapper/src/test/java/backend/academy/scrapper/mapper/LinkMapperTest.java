@@ -2,9 +2,9 @@ package backend.academy.scrapper.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import backend.academy.scrapper.entity.LinkData;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
-import backend.academy.scrapper.entity.LinkData;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,5 @@
 package backend.academy.scrapper.service;
 
-import backend.academy.shared.dto.AddLinkRequest;
-import backend.academy.shared.dto.LinkResponse;
-import backend.academy.shared.dto.ListLinkResponse;
-import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
@@ -11,6 +7,10 @@ import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
+import backend.academy.shared.dto.AddLinkRequest;
+import backend.academy.shared.dto.LinkResponse;
+import backend.academy.shared.dto.ListLinkResponse;
+import backend.academy.shared.dto.RemoveLinkRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package backend.academy.scrapper.service.apiClient.wrapper;
 
-import backend.academy.shared.exceptions.BaseException;
 import backend.academy.scrapper.service.apiClient.GithubClient;
+import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
