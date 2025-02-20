@@ -46,7 +46,7 @@ public class UpdatesCheckerService {
         this.tgChatService = tgChatService;
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 10000)
     public void checkUpdates() {
         List<Link> links = linkRepository.getAll();
 
@@ -63,8 +63,8 @@ public class UpdatesCheckerService {
                 for (LinkData linkData : linkDataList) {
                     chatIds.add(tgChatService.getById(linkData.chatId()).chatId());
                 }
-                tgBotClient.sendUpdates(
-                        linkMapper.createLinkUpdate(link.id(), link.link(), "Update for link " + link.link(), chatIds));
+                tgBotClient.sendUpdates(linkMapper.createLinkUpdate(
+                        link.id(), link.link(), "Получено обновление по ссылке " + link.link(), chatIds));
             }
         }
     }

@@ -26,7 +26,7 @@ public class LinkDataController {
     }
 
     @GetMapping
-    public ListLinkResponse getByChatId(long chatId) {
+    public ListLinkResponse getByChatId(@RequestParam long chatId) {
         return linkDataService.getByChatId(chatId);
     }
 

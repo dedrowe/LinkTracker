@@ -26,6 +26,7 @@ public class TgBotClient {
 
     public void sendUpdates(LinkUpdate updates) {
         client.post()
+                .uri("/updates")
                 .body(updates)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {

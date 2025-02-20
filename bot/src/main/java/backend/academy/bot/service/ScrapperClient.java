@@ -38,9 +38,9 @@ public class ScrapperClient {
             ApiErrorResponse error = mapper.readValue(response.getBody(), ApiErrorResponse.class);
             log.error("Ошибка {}", error);
             if (error.code().equals("500")) {
-                throw new ApiCallException("Произошла ошибка", Integer.getInteger(error.code()));
+                throw new ApiCallException("Произошла ошибка", Integer.parseInt(error.code()));
             }
-            throw new ApiCallException(error.description(), error.exceptionMessage(), Integer.getInteger(error.code()));
+            throw new ApiCallException(error.description(), error.exceptionMessage(), Integer.parseInt(error.code()));
         });
     }
 
