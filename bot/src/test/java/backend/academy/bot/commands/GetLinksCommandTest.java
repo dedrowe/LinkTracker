@@ -1,22 +1,23 @@
 package backend.academy.bot.commands;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+
 import backend.academy.bot.service.ScrapperClient;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.List;
-import java.util.Optional;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GetLinksCommandTest {
@@ -58,12 +59,16 @@ public class GetLinksCommandTest {
     @Test
     @SuppressWarnings("MisleadingEscapedSpace")
     public void notEmptyListTest() {
-        when(client.getLinks(anyLong())).thenReturn(new ListLinkResponse(List.of(
-            new LinkResponse(1L, "https://example.com", List.of("tag1", "tag2"), List.of("user=user1")),
-            new LinkResponse(1L, "https://example2.com", List.of("tag3", "tag4"), List.of())
-        ), 2));
+        when(client.getLinks(anyLong()))
+                .thenReturn(new ListLinkResponse(
+                        List.of(
+                                new LinkResponse(
+                                        1L, "https://example.com", List.of("tag1", "tag2"), List.of("user=user1")),
+                                new LinkResponse(1L, "https://example2.com", List.of("tag3", "tag4"), List.of())),
+                        2));
 
-        String expectedResult = """
+        String expectedResult =
+                """
            Ссылка: https://example.com
            Тэги: tag1, tag2
            Фильтры: user=user1

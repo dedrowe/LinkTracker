@@ -1,5 +1,8 @@
 package backend.academy.bot.commands;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import backend.academy.bot.service.ScrapperClient;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
@@ -11,8 +14,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RegisterChatCommandTest {
@@ -40,10 +41,7 @@ public class RegisterChatCommandTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-        "/start",
-        "/start 123123"
-    })
+    @ValueSource(strings = {"/start", "/start 123123"})
     public void validCommandParseTest(String command) {
 
         assertThat(commandExecutor.execute(update)).isEmpty();
