@@ -38,7 +38,7 @@ public class StackOverflowClient extends ApiClient {
         if (responseBody == null || responseBody.items().isEmpty()) {
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
-        Instant instant = Instant.ofEpochMilli(responseBody.items().getFirst().lastActivityDate());
+        Instant instant = Instant.ofEpochSecond(responseBody.items().getFirst().lastActivityDate());
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
