@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.fail;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.repository.linkdata.InMemoryLinkDataRepository;
 import backend.academy.shared.exceptions.BaseException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,10 +24,10 @@ public class InMemoryLinkDataRepositoryTest {
     @BeforeEach
     public void setUp() {
         List<LinkData> data = new ArrayList<>();
-        data.add(new LinkData(1L, 1, 1, new ArrayList<>(), new ArrayList<>(), LocalDateTime.now()));
-        data.add(new LinkData(2L, 2, 1, new ArrayList<>(), new ArrayList<>(), LocalDateTime.now()));
-        data.add(new LinkData(3L, 3, 2, new ArrayList<>(), new ArrayList<>(), LocalDateTime.now()));
-        data.add(new LinkData(4L, 4, 2, new ArrayList<>(), new ArrayList<>(), LocalDateTime.now()));
+        data.add(new LinkData(1L, 1, 1, new ArrayList<>(), new ArrayList<>()));
+        data.add(new LinkData(2L, 2, 1, new ArrayList<>(), new ArrayList<>()));
+        data.add(new LinkData(3L, 3, 2, new ArrayList<>(), new ArrayList<>()));
+        data.add(new LinkData(4L, 4, 2, new ArrayList<>(), new ArrayList<>()));
         repository = new InMemoryLinkDataRepository(data);
     }
 
