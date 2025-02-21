@@ -17,7 +17,11 @@ public class TgBotClient {
 
     @Autowired
     public TgBotClient(ScrapperConfig config) {
-        client = RestClient.create(config.botUrl());
+        String baseUrl = "http://localhost:8080";
+        if (!config.botUrl().equals("${BOT_URL}")) {
+            baseUrl = config.botUrl();
+        }
+        client = RestClient.create(baseUrl);
     }
 
     public TgBotClient(RestClient client) {
