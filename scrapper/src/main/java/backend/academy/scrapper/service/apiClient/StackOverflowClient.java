@@ -6,7 +6,7 @@ import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -39,7 +39,7 @@ public class StackOverflowClient extends ApiClient {
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         Instant instant = Instant.ofEpochSecond(responseBody.items().getFirst().lastActivityDate());
-        return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        return instant.atZone(ZoneOffset.UTC).toLocalDateTime();
     }
 
     @Override
