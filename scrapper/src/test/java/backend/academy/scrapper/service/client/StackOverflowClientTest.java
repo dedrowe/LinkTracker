@@ -14,7 +14,7 @@ import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +42,7 @@ public class StackOverflowClientTest {
         response.items(List.of(question));
 
         LocalDateTime expectedTime =
-                Instant.ofEpochSecond(123123L).atZone(ZoneId.systemDefault()).toLocalDateTime();
+                Instant.ofEpochSecond(123123L).atZone(ZoneOffset.UTC).toLocalDateTime();
 
         when(client.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersSpec);
