@@ -20,7 +20,7 @@ public class StackOverflowWrapper implements ApiClientWrapper {
     @Override
     public LocalDateTime getLastUpdate(URI uri) {
         String[] path = uri.getPath().split("/");
-        if (path.length == 4 && path[2].equals("questions")) {
+        if ((path.length == 3 || path.length == 4) && path[1].equals("questions")) {
             return apiClient.getQuestionUpdate(uri);
         } else {
             throw new BaseException("Ресурс не поддерживается " + uri);

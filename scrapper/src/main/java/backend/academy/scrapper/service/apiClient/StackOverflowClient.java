@@ -14,8 +14,14 @@ import org.springframework.web.client.RestClient;
 @Component
 public class StackOverflowClient extends ApiClient {
 
+    private String key;
+
+    private String accessToken;
+
     @Autowired
     public StackOverflowClient(ScrapperConfig config) {
+        key = config.stackOverflow().key();
+        accessToken = config.stackOverflow().accessToken();
         String baseUrl = "https://api.stackexchange.com/2.3";
         if (!config.SOBaseUrl().equals("${SO_URL}")) {
             baseUrl = config.SOBaseUrl();
@@ -34,5 +40,20 @@ public class StackOverflowClient extends ApiClient {
         }
         Instant instant = Instant.ofEpochMilli(responseBody.items().getFirst().lastActivityDate());
         return instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    @Override
+    protected RestClient.ResponseSpec getRequest(URI uri) {
+        String[] pathTokens = uri.getPath().split("/");
+        String path;
+        if (pathTokens.length == 4) {
+            path = pathTokens[0] + "/" + pathTokens[1] + "/" + pathTokens[2];
+        } else {
+            path = uri.getPath();
+        }
+        String finalPath = path;
+        return setStatusHandlers(client.get().uri(uriBuilder -> uriBuilder.path(finalPath)
+            .queryParam("key", key).queryParam("access_token", accessToken)
+            .queryParam("site", "stackoverflow").build()).retrieve());
     }
 }
