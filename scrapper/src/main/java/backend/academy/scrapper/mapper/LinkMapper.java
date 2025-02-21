@@ -4,8 +4,6 @@ import backend.academy.scrapper.entity.LinkData;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.LinkUpdate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +21,6 @@ public class LinkMapper {
         linkData.chatId(chatId);
         linkData.tags(addLinkRequest.tags());
         linkData.filters(addLinkRequest.filters());
-        linkData.lastCheck(LocalDateTime.now(ZoneOffset.UTC));
 
         return linkData;
     }

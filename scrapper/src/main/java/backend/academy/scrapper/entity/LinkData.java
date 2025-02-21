@@ -1,7 +1,5 @@
 package backend.academy.scrapper.entity;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,13 +22,10 @@ public class LinkData {
 
     private List<String> filters;
 
-    private LocalDateTime lastCheck;
-
     public LinkData(long linkId, long chatId, List<String> tags, List<String> filters) {
         this.linkId = linkId;
         this.chatId = chatId;
         this.tags = tags;
         this.filters = filters;
-        lastCheck = LocalDateTime.now(ZoneOffset.UTC);
     }
 }
