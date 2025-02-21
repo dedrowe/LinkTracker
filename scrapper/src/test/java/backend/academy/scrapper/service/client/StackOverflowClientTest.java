@@ -42,7 +42,7 @@ public class StackOverflowClientTest {
         response.items(List.of(question));
 
         LocalDateTime expectedTime =
-                Instant.ofEpochMilli(123123L).atZone(ZoneId.systemDefault()).toLocalDateTime();
+                Instant.ofEpochSecond(123123L).atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         when(client.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersSpec);
