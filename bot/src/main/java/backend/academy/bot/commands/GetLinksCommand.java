@@ -23,19 +23,21 @@ public class GetLinksCommand extends TgBotCommand {
         StringBuilder sb = new StringBuilder();
         for (LinkResponse link : response.links()) {
             sb.append("Ссылка: ").append(link.url()).append('\n').append("Тэги: ");
-            for (String tag : link.tags()) {
-                sb.append(tag).append('\n');
+            for (int i = 0; i < link.tags().size(); ++i) {
+                sb.append(link.tags().get(i));
+                if (i < link.tags().size() - 1) {
+                    sb.append(", ");
+                }
             }
-            if (link.tags().isEmpty()) {
-                sb.append('\n');
-            }
+            sb.append('\n');
             sb.append("Фильтры: ");
-            for (String filter : link.filters()) {
-                sb.append(filter).append('\n');
+            for (int i = 0; i < link.filters().size(); ++i) {
+                sb.append(link.filters().get(i));
+                if (i < link.filters().size() - 1) {
+                    sb.append(", ");
+                }
             }
-            if (link.filters().isEmpty()) {
-                sb.append('\n');
-            }
+            sb.append('\n');
         }
         return Optional.of(sb.toString());
     }
