@@ -26,17 +26,17 @@ public class LinkDataController {
     }
 
     @GetMapping
-    public ListLinkResponse getByChatId(@RequestParam long chatId) {
+    public ListLinkResponse getByChatId(@RequestParam("Tg-Chat-Id") long chatId) {
         return linkDataService.getByChatId(chatId);
     }
 
     @PostMapping
-    public LinkResponse trackLink(@RequestParam long chatId, @RequestBody AddLinkRequest request) {
+    public LinkResponse trackLink(@RequestParam("Tg-Chat-Id") long chatId, @RequestBody AddLinkRequest request) {
         return linkDataService.trackLink(chatId, request);
     }
 
     @DeleteMapping
-    public LinkResponse untrackLink(@RequestParam long chatId, @RequestBody RemoveLinkRequest request) {
+    public LinkResponse untrackLink(@RequestParam("Tg-Chat-Id") long chatId, @RequestBody RemoveLinkRequest request) {
         return linkDataService.untrackLink(chatId, request);
     }
 }

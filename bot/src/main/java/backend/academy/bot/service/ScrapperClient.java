@@ -57,7 +57,7 @@ public class ScrapperClient {
         return setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
-                                .queryParam("chatId", chatId)
+                                .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .retrieve())
                 .toEntity(ListLinkResponse.class)
@@ -68,7 +68,7 @@ public class ScrapperClient {
         setStatusHandler(client.post()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
-                                .queryParam("chatId", chatId)
+                                .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .body(request)
                         .retrieve())
@@ -79,7 +79,7 @@ public class ScrapperClient {
         setStatusHandler(client.method(HttpMethod.DELETE)
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
-                                .queryParam("chatId", chatId)
+                                .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .body(request)
                         .retrieve())
