@@ -11,7 +11,11 @@ import org.springframework.stereotype.Component;
 public class LinkMapper {
 
     public LinkResponse createLinkResponse(LinkData linkData, String link) {
-        return new LinkResponse(linkData.id(), link, linkData.tags(), linkData.filters());
+        return new LinkResponse(
+                linkData.id(),
+                link,
+                linkData.tags() == null ? List.of() : linkData.tags(),
+                linkData.filters() == null ? List.of() : linkData.filters());
     }
 
     public LinkData createLinkData(AddLinkRequest addLinkRequest, long chatId, long linkId) {
