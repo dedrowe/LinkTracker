@@ -4,6 +4,7 @@ import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.shared.dto.LinkUpdate;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -35,11 +36,15 @@ public class TgBotClient {
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                     String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+                    MDC.put("code", response.getStatusCode().toString());
                     log.error(body);
+                    MDC.clear();
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
+                    MDC.put("code", response.getStatusCode().toString());
                     log.error(body);
+                    MDC.clear();
                 })
                 .toBodilessEntity();
     }

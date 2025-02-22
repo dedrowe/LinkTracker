@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Scope("singleton")
+@Slf4j
 public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     private final List<LinkData> data;
@@ -64,6 +67,10 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
     public Future<Void> create(LinkData linkData) {
         Optional<LinkData> curLink = getByChatIdLinkIdInternal(linkData.chatId(), linkData.linkId());
         if (curLink.isPresent()) {
+            MDC.put("linkId", linkData.linkId());
+            MDC.put("chatId", linkData.chatId());
+            log.error("Ссылка уже зарегистрирована");
+            MDC.clear();
             throw new BaseException("Ссылка уже зарегистрирована");
         }
         linkData.id(idSequence++);

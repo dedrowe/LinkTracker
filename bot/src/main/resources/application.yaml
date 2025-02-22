@@ -14,6 +14,11 @@ spring:
   config:
     import: optional:.env.properties
 
+logging:
+  structured:
+    format:
+      console: ecs
+
 server:
   port: 8080
 

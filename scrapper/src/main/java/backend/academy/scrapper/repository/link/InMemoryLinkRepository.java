@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Scope("singleton")
+@Slf4j
 public class InMemoryLinkRepository implements LinkRepository {
 
     private final List<Link> links;
@@ -51,6 +54,9 @@ public class InMemoryLinkRepository implements LinkRepository {
     @Async
     public Future<Void> create(Link link) {
         if (getByLinkInternal(link.link()).isPresent()) {
+            MDC.put("link", link.link());
+            log.error("Эта ссылка уже существует");
+            MDC.clear();
             throw new BaseException("Эта ссылка уже существует");
         }
         link.id(idSequence++);

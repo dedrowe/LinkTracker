@@ -7,12 +7,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Scope("singleton")
+@Slf4j
 public class InMemoryTgChatRepository implements TgChatRepository {
 
     private final List<TgChat> data;
@@ -45,6 +48,9 @@ public class InMemoryTgChatRepository implements TgChatRepository {
     public Future<Void> create(TgChat tgChat) {
         Optional<TgChat> curChat = getByChatIdInternal(tgChat.chatId());
         if (curChat.isPresent()) {
+            MDC.put("id", tgChat.chatId());
+            log.error("Чат с таким id уже зарегистрирован");
+            MDC.clear();
             throw new BaseException("Чат с таким id уже зарегистрирован");
         }
         tgChat.id(idSequence++);

@@ -7,11 +7,14 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
+@Slf4j
 public class StackOverflowClient extends ApiClient {
 
     private String key;
@@ -36,6 +39,9 @@ public class StackOverflowClient extends ApiClient {
     public LocalDateTime getQuestionUpdate(URI uri) {
         SOResponse responseBody = getRequest(uri).body(SOResponse.class);
         if (responseBody == null || responseBody.items().isEmpty()) {
+            MDC.put("url", uri.toString());
+            log.error("Вопрос не найден");
+            MDC.clear();
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         Instant instant = Instant.ofEpochSecond(responseBody.items().getFirst().lastActivityDate());

@@ -13,15 +13,17 @@ import backend.academy.shared.exceptions.BaseException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class UpdatesCheckerService {
 
     private final LinkDispatcher linkDispatcher;
@@ -81,6 +83,10 @@ public class UpdatesCheckerService {
             ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
             client.getLastUpdate(uri);
         } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
+            MDC.put("url", url);
+            MDC.put("error", e.getMessage());
+            log.info("Ошибка в синтаксисе ссылки");
+            MDC.clear();
             throw new BaseException("Ошибка в синтаксисе ссылки", e);
         }
     }

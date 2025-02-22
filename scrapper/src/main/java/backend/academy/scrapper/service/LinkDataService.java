@@ -16,10 +16,13 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class LinkDataService {
 
     private final LinkDataRepository linkDataRepository;
@@ -51,9 +54,13 @@ public class LinkDataService {
         List<LinkData> links = unwrap(linkDataRepository.getByChatId(tgChat.id()));
         List<LinkResponse> linkResponses = new ArrayList<>(links.size());
         for (LinkData linkData : links) {
-            Link link = unwrap(linkRepository.getById(linkData.linkId()))
-                    .orElseThrow(
-                            () -> new RuntimeException("Произошла ошибка при получении зарегистрированных ссылок"));
+            Link link = unwrap(linkRepository.getById(linkData.linkId())).orElseThrow(() -> {
+                MDC.put("chatId", String.valueOf(chatId));
+                MDC.put("linkId", String.valueOf(linkData.linkId()));
+                log.error("Произошла ошибка при получении зарегистрированных ссылок");
+                MDC.clear();
+                return new RuntimeException("Произошла ошибка при получении зарегистрированных ссылок");
+            });
             linkResponses.add(linkMapper.createLinkResponse(linkData, link.link()));
         }
         return new ListLinkResponse(linkResponses, linkResponses.size());
@@ -82,10 +89,21 @@ public class LinkDataService {
 
     public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
-        Link link = unwrap(linkRepository.getByLink(request.link()))
-                .orElseThrow(() -> new NotFoundException("Ссылка не найдена"));
+        Link link = unwrap(linkRepository.getByLink(request.link())).orElseThrow(() -> {
+            MDC.put("chatId", String.valueOf(chatId));
+            MDC.put("link", String.valueOf(request.link()));
+            log.error("Ссылка не найдена");
+            MDC.clear();
+            return new NotFoundException("Ссылка не найдена");
+        });
         LinkData linkData = unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()))
-                .orElseThrow(() -> new NotFoundException("Ссылка не найдена"));
+                .orElseThrow(() -> {
+                    MDC.put("chatId", String.valueOf(tgChat.id()));
+                    MDC.put("linkId", String.valueOf(link.id()));
+                    log.error("Данные о ссылке не найдены");
+                    MDC.clear();
+                    return new NotFoundException("Данные о ссылке не найдены");
+                });
         unwrap(linkDataRepository.delete(linkData));
         return linkMapper.createLinkResponse(linkData, link.link());
     }

@@ -7,11 +7,14 @@ import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 @Component
+@Slf4j
 public class GithubClient extends ApiClient {
 
     @Autowired
@@ -35,6 +38,9 @@ public class GithubClient extends ApiClient {
     public LocalDateTime getIssueUpdate(URI uri) {
         Issue issue = getRequest(uri).body(Issue.class);
         if (issue == null) {
+            MDC.put("url", uri.toString());
+            log.error("Issue не найден");
+            MDC.clear();
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         return ZonedDateTime.parse(issue.updatedAt()).toLocalDateTime();
@@ -43,6 +49,9 @@ public class GithubClient extends ApiClient {
     public LocalDateTime getRepositoryUpdate(URI uri) {
         GHRepository repository = getRequest(uri).body(GHRepository.class);
         if (repository == null) {
+            MDC.put("url", uri.toString());
+            log.error("Репозиторий не найден");
+            MDC.clear();
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         return ZonedDateTime.parse(repository.updatedAt()).toLocalDateTime();

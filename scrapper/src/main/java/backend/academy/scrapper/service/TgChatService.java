@@ -7,10 +7,14 @@ import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.utils.FutureUnwrapper;
 import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class TgChatService {
 
     public final TgChatRepository tgChatRepository;
@@ -29,8 +33,7 @@ public class TgChatService {
     }
 
     public void deleteTgChat(long chatId) {
-        TgChat tgChat = FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId))
-                .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
+        TgChat tgChat = checkOptional(FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId)), chatId);
         List<LinkData> links = FutureUnwrapper.unwrap(linkDataRepository.getByChatId(tgChat.id()));
         for (LinkData linkData : links) {
             FutureUnwrapper.unwrap(linkDataRepository.delete(linkData));
@@ -46,8 +49,7 @@ public class TgChatService {
      * @throws NotFoundException если чат не найден
      */
     public TgChat getById(long id) {
-        return FutureUnwrapper.unwrap(tgChatRepository.getById(id))
-                .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
+        return checkOptional(FutureUnwrapper.unwrap(tgChatRepository.getById(id)), id);
     }
 
     /**
@@ -58,7 +60,15 @@ public class TgChatService {
      * @throws NotFoundException если чат не найден
      */
     public TgChat getByChatId(long chatId) {
-        return FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId))
-                .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
+        return checkOptional(FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId)), chatId);
+    }
+
+    private TgChat checkOptional(Optional<TgChat> chat, long id) {
+        return chat.orElseThrow(() -> {
+            MDC.put("chatId", String.valueOf(id));
+            log.error("Чат с таким id не зарегистрирован");
+            MDC.clear();
+            return new NotFoundException("Чат с таким id не зарегистрирован");
+        });
     }
 }

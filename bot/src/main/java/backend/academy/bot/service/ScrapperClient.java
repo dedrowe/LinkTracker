@@ -8,6 +8,7 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.shared.exceptions.ApiCallException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
@@ -40,7 +41,13 @@ public class ScrapperClient {
     private RestClient.ResponseSpec setStatusHandler(RestClient.ResponseSpec responseSpec) {
         return responseSpec.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
             ApiErrorResponse error = mapper.readValue(response.getBody(), ApiErrorResponse.class);
-            log.error("Ошибка {}", error);
+            MDC.put("url", request.getURI().toString());
+            MDC.put("code", error.code());
+            MDC.put("description", error.description());
+            MDC.put("exceptionName", error.exceptionName());
+            MDC.put("exceptionMessage", error.exceptionMessage());
+            log.error("Произошла ошибка");
+            MDC.clear();
             if (error.code().equals("500")) {
                 throw new ApiCallException("Произошла ошибка", Integer.parseInt(error.code()));
             }

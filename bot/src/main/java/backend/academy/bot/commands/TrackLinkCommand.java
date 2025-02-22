@@ -9,9 +9,12 @@ import backend.academy.bot.stateStorage.state.LinkTrackState;
 import com.pengrad.telegrambot.model.Update;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 @Component("/track")
+@Slf4j
 public class TrackLinkCommand extends TgBotCommand {
 
     private final TrackStateStorage storage;
@@ -39,6 +42,9 @@ public class TrackLinkCommand extends TgBotCommand {
     private Optional<String> setLink(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
+            MDC.put("command", update.message().text());
+            log.error("Неверный формат команды");
+            MDC.clear();
             throw new InvalidCommandSyntaxException("Неверный формат команды, ожидается: /track <link>");
         }
         LinkState linkState = new LinkState();
@@ -64,6 +70,9 @@ public class TrackLinkCommand extends TgBotCommand {
             for (String filter : command) {
                 String[] tokens = filter.split(":");
                 if (tokens.length != 2 || tokens[0].isEmpty() || tokens[1].isEmpty()) {
+                    MDC.put("command", update.message().text());
+                    log.error("Неверный формат фильтров");
+                    MDC.clear();
                     throw new InvalidCommandSyntaxException("Фильтры должны указываться в формате key:value");
                 }
             }
