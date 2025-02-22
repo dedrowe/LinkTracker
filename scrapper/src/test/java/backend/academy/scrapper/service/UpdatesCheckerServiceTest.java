@@ -68,6 +68,7 @@ public class UpdatesCheckerServiceTest {
                                 new LinkData(1L, 1L, 1L, List.of(), List.of()),
                                 new LinkData(1L, 1L, 1L, List.of(), List.of()))));
         when(tgChatService.getById(anyLong())).thenReturn(new TgChat(1L, 123L));
+        when(linkRepository.update(any())).thenReturn(CompletableFuture.completedFuture(null));
     }
 
     @Test
