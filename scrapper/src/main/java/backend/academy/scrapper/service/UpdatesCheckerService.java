@@ -1,5 +1,7 @@
 package backend.academy.scrapper.service;
 
+import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
+
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.mapper.LinkMapper;
@@ -13,6 +15,7 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -46,9 +49,9 @@ public class UpdatesCheckerService {
         this.tgChatService = tgChatService;
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     public void checkUpdates() {
-        List<Link> links = linkRepository.getAll();
+        List<Link> links = unwrap(linkRepository.getAll());
 
         for (Link link : links) {
             URI uri = URI.create(link.link());
@@ -56,9 +59,9 @@ public class UpdatesCheckerService {
             LocalDateTime lastUpdate = client.getLastUpdate(uri);
             if (lastUpdate.isAfter(link.lastUpdate())) {
                 link.lastUpdate(lastUpdate);
-                linkRepository.update(link);
+                unwrap(linkRepository.update(link));
 
-                List<LinkData> linkDataList = linkDataRepository.getByLinkId(link.id());
+                List<LinkData> linkDataList = unwrap(linkDataRepository.getByLinkId(link.id()));
                 List<Long> chatIds = new ArrayList<>();
                 for (LinkData linkData : linkDataList) {
                     chatIds.add(tgChatService.getById(linkData.chatId()).chatId());

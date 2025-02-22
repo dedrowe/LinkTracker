@@ -5,7 +5,10 @@ import backend.academy.shared.exceptions.BaseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -26,33 +29,49 @@ public class InMemoryTgChatRepository implements TgChatRepository {
     }
 
     @Override
-    public Optional<TgChat> getById(long id) {
-        return data.stream().filter(chat -> chat.id() == id).findFirst();
+    @Async
+    public Future<Optional<TgChat>> getById(long id) {
+        return CompletableFuture.completedFuture(getByIdInternal(id));
     }
 
     @Override
-    public Optional<TgChat> getByChatId(long chatId) {
-        return data.stream().filter(chat -> chat.chatId() == chatId).findFirst();
+    @Async
+    public Future<Optional<TgChat>> getByChatId(long chatId) {
+        return CompletableFuture.completedFuture(getByChatIdInternal(chatId));
     }
 
     @Override
-    public void create(TgChat tgChat) {
-        Optional<TgChat> curChat = getByChatId(tgChat.chatId());
+    @Async
+    public Future<Void> create(TgChat tgChat) {
+        Optional<TgChat> curChat = getByChatIdInternal(tgChat.chatId());
         if (curChat.isPresent()) {
             throw new BaseException("Чат с таким id уже зарегистрирован");
         }
         tgChat.id(idSequence++);
         data.add(tgChat);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public void deleteById(long id) {
-        Optional<TgChat> chat = getById(id);
+    @Async
+    public Future<Void> deleteById(long id) {
+        Optional<TgChat> chat = getByIdInternal(id);
         chat.ifPresent(data::remove);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public void delete(TgChat tgChat) {
+    @Async
+    public Future<Void> delete(TgChat tgChat) {
         data.remove(tgChat);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private Optional<TgChat> getByIdInternal(long id) {
+        return data.stream().filter(chat -> chat.id() == id).findFirst();
+    }
+
+    private Optional<TgChat> getByChatIdInternal(long chatId) {
+        return data.stream().filter(chat -> chat.chatId() == chatId).findFirst();
     }
 }

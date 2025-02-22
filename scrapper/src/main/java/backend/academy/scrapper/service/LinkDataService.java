@@ -1,5 +1,7 @@
 package backend.academy.scrapper.service;
 
+import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
+
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
@@ -46,11 +48,10 @@ public class LinkDataService {
 
     public ListLinkResponse getByChatId(long chatId) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
-        List<LinkData> links = linkDataRepository.getByChatId(tgChat.id());
+        List<LinkData> links = unwrap(linkDataRepository.getByChatId(tgChat.id()));
         List<LinkResponse> linkResponses = new ArrayList<>(links.size());
         for (LinkData linkData : links) {
-            Link link = linkRepository
-                    .getById(linkData.linkId())
+            Link link = unwrap(linkRepository.getById(linkData.linkId()))
                     .orElseThrow(
                             () -> new RuntimeException("Произошла ошибка при получении зарегистрированных ссылок"));
             linkResponses.add(linkMapper.createLinkResponse(linkData, link.link()));
@@ -61,29 +62,31 @@ public class LinkDataService {
     public LinkResponse trackLink(long chatId, AddLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         updatesCheckerService.checkResource(request.link());
-        Optional<Link> optionalLink = linkRepository.getByLink(request.link());
+
+        Optional<Link> optionalLink = unwrap(linkRepository.getByLink(request.link()));
         if (optionalLink.isEmpty()) {
-            linkRepository.create(new Link(request.link()));
-            optionalLink = linkRepository.getByLink(request.link());
+            unwrap(linkRepository.create(new Link(request.link())));
+            optionalLink = unwrap(linkRepository.getByLink(request.link()));
         }
         Link link = optionalLink.orElseThrow();
+
         LinkData linkData = linkMapper.createLinkData(request, tgChat.id(), link.id());
-        if (linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()).isEmpty()) {
-            linkDataRepository.create(linkData);
+        if (unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id())).isEmpty()) {
+            unwrap(linkDataRepository.create(linkData));
         } else {
-            linkDataRepository.update(linkData);
+            unwrap(linkDataRepository.update(linkData));
         }
+
         return linkMapper.createLinkResponse(linkData, link.link());
     }
 
     public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
-        Link link =
-                linkRepository.getByLink(request.link()).orElseThrow(() -> new NotFoundException("Ссылка не найдена"));
-        LinkData linkData = linkDataRepository
-                .getByChatIdLinkId(tgChat.id(), link.id())
+        Link link = unwrap(linkRepository.getByLink(request.link()))
                 .orElseThrow(() -> new NotFoundException("Ссылка не найдена"));
-        linkDataRepository.delete(linkData);
+        LinkData linkData = unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()))
+                .orElseThrow(() -> new NotFoundException("Ссылка не найдена"));
+        unwrap(linkDataRepository.delete(linkData));
         return linkMapper.createLinkResponse(linkData, link.link());
     }
 }

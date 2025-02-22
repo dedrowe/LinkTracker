@@ -5,6 +5,7 @@ import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
+import backend.academy.scrapper.utils.FutureUnwrapper;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,18 +25,17 @@ public class TgChatService {
 
     public void registerTgChat(long chatId) {
         TgChat tgChat = new TgChat(chatId);
-        tgChatRepository.create(tgChat);
+        FutureUnwrapper.unwrap(tgChatRepository.create(tgChat));
     }
 
     public void deleteTgChat(long chatId) {
-        TgChat tgChat = tgChatRepository
-                .getByChatId(chatId)
+        TgChat tgChat = FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId))
                 .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
-        List<LinkData> links = linkDataRepository.getByChatId(tgChat.id());
+        List<LinkData> links = FutureUnwrapper.unwrap(linkDataRepository.getByChatId(tgChat.id()));
         for (LinkData linkData : links) {
-            linkDataRepository.delete(linkData);
+            FutureUnwrapper.unwrap(linkDataRepository.delete(linkData));
         }
-        tgChatRepository.delete(tgChat);
+        FutureUnwrapper.unwrap(tgChatRepository.delete(tgChat));
     }
 
     /**
@@ -46,8 +46,7 @@ public class TgChatService {
      * @throws NotFoundException если чат не найден
      */
     public TgChat getById(long id) {
-        return tgChatRepository
-                .getById(id)
+        return FutureUnwrapper.unwrap(tgChatRepository.getById(id))
                 .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
     }
 
@@ -59,8 +58,7 @@ public class TgChatService {
      * @throws NotFoundException если чат не найден
      */
     public TgChat getByChatId(long chatId) {
-        return tgChatRepository
-                .getByChatId(chatId)
+        return FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId))
                 .orElseThrow(() -> new NotFoundException("Чат с таким id не зарегистрирован"));
     }
 }

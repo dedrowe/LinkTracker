@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ExceptionsHandler {
 
     @ExceptionHandler
-    public ResponseEntity<ApiErrorResponse> exception(NotFoundException ex) {
+    public ResponseEntity<ApiErrorResponse> handle(NotFoundException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ex.getDescription(),
                 String.valueOf(ex.getCode()),
@@ -27,7 +27,7 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ApiErrorResponse> exception(ApiCallException ex) {
+    public ResponseEntity<ApiErrorResponse> handle(ApiCallException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ex.getDescription(),
                 String.valueOf(ex.getCode()),
@@ -40,7 +40,7 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ApiErrorResponse> exception(BaseException ex) {
+    public ResponseEntity<ApiErrorResponse> handle(BaseException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ex.getDescription(),
                 String.valueOf(ex.getCode()),
@@ -53,7 +53,7 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ApiErrorResponse> exception(Exception ex) {
+    public ResponseEntity<ApiErrorResponse> handle(Exception ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 "Некорректные параметры запроса",
                 "500",

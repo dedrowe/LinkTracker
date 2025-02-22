@@ -3,28 +3,25 @@ package backend.academy.scrapper.repository.linkdata;
 import backend.academy.scrapper.entity.LinkData;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 public interface LinkDataRepository {
 
-    Optional<LinkData> getById(long id);
+    Future<List<LinkData>> getAll();
 
-    List<LinkData> getAll();
+    Future<Optional<LinkData>> getById(long id);
 
-    List<LinkData> getAll(int offset, int limit);
+    Future<List<LinkData>> getByChatId(long chatId);
 
-    List<LinkData> getByChatId(long chatId);
+    Future<List<LinkData>> getByLinkId(long linkId);
 
-    List<LinkData> getByLinkId(long linkId);
+    Future<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId);
 
-    List<LinkData> getByChatId(long chatId, int offset, int limit);
+    Future<Void> create(LinkData linkData);
 
-    Optional<LinkData> getByChatIdLinkId(long chatId, long linkId);
+    Future<Void> update(LinkData link);
 
-    void create(LinkData linkData);
+    Future<Void> deleteById(long id);
 
-    void update(LinkData link);
-
-    void deleteById(long id);
-
-    void delete(LinkData link);
+    Future<Void> delete(LinkData link);
 }
