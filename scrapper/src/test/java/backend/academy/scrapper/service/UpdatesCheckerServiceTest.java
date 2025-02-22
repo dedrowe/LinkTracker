@@ -17,6 +17,7 @@ import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.GithubWrapper;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,17 +56,17 @@ public class UpdatesCheckerServiceTest {
     @BeforeEach
     public void setUp() {
         when(linkRepository.getAll())
-                .thenReturn(List.of(
+                .thenReturn(CompletableFuture.completedFuture(List.of(
                         new Link(1L, "https://example.com", LocalDateTime.of(2025, 2, 21, 0, 0)),
-                        new Link(2L, "https://example2.com", LocalDateTime.of(2025, 2, 21, 0, 0))));
+                        new Link(2L, "https://example2.com", LocalDateTime.of(2025, 2, 21, 0, 0)))));
         when(linkDispatcher.dispatchLink(any())).thenReturn(githubClient);
         when(githubClient.getLastUpdate(any())).thenReturn(LocalDateTime.of(2025, 2, 22, 0, 0));
         when(linkDataRepository.getByLinkId(anyLong()))
                 .thenReturn(
-                        List.of(new LinkData(1L, 1L, 1L, List.of(), List.of())),
-                        List.of(
+                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of(
                                 new LinkData(1L, 1L, 1L, List.of(), List.of()),
-                                new LinkData(1L, 1L, 1L, List.of(), List.of())));
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()))));
         when(tgChatService.getById(anyLong())).thenReturn(new TgChat(1L, 123L));
     }
 

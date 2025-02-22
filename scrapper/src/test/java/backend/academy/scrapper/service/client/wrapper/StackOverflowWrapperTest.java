@@ -25,9 +25,9 @@ public class StackOverflowWrapperTest {
     @ParameterizedTest
     @ValueSource(
             strings = {
-                "https://api.stackexchange.com/2.3/questions/-1",
-                "https://api.stackexchange.com/2.3/questions/-1/",
-                "https://api.stackexchange.com/2.3/questions/123123"
+                "https://stackoverflow.com/questions/-1",
+                "https://stackoverflow.com/questions/-1/",
+                "https://stackoverflow.com/questions/123123"
             })
     public void getQuestionUpdateTest(String url) {
         URI uri = URI.create(url);
@@ -40,9 +40,9 @@ public class StackOverflowWrapperTest {
     @ParameterizedTest
     @ValueSource(
             strings = {
-                "https://api.stackexchange.com/2.3/questions/-1/-1",
-                "https://api.stackexchange.com/2.3/questions/",
-                "https://api.stackexchange.com/2.3"
+                "https://stackoverflow.com/questions/-1/-1/-1",
+                "https://stackoverflow.com/questions/",
+                "https://stackoverflow.com"
             })
     public void getWrongUrlUpdateTest(String url) {
         URI uri = URI.create(url);

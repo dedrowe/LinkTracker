@@ -3,7 +3,6 @@ package backend.academy.scrapper.service.client;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,10 +15,13 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.function.Function;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriBuilder;
 
 @ExtendWith(MockitoExtension.class)
 public class StackOverflowClientTest {
@@ -34,6 +36,15 @@ public class StackOverflowClientTest {
 
     private final RestClient.ResponseSpec responseSpec = mock(RestClient.ResponseSpec.class);
 
+    @BeforeEach
+    void setUp() {
+        when(client.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri((Function<UriBuilder, URI>) any())).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+
+        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
+    }
+
     @Test
     public void getQuestionsSuccessTest() {
         SOResponse response = new SOResponse();
@@ -44,11 +55,6 @@ public class StackOverflowClientTest {
         LocalDateTime expectedTime =
                 Instant.ofEpochSecond(123123L).atZone(ZoneOffset.UTC).toLocalDateTime();
 
-        when(client.get()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersSpec);
-        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-
-        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
         when(responseSpec.body(SOResponse.class)).thenReturn(response);
 
         LocalDateTime actualTime =
@@ -59,11 +65,6 @@ public class StackOverflowClientTest {
 
     @Test
     public void getQuestionsFailTest() {
-        when(client.get()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersSpec);
-        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-
-        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
         when(responseSpec.body(SOResponse.class)).thenReturn(null);
 
         String url = "https://api.stackexchange.com/2.3/questions/-1";
@@ -79,11 +80,6 @@ public class StackOverflowClientTest {
         SOResponse response = new SOResponse();
         response.items(List.of());
 
-        when(client.get()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersSpec);
-        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-
-        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
         when(responseSpec.body(SOResponse.class)).thenReturn(response);
 
         String url = "https://api.stackexchange.com/2.3/questions/-1";

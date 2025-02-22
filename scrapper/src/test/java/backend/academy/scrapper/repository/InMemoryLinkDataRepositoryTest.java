@@ -1,5 +1,6 @@
 package backend.academy.scrapper.repository;
 
+import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -12,11 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 public class InMemoryLinkDataRepositoryTest {
 
     private InMemoryLinkDataRepository repository;
@@ -33,18 +30,18 @@ public class InMemoryLinkDataRepositoryTest {
 
     @Test
     public void getByIdSuccessTest() {
-        int id = 1;
+        long id = 1;
 
-        Optional<LinkData> link = repository.getById(id);
+        Optional<LinkData> link = unwrap(repository.getById(id));
 
         assertThat(link.isPresent()).isTrue();
     }
 
     @Test
     public void getByIdFailTest() {
-        int id = -1;
+        long id = -1;
 
-        Optional<LinkData> link = repository.getById(id);
+        Optional<LinkData> link = unwrap(repository.getById(id));
 
         assertThat(link.isEmpty()).isTrue();
     }
@@ -52,58 +49,45 @@ public class InMemoryLinkDataRepositoryTest {
     @Test
     public void getAllTest() {
 
-        List<LinkData> data = repository.getAll();
+        List<LinkData> data = unwrap(repository.getAll());
 
         assertThat(data.size()).isEqualTo(4);
     }
 
     @Test
     public void getByChatIdTest() {
-        int chatId = 1;
+        long chatId = 1;
 
-        List<LinkData> data = repository.getByChatId(chatId);
+        List<LinkData> data = unwrap(repository.getByChatId(chatId));
 
         assertThat(data.size()).isEqualTo(2);
     }
 
-    @ParameterizedTest
-    @CsvSource({
-        "1, 0, 1, 1",
-        "1, 0, 2, 2",
-        "1, 0, 5, 2",
-    })
-    public void getByChatIdTest(int chatId, int offset, int limit, int expectedSize) {
-
-        List<LinkData> data = repository.getByChatId(chatId, offset, limit);
-
-        assertThat(data.size()).isEqualTo(expectedSize);
-    }
-
     @Test
     public void getByLinkIdTest() {
-        int linkId = 1;
+        long linkId = 1;
 
-        List<LinkData> data = repository.getByLinkId(linkId);
+        List<LinkData> data = unwrap(repository.getByLinkId(linkId));
 
         assertThat(data.size()).isEqualTo(1);
     }
 
     @Test
     public void getByChatIdLinkIdSuccessTest() {
-        int chatId = 1;
-        int linkId = 1;
+        long chatId = 1;
+        long linkId = 1;
 
-        Optional<LinkData> link = repository.getByChatIdLinkId(chatId, linkId);
+        Optional<LinkData> link = unwrap(repository.getByChatIdLinkId(chatId, linkId));
 
         assertThat(link.isPresent()).isTrue();
     }
 
     @Test
     public void getByChatIdLinkIdFailTest() {
-        int chatId = 1;
-        int linkId = 4;
+        long chatId = 1;
+        long linkId = 4;
 
-        Optional<LinkData> link = repository.getByChatIdLinkId(chatId, linkId);
+        Optional<LinkData> link = unwrap(repository.getByChatIdLinkId(chatId, linkId));
 
         assertThat(link.isEmpty()).isTrue();
     }
@@ -112,8 +96,8 @@ public class InMemoryLinkDataRepositoryTest {
     public void createTest() {
         LinkData linkData = new LinkData(5, 3, List.of("work"), List.of("user=user1"));
 
-        repository.create(linkData);
-        Optional<LinkData> actualLink = repository.getByChatIdLinkId(3, 5);
+        unwrap(repository.create(linkData));
+        Optional<LinkData> actualLink = unwrap(repository.getByChatIdLinkId(3, 5));
         if (actualLink.isEmpty()) {
             fail("Ссылка не была зарегистрирована");
         }
@@ -126,8 +110,8 @@ public class InMemoryLinkDataRepositoryTest {
     public void createDuplicateTest() {
         LinkData linkData = new LinkData(5, 3, List.of("work"), List.of("user=user1"));
 
-        repository.create(linkData);
-        Optional<LinkData> actualLink = repository.getByChatIdLinkId(3, 5);
+        unwrap(repository.create(linkData));
+        Optional<LinkData> actualLink = unwrap(repository.getByChatIdLinkId(3, 5));
         if (actualLink.isEmpty()) {
             fail("Ссылка не была зарегистрирована");
         }
@@ -141,8 +125,8 @@ public class InMemoryLinkDataRepositoryTest {
     public void updateTest() {
         LinkData linkData = new LinkData(1, 1, List.of("work"), List.of("user=user1"));
 
-        repository.update(linkData);
-        Optional<LinkData> actualLink = repository.getByChatIdLinkId(1, 1);
+        unwrap(repository.update(linkData));
+        Optional<LinkData> actualLink = unwrap(repository.getByChatIdLinkId(1, 1));
         if (actualLink.isEmpty()) {
             fail("Ссылка не была зарегистрирована");
         }
@@ -153,21 +137,21 @@ public class InMemoryLinkDataRepositoryTest {
 
     @Test
     public void deleteByIdTest() {
-        int id = 1;
+        long id = 1;
 
-        repository.deleteById(id);
-        Optional<LinkData> actualLink = repository.getById(id);
+        unwrap(repository.deleteById(id));
+        Optional<LinkData> actualLink = unwrap(repository.getById(id));
 
         assertThat(actualLink.isEmpty()).isTrue();
     }
 
     @Test
     public void deleteTest() {
-        int id = 1;
+        long id = 1;
 
-        Optional<LinkData> linkData = repository.getById(id);
-        repository.delete(linkData.get());
-        Optional<LinkData> actualLink = repository.getById(id);
+        Optional<LinkData> linkData = unwrap(repository.getById(id));
+        unwrap(repository.delete(linkData.get()));
+        Optional<LinkData> actualLink = unwrap(repository.getById(id));
 
         assertThat(actualLink.isEmpty()).isTrue();
     }

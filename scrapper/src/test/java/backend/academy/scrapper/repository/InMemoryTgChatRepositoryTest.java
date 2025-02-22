@@ -1,5 +1,6 @@
 package backend.academy.scrapper.repository;
 
+import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
@@ -12,9 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 public class InMemoryTgChatRepositoryTest {
 
     private InMemoryTgChatRepository repository;
@@ -30,7 +29,7 @@ public class InMemoryTgChatRepositoryTest {
     public void getByIdSuccessTest() {
         int id = 1;
 
-        Optional<TgChat> tgChat = repository.getById(id);
+        Optional<TgChat> tgChat = unwrap(repository.getById(id));
 
         assertThat(tgChat.isPresent()).isTrue();
     }
@@ -39,7 +38,7 @@ public class InMemoryTgChatRepositoryTest {
     public void getByIdFailTest() {
         int id = 2;
 
-        Optional<TgChat> tgChat = repository.getById(id);
+        Optional<TgChat> tgChat = unwrap(repository.getById(id));
 
         assertThat(tgChat.isEmpty()).isTrue();
     }
@@ -48,7 +47,7 @@ public class InMemoryTgChatRepositoryTest {
     public void getByChatIdSuccessTest() {
         long chatId = 123;
 
-        Optional<TgChat> tgChat = repository.getByChatId(chatId);
+        Optional<TgChat> tgChat = unwrap(repository.getByChatId(chatId));
 
         assertThat(tgChat.isPresent()).isTrue();
     }
@@ -57,7 +56,7 @@ public class InMemoryTgChatRepositoryTest {
     public void getByChatIdFailTest() {
         long chatId = 1234;
 
-        Optional<TgChat> tgChat = repository.getByChatId(chatId);
+        Optional<TgChat> tgChat = unwrap(repository.getByChatId(chatId));
 
         assertThat(tgChat.isEmpty()).isTrue();
     }
@@ -66,8 +65,8 @@ public class InMemoryTgChatRepositoryTest {
     public void createTest() {
         TgChat tgChat = new TgChat(1234);
 
-        repository.create(tgChat);
-        Optional<TgChat> actualChat = repository.getByChatId(tgChat.chatId());
+        unwrap(repository.create(tgChat));
+        Optional<TgChat> actualChat = unwrap(repository.getByChatId(tgChat.chatId()));
         if (actualChat.isEmpty()) {
             fail("Чат не был создан");
         }
@@ -79,15 +78,15 @@ public class InMemoryTgChatRepositoryTest {
     public void createExistingTest() {
         TgChat tgChat = new TgChat(123);
 
-        assertThatThrownBy(() -> repository.create(tgChat)).isInstanceOf(BaseException.class);
+        assertThatThrownBy(() -> unwrap(repository.create(tgChat))).isInstanceOf(BaseException.class);
     }
 
     @Test
     public void deleteByIdTest() {
         int id = 1;
 
-        repository.deleteById(id);
-        Optional<TgChat> actualChat = repository.getById(id);
+        unwrap(repository.deleteById(id));
+        Optional<TgChat> actualChat = unwrap(repository.getById(id));
 
         assertThat(actualChat.isEmpty()).isTrue();
     }
@@ -96,9 +95,9 @@ public class InMemoryTgChatRepositoryTest {
     public void deleteTest() {
         int id = 1;
 
-        Optional<TgChat> tgChat = repository.getById(id);
-        repository.delete(tgChat.get());
-        Optional<TgChat> actualChat = repository.getById(id);
+        Optional<TgChat> tgChat = unwrap(repository.getById(id));
+        unwrap(repository.delete(tgChat.get()));
+        Optional<TgChat> actualChat = unwrap(repository.getById(id));
 
         assertThat(actualChat.isEmpty()).isTrue();
     }

@@ -1,5 +1,6 @@
 package backend.academy.scrapper.service;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +18,7 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -41,9 +43,11 @@ public class LinkDataServiceTest {
     @Test
     public void getByChatIdTest() {
         when(tgChatService.getByChatId(Mockito.anyLong())).thenReturn(new TgChat(1L, 123));
-        when(linkDataRepository.getByChatId(Mockito.anyLong())).thenReturn(List.of(new LinkData(), new LinkData()));
+        when(linkDataRepository.getByChatId(Mockito.anyLong()))
+                .thenReturn(CompletableFuture.completedFuture(List.of(new LinkData(), new LinkData())));
         when(linkRepository.getById(Mockito.anyLong()))
-                .thenReturn(Optional.of(new Link(1L, "string", LocalDateTime.now())));
+                .thenReturn(
+                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkMapper.createLinkResponse(Mockito.any(), Mockito.anyString()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
 
@@ -59,13 +63,17 @@ public class LinkDataServiceTest {
     public void trackLinkTest() {
         when(tgChatService.getByChatId(Mockito.anyLong())).thenReturn(new TgChat(1L, 123));
         when(linkRepository.getByLink(Mockito.anyString()))
-                .thenReturn(Optional.empty(), Optional.of(new Link(1L, "string", LocalDateTime.now())));
+                .thenReturn(
+                        CompletableFuture.completedFuture(Optional.empty()),
+                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkMapper.createLinkData(Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(new LinkData());
         when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
-                .thenReturn(Optional.empty());
+                .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
         when(linkMapper.createLinkResponse(Mockito.any(), Mockito.anyString()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
+        when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
+        when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
@@ -82,13 +90,15 @@ public class LinkDataServiceTest {
     public void trackDuplicateLinkTest() {
         when(tgChatService.getByChatId(Mockito.anyLong())).thenReturn(new TgChat(1L, 123));
         when(linkRepository.getByLink(Mockito.anyString()))
-                .thenReturn(Optional.of(new Link(1L, "string", LocalDateTime.now())));
+                .thenReturn(
+                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkMapper.createLinkData(Mockito.any(), Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(new LinkData());
         when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
-                .thenReturn(Optional.of(new LinkData()));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData())));
         when(linkMapper.createLinkResponse(Mockito.any(), Mockito.anyString()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
+        when(linkDataRepository.update(any())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
@@ -104,11 +114,13 @@ public class LinkDataServiceTest {
     public void untrackLinkTest() {
         when(tgChatService.getByChatId(Mockito.anyLong())).thenReturn(new TgChat(1L, 123));
         when(linkRepository.getByLink(Mockito.anyString()))
-                .thenReturn(Optional.of(new Link(1L, "string", LocalDateTime.now())));
+                .thenReturn(
+                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
-                .thenReturn(Optional.of(new LinkData()));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData())));
         when(linkMapper.createLinkResponse(Mockito.any(), Mockito.anyString()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
+        when(linkDataRepository.delete(any())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.untrackLink(1, new RemoveLinkRequest("string"));
 

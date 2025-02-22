@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.bot.service.LinkMapper;
 import backend.academy.bot.service.ScrapperClient;
-import java.util.Optional;
 import backend.academy.bot.stateStorage.TrackStateStorage;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
