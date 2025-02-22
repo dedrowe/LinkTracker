@@ -10,8 +10,10 @@ import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.shared.exceptions.BaseException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,9 +77,10 @@ public class UpdatesCheckerService {
     public void checkResource(String url) {
         try {
             URI uri = new URI(url);
+            uri.toURL();
             ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
             client.getLastUpdate(uri);
-        } catch (URISyntaxException e) {
+        } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
             throw new BaseException("Ошибка в синтаксисе ссылки", e);
         }
     }
