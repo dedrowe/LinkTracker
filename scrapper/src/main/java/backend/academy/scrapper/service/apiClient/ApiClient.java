@@ -11,21 +11,21 @@ public abstract class ApiClient {
     protected RestClient client;
 
     protected RestClient.ResponseSpec getRequest(URI uri) {
-        return setStatusHandlers(client.get().uri(uri.getPath()).retrieve());
+        return setStatusHandlers(client.get().uri(uri.getPath()).retrieve(), uri);
     }
 
-    protected RestClient.ResponseSpec setStatusHandlers(RestClient.ResponseSpec responseSpec) {
+    protected RestClient.ResponseSpec setStatusHandlers(RestClient.ResponseSpec responseSpec, URI uri) {
         return responseSpec
             .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                 String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
                 throw new ApiCallException(
-                    "Ошибка при обращении по ссылке " + request.getURI(),
+                    "Ошибка при обращении по ссылке " + uri,
                     body,
                     response.getStatusCode().value());
             })
             .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                 throw new ApiCallException(
-                    "Сервис по ссылке " + request.getURI() + " сейчас недоступен",
+                    "Сервис по ссылке " + uri + " сейчас недоступен",
                     response.getStatusCode().value());
             });
     }

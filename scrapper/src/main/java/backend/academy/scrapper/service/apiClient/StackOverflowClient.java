@@ -54,6 +54,6 @@ public class StackOverflowClient extends ApiClient {
         String finalPath = path;
         return setStatusHandlers(client.get().uri(uriBuilder -> uriBuilder.path(finalPath)
             .queryParam("key", key).queryParam("access_token", accessToken)
-            .queryParam("site", "stackoverflow").build()).retrieve());
+            .queryParam("site", "stackoverflow").build()).retrieve(), uri);
     }
 }
