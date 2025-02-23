@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("links")
 public class LinkDataController {
 
+    private static final String TG_CHAT_ID_PARAM_NAME = "Tg-Chat-Id";
+
     private final LinkDataService linkDataService;
 
     @Autowired
@@ -26,17 +28,19 @@ public class LinkDataController {
     }
 
     @GetMapping
-    public ListLinkResponse getByChatId(@RequestParam("Tg-Chat-Id") long chatId) {
+    public ListLinkResponse getByChatId(@RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId) {
         return linkDataService.getByChatId(chatId);
     }
 
     @PostMapping
-    public LinkResponse trackLink(@RequestParam("Tg-Chat-Id") long chatId, @RequestBody AddLinkRequest request) {
+    public LinkResponse trackLink(
+            @RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId, @RequestBody AddLinkRequest request) {
         return linkDataService.trackLink(chatId, request);
     }
 
     @DeleteMapping
-    public LinkResponse untrackLink(@RequestParam("Tg-Chat-Id") long chatId, @RequestBody RemoveLinkRequest request) {
+    public LinkResponse untrackLink(
+            @RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId, @RequestBody RemoveLinkRequest request) {
         return linkDataService.untrackLink(chatId, request);
     }
 }
