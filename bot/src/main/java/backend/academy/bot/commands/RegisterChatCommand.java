@@ -15,6 +15,10 @@ public class RegisterChatCommand extends TgBotCommand {
     @Override
     public Optional<String> execute(Update update) {
         client.registerChat(update.message().chat().id());
-        return Optional.empty();
+        return Optional.of("""
+            Привет! Этот бот предоставляет удобный способ оповещения об обновлениях на зарегистрированных ссылках.
+            Для добавления ссылки введите команду /track <ссылка>
+            Для вывода всех доступных команд введите /help
+            """);
     }
 }
