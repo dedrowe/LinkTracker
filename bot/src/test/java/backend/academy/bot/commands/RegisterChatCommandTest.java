@@ -43,7 +43,12 @@ public class RegisterChatCommandTest {
     @ParameterizedTest
     @ValueSource(strings = {"/start", "/start 123123"})
     public void validCommandParseTest(String command) {
+        String expectedMessage = """
+        Привет! Этот бот предоставляет удобный способ оповещения об обновлениях на зарегистрированных ссылках.
+        Для добавления ссылки введите команду /track <ссылка>
+        Для вывода всех доступных команд введите /help
+        """;
 
-        assertThat(commandExecutor.execute(update)).isEmpty();
+        assertThat(commandExecutor.execute(update).get()).isEqualTo(expectedMessage);
     }
 }
