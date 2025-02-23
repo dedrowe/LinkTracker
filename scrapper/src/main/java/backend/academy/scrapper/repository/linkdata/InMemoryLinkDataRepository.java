@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.logging.MDC;
+import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -64,14 +64,16 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public Future<Void> create(LinkData linkData) {
         Optional<LinkData> curLink = getByChatIdLinkIdInternal(linkData.chatId(), linkData.linkId());
         if (curLink.isPresent()) {
-            BaseException ex = new BaseException("Ссылка уже зарегистрирована");
-            MDC.put("linkId", linkData.linkId());
-            MDC.put("chatId", linkData.chatId());
-            log.error("Ссылка уже зарегистрирована", ex);
-            MDC.clear();
+            String exceptionMessage = "Ссылка уже зарегистрирована";
+            BaseException ex = new BaseException(exceptionMessage);
+            try (var var1 = MDC.putCloseable("linkId", String.valueOf(linkData.linkId()));
+                    var var2 = MDC.putCloseable("chatId", String.valueOf(linkData.chatId()))) {
+                log.error(exceptionMessage, ex);
+            }
             throw ex;
         }
         linkData.id(idSequence++);

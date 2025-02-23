@@ -39,14 +39,15 @@ public class TrackLinkCommand extends TgBotCommand {
         };
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     private Optional<String> setLink(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
             InvalidCommandSyntaxException ex =
                     new InvalidCommandSyntaxException("Неверный формат команды, ожидается: /track <link>");
-            MDC.put("command", update.message().text());
-            log.error("Неверный формат команды", ex);
-            MDC.clear();
+            try (var var = MDC.putCloseable("command", update.message().text())) {
+                log.error("Неверный формат команды", ex);
+            }
             throw ex;
         }
         LinkState linkState = new LinkState();
@@ -66,6 +67,7 @@ public class TrackLinkCommand extends TgBotCommand {
         return Optional.of("Введите через пробел фильтры для ссылки в формате key:value, введите /skip для пропуска");
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     private Optional<String> setFilters(Update update, LinkState linkState) {
         String[] command = update.message().text().split(" ");
         if (!command[0].equals("/skip")) {
@@ -74,9 +76,9 @@ public class TrackLinkCommand extends TgBotCommand {
                 if (tokens.length != 2 || tokens[0].isEmpty() || tokens[1].isEmpty()) {
                     InvalidCommandSyntaxException ex =
                             new InvalidCommandSyntaxException("Фильтры должны указываться в формате key:value");
-                    MDC.put("command", update.message().text());
-                    log.error("Неверный формат фильтров", ex);
-                    MDC.clear();
+                    try (var var = MDC.putCloseable("command", update.message().text())) {
+                        log.error("Неверный формат фильтров", ex);
+                    }
                     throw ex;
                 }
             }

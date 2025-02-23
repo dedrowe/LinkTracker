@@ -35,23 +35,25 @@ public class GithubClient extends ApiClient {
         this.client = client;
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getIssueUpdate(URI uri) {
         Issue issue = getRequest(uri).body(Issue.class);
         if (issue == null) {
-            MDC.put("url", uri.toString());
-            log.error("Issue не найден");
-            MDC.clear();
+            try (var var = MDC.putCloseable("url", uri.toString())) {
+                log.error("Issue не найден");
+            }
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         return ZonedDateTime.parse(issue.updatedAt()).toLocalDateTime();
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getRepositoryUpdate(URI uri) {
         GHRepository repository = getRequest(uri).body(GHRepository.class);
         if (repository == null) {
-            MDC.put("url", uri.toString());
-            log.error("Репозиторий не найден");
-            MDC.clear();
+            try (var var = MDC.putCloseable("url", uri.toString())) {
+                log.error("Репозиторий не найден");
+            }
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         return ZonedDateTime.parse(repository.updatedAt()).toLocalDateTime();

@@ -76,6 +76,7 @@ public class UpdatesCheckerService {
         }
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public void checkResource(String url) {
         try {
             URI uri = new URI(url);
@@ -85,9 +86,9 @@ public class UpdatesCheckerService {
         } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
             String exceptionMessage = "Ошибка в синтаксисе ссылки";
             BaseException ex = new BaseException(exceptionMessage, e);
-            MDC.put("url", url);
-            log.info(exceptionMessage, ex);
-            MDC.clear();
+            try (var var = MDC.putCloseable("url", url)) {
+                log.info(exceptionMessage, ex);
+            }
             throw ex;
         }
     }

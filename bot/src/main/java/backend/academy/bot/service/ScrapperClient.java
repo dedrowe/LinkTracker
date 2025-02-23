@@ -8,7 +8,7 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.shared.exceptions.ApiCallException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.logging.MDC;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
@@ -38,6 +38,7 @@ public class ScrapperClient {
         this.mapper = mapper;
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     private RestClient.ResponseSpec setStatusHandler(RestClient.ResponseSpec responseSpec) {
         return responseSpec.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
             ApiErrorResponse error = mapper.readValue(response.getBody(), ApiErrorResponse.class);
@@ -49,10 +50,10 @@ public class ScrapperClient {
                 ex = new ApiCallException(
                         error.description(), error.exceptionMessage(), Integer.parseInt(error.code()));
             }
-            MDC.put("url", request.getURI().toString());
-            MDC.put("code", error.code());
-            log.error(exceptionMessage, ex);
-            MDC.clear();
+            try (var var1 = MDC.putCloseable("url", request.getURI().toString());
+                    var var2 = MDC.putCloseable("code", error.code())) {
+                log.error(exceptionMessage, ex);
+            }
             throw ex;
         });
     }

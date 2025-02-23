@@ -49,6 +49,7 @@ public class LinkDataService {
         this.updatesCheckerService = updatesCheckerService;
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public ListLinkResponse getByChatId(long chatId) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         List<LinkData> links = unwrap(linkDataRepository.getByChatId(tgChat.id()));
@@ -57,10 +58,10 @@ public class LinkDataService {
             Link link = unwrap(linkRepository.getById(linkData.linkId())).orElseThrow(() -> {
                 String exceptionMessage = "Произошла ошибка при получении зарегистрированных ссылок";
                 RuntimeException ex = new RuntimeException(exceptionMessage);
-                MDC.put("chatId", String.valueOf(chatId));
-                MDC.put("linkId", String.valueOf(linkData.linkId()));
-                log.error(exceptionMessage, ex);
-                MDC.clear();
+                try (var var1 = MDC.putCloseable("chatId", String.valueOf(chatId));
+                        var var2 = MDC.putCloseable("linkId", String.valueOf(linkData.linkId()))) {
+                    log.error(exceptionMessage, ex);
+                }
                 return ex;
             });
             linkResponses.add(linkMapper.createLinkResponse(linkData, link.link()));
@@ -89,25 +90,26 @@ public class LinkDataService {
         return linkMapper.createLinkResponse(linkData, link.link());
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         Link link = unwrap(linkRepository.getByLink(request.link())).orElseThrow(() -> {
             String exceptionMessage = "Ссылка не найдена";
             NotFoundException ex = new NotFoundException(exceptionMessage);
-            MDC.put("chatId", String.valueOf(chatId));
-            MDC.put("link", String.valueOf(request.link()));
-            log.error(exceptionMessage, ex);
-            MDC.clear();
+            try (var var1 = MDC.putCloseable("chatId", String.valueOf(chatId));
+                    var var2 = MDC.putCloseable("link", String.valueOf(request.link()))) {
+                log.error(exceptionMessage, ex);
+            }
             return ex;
         });
         LinkData linkData = unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()))
                 .orElseThrow(() -> {
                     String exceptionMessage = "Данные о ссылке не найдены";
                     NotFoundException ex = new NotFoundException(exceptionMessage);
-                    MDC.put("chatId", String.valueOf(tgChat.id()));
-                    MDC.put("linkId", String.valueOf(link.id()));
-                    log.error(exceptionMessage, ex);
-                    MDC.clear();
+                    try (var var1 = MDC.putCloseable("chatId", String.valueOf(tgChat.id()));
+                            var var2 = MDC.putCloseable("linkId", String.valueOf(link.id()))) {
+                        log.error(exceptionMessage, ex);
+                    }
                     return ex;
                 });
         unwrap(linkDataRepository.delete(linkData));

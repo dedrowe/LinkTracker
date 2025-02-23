@@ -36,12 +36,13 @@ public class StackOverflowClient extends ApiClient {
         this.client = client;
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getQuestionUpdate(URI uri) {
         SOResponse responseBody = getRequest(uri).body(SOResponse.class);
         if (responseBody == null || responseBody.items().isEmpty()) {
-            MDC.put("url", uri.toString());
-            log.error("Вопрос не найден");
-            MDC.clear();
+            try (var var = MDC.putCloseable("url", uri.toString())) {
+                log.error("Вопрос не найден");
+            }
             throw new BaseException("Ошибка при обращении по ссылке " + uri);
         }
         Instant instant = Instant.ofEpochSecond(responseBody.items().getFirst().lastActivityDate());

@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.logging.MDC;
+import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -52,12 +52,14 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     @Override
     @Async
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public Future<Void> create(Link link) {
         if (getByLinkInternal(link.link()).isPresent()) {
-            BaseException ex = new BaseException("Эта ссылка уже существует");
-            MDC.put("link", link.link());
-            log.error("Эта ссылка уже существует", ex);
-            MDC.clear();
+            String exceptionMessage = "Эта ссылка уже существует";
+            BaseException ex = new BaseException(exceptionMessage);
+            try (var var = MDC.putCloseable("link", link.link())) {
+                log.error(exceptionMessage, ex);
+            }
             throw ex;
         }
         link.id(idSequence++);

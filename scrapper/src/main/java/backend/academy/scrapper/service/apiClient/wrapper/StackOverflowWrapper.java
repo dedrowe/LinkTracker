@@ -21,15 +21,18 @@ public class StackOverflowWrapper implements ApiClientWrapper {
     }
 
     @Override
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getLastUpdate(URI uri) {
         String[] path = uri.getPath().split("/");
         if ((path.length == 3 || path.length == 4) && path[1].equals("questions")) {
             return apiClient.getQuestionUpdate(uri);
         } else {
-            MDC.put("uri", uri.toString());
-            log.info("Ресурс не поддерживается");
-            MDC.clear();
-            throw new BaseException("Ресурс не поддерживается " + uri);
+            String exceptionMessage = "Ресурс не поддерживается ";
+            BaseException ex = new BaseException(exceptionMessage + uri);
+            try (var var = MDC.putCloseable("uri", uri.toString())) {
+                log.info(exceptionMessage, ex);
+            }
+            throw ex;
         }
     }
 }

@@ -21,6 +21,7 @@ public class GithubWrapper implements ApiClientWrapper {
     }
 
     @Override
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getLastUpdate(URI uri) {
         String[] path = uri.getPath().split("/");
         if (path.length == 3) {
@@ -28,10 +29,12 @@ public class GithubWrapper implements ApiClientWrapper {
         } else if (path.length == 5 && path[3].equals("issues")) {
             return client.getIssueUpdate(uri);
         } else {
-            MDC.put("uri", uri.toString());
-            log.info("Ресурс не поддерживается");
-            MDC.clear();
-            throw new BaseException("Ресурс не поддерживается " + uri);
+            String exceptionMessage = "Ресурс не поддерживается";
+            BaseException ex = new BaseException(exceptionMessage + uri);
+            try (var var = MDC.putCloseable("uri", uri.toString())) {
+                log.info(exceptionMessage, ex);
+            }
+            throw ex;
         }
     }
 }

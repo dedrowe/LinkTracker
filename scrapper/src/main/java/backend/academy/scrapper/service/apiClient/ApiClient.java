@@ -17,14 +17,16 @@ public abstract class ApiClient {
         return setStatusHandlers(client.get().uri(uri.getPath()).retrieve(), uri);
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     protected RestClient.ResponseSpec setStatusHandlers(RestClient.ResponseSpec responseSpec, URI uri) {
         return responseSpec
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                     String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
-                    MDC.put("uri", uri.toString());
-                    MDC.put("code", response.getStatusCode().toString());
-                    log.warn("Ошибка при обращении по ссылке");
-                    MDC.clear();
+                    try (var var1 = MDC.putCloseable("uri", uri.toString());
+                            var var2 = MDC.putCloseable(
+                                    "code", response.getStatusCode().toString())) {
+                        log.warn("Ошибка при обращении по ссылке");
+                    }
                     throw new ApiCallException(
                             "Ошибка при обращении по ссылке " + uri,
                             body,

@@ -63,13 +63,14 @@ public class TgChatService {
         return checkOptional(FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId)), chatId);
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     private TgChat checkOptional(Optional<TgChat> chat, long id) {
         return chat.orElseThrow(() -> {
             String exceptionMessage = "Чат с таким id не зарегистрирован";
             NotFoundException ex = new NotFoundException(exceptionMessage);
-            MDC.put("chatId", String.valueOf(id));
-            log.error(exceptionMessage, ex);
-            MDC.clear();
+            try (var var = MDC.putCloseable("chatId", String.valueOf(id))) {
+                log.error(exceptionMessage, ex);
+            }
             return ex;
         });
     }

@@ -20,14 +20,15 @@ public class LinkDispatcher {
         this.apiClients = apiClients;
     }
 
+    @SuppressWarnings("PMD.UnusedLocalVariable")
     public ApiClientWrapper dispatchLink(URI uri) {
         ApiClientWrapper apiClient = apiClients.getOrDefault(uri.getAuthority(), null);
         if (apiClient == null) {
             String exceptionMessage = "Отслеживание ссылок этого сервиса не поддерживается";
             BaseException ex = new BaseException(exceptionMessage);
-            MDC.put("uri", uri.toString());
-            log.warn(exceptionMessage, ex);
-            MDC.clear();
+            try (var var = MDC.putCloseable("uri", uri.toString())) {
+                log.warn(exceptionMessage, ex);
+            }
             throw ex;
         }
         return apiClient;
