@@ -8,24 +8,19 @@ import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.utils.FutureUnwrapper;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class TgChatService {
 
     public final TgChatRepository tgChatRepository;
 
     public final LinkDataRepository linkDataRepository;
-
-    @Autowired
-    public TgChatService(TgChatRepository tgChatRepository, LinkDataRepository linkDataRepository) {
-        this.tgChatRepository = tgChatRepository;
-        this.linkDataRepository = linkDataRepository;
-    }
 
     public void registerTgChat(long chatId) {
         TgChat tgChat = new TgChat(chatId);

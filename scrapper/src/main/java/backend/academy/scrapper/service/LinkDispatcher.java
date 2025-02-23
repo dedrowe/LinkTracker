@@ -4,21 +4,17 @@ import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class LinkDispatcher {
 
     private final Map<String, ApiClientWrapper> apiClients;
-
-    @Autowired
-    public LinkDispatcher(Map<String, ApiClientWrapper> apiClients) {
-        this.apiClients = apiClients;
-    }
 
     @SuppressWarnings("PMD.UnusedLocalVariable")
     public ApiClientWrapper dispatchLink(URI uri) {

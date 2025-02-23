@@ -4,21 +4,17 @@ import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("stackoverflow.com")
 @Slf4j
+@RequiredArgsConstructor
 public class StackOverflowWrapper implements ApiClientWrapper {
 
     private final StackOverflowClient apiClient;
-
-    @Autowired
-    public StackOverflowWrapper(StackOverflowClient apiClient) {
-        this.apiClient = apiClient;
-    }
 
     @Override
     @SuppressWarnings("PMD.UnusedLocalVariable")

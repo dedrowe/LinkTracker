@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class UpdatesCheckerService {
 
     private final LinkDispatcher linkDispatcher;
@@ -37,21 +39,6 @@ public class UpdatesCheckerService {
     private final TgBotClient tgBotClient;
 
     private final TgChatService tgChatService;
-
-    public UpdatesCheckerService(
-            LinkDispatcher linkDispatcher,
-            LinkDataRepository linkDataRepository,
-            LinkRepository linkRepository,
-            LinkMapper linkMapper,
-            TgBotClient tgBotClient,
-            TgChatService tgChatService) {
-        this.linkDispatcher = linkDispatcher;
-        this.linkDataRepository = linkDataRepository;
-        this.linkRepository = linkRepository;
-        this.linkMapper = linkMapper;
-        this.tgBotClient = tgBotClient;
-        this.tgChatService = tgChatService;
-    }
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     public void checkUpdates() {

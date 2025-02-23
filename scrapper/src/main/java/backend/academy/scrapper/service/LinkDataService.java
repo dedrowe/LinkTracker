@@ -16,13 +16,14 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class LinkDataService {
 
     private final LinkDataRepository linkDataRepository;
@@ -34,20 +35,6 @@ public class LinkDataService {
     private final LinkMapper linkMapper;
 
     private final UpdatesCheckerService updatesCheckerService;
-
-    @Autowired
-    public LinkDataService(
-            LinkDataRepository linkDataRepository,
-            LinkRepository linkRepository,
-            TgChatService tgChatService,
-            LinkMapper mapper,
-            UpdatesCheckerService updatesCheckerService) {
-        this.linkDataRepository = linkDataRepository;
-        this.linkRepository = linkRepository;
-        this.tgChatService = tgChatService;
-        this.linkMapper = mapper;
-        this.updatesCheckerService = updatesCheckerService;
-    }
 
     @SuppressWarnings("PMD.UnusedLocalVariable")
     public ListLinkResponse getByChatId(long chatId) {
