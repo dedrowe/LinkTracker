@@ -23,10 +23,12 @@ public class LinkDispatcher {
     public ApiClientWrapper dispatchLink(URI uri) {
         ApiClientWrapper apiClient = apiClients.getOrDefault(uri.getAuthority(), null);
         if (apiClient == null) {
+            String exceptionMessage = "Отслеживание ссылок этого сервиса не поддерживается";
+            BaseException ex = new BaseException(exceptionMessage);
             MDC.put("uri", uri.toString());
-            log.warn("Отслеживание ссылок этого сервиса не поддерживается");
+            log.warn(exceptionMessage, ex);
             MDC.clear();
-            throw new BaseException("Отслеживание ссылок этого сервиса не поддерживается");
+            throw ex;
         }
         return apiClient;
     }

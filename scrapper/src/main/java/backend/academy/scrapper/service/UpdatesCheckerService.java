@@ -83,11 +83,12 @@ public class UpdatesCheckerService {
             ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
             client.getLastUpdate(uri);
         } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
+            String exceptionMessage = "Ошибка в синтаксисе ссылки";
+            BaseException ex = new BaseException(exceptionMessage, e);
             MDC.put("url", url);
-            MDC.put("error", e.getMessage());
-            log.info("Ошибка в синтаксисе ссылки");
+            log.info(exceptionMessage, ex);
             MDC.clear();
-            throw new BaseException("Ошибка в синтаксисе ссылки", e);
+            throw ex;
         }
     }
 }

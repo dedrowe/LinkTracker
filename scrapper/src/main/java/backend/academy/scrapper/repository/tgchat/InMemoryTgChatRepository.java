@@ -48,10 +48,11 @@ public class InMemoryTgChatRepository implements TgChatRepository {
     public Future<Void> create(TgChat tgChat) {
         Optional<TgChat> curChat = getByChatIdInternal(tgChat.chatId());
         if (curChat.isPresent()) {
+            BaseException ex = new BaseException("Чат с таким id уже зарегистрирован");
             MDC.put("id", tgChat.chatId());
-            log.error("Чат с таким id уже зарегистрирован");
+            log.error("Чат с таким id уже зарегистрирован", ex);
             MDC.clear();
-            throw new BaseException("Чат с таким id уже зарегистрирован");
+            throw ex;
         }
         tgChat.id(idSequence++);
         data.add(tgChat);

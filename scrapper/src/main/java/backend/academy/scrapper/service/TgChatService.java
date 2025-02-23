@@ -65,10 +65,12 @@ public class TgChatService {
 
     private TgChat checkOptional(Optional<TgChat> chat, long id) {
         return chat.orElseThrow(() -> {
+            String exceptionMessage = "Чат с таким id не зарегистрирован";
+            NotFoundException ex = new NotFoundException(exceptionMessage);
             MDC.put("chatId", String.valueOf(id));
-            log.error("Чат с таким id не зарегистрирован");
+            log.error(exceptionMessage, ex);
             MDC.clear();
-            return new NotFoundException("Чат с таким id не зарегистрирован");
+            return ex;
         });
     }
 }

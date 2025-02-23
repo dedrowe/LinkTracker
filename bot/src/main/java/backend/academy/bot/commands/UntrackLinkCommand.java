@@ -21,10 +21,12 @@ public class UntrackLinkCommand extends TgBotCommand {
     public Optional<String> execute(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
+            InvalidCommandSyntaxException ex =
+                    new InvalidCommandSyntaxException("Неверный формат команды, ожидается: /untrack <link>");
             MDC.put("command", update.message().text());
-            log.error("Неверный формат команды");
+            log.error("Неверный формат команды", ex);
             MDC.clear();
-            throw new InvalidCommandSyntaxException("Неверный формат команды, ожидается: /untrack <link>");
+            throw ex;
         }
         client.untrackLink(update.message().chat().id(), new RemoveLinkRequest(command[1]));
         return Optional.of("Ссылка успешно удалена");

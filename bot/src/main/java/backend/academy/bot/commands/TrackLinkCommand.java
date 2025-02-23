@@ -42,10 +42,12 @@ public class TrackLinkCommand extends TgBotCommand {
     private Optional<String> setLink(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
+            InvalidCommandSyntaxException ex =
+                    new InvalidCommandSyntaxException("Неверный формат команды, ожидается: /track <link>");
             MDC.put("command", update.message().text());
-            log.error("Неверный формат команды");
+            log.error("Неверный формат команды", ex);
             MDC.clear();
-            throw new InvalidCommandSyntaxException("Неверный формат команды, ожидается: /track <link>");
+            throw ex;
         }
         LinkState linkState = new LinkState();
         linkState.link(command[1]);
@@ -70,10 +72,12 @@ public class TrackLinkCommand extends TgBotCommand {
             for (String filter : command) {
                 String[] tokens = filter.split(":");
                 if (tokens.length != 2 || tokens[0].isEmpty() || tokens[1].isEmpty()) {
+                    InvalidCommandSyntaxException ex =
+                            new InvalidCommandSyntaxException("Фильтры должны указываться в формате key:value");
                     MDC.put("command", update.message().text());
-                    log.error("Неверный формат фильтров");
+                    log.error("Неверный формат фильтров", ex);
                     MDC.clear();
-                    throw new InvalidCommandSyntaxException("Фильтры должны указываться в формате key:value");
+                    throw ex;
                 }
             }
             List<String> filters = List.of(command);

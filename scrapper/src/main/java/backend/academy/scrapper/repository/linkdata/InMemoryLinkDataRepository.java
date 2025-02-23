@@ -67,11 +67,12 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
     public Future<Void> create(LinkData linkData) {
         Optional<LinkData> curLink = getByChatIdLinkIdInternal(linkData.chatId(), linkData.linkId());
         if (curLink.isPresent()) {
+            BaseException ex = new BaseException("Ссылка уже зарегистрирована");
             MDC.put("linkId", linkData.linkId());
             MDC.put("chatId", linkData.chatId());
-            log.error("Ссылка уже зарегистрирована");
+            log.error("Ссылка уже зарегистрирована", ex);
             MDC.clear();
-            throw new BaseException("Ссылка уже зарегистрирована");
+            throw ex;
         }
         linkData.id(idSequence++);
         data.add(linkData);

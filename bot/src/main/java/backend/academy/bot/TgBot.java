@@ -78,7 +78,8 @@ public class TgBot {
                 } catch (InvalidCommandSyntaxException e) {
                     sendMessage(chatId, e.getMessage());
                 } catch (RuntimeException e) {
-                    log.error("Ошибка при обращении к скрапперу {}", e.getMessage());
+                    log.error("Ошибка при обращении к скрапперу", e);
+                    sendMessage(chatId, "Произошла ошибка");
                 }
             }
             return CONFIRMED_UPDATES_ALL;

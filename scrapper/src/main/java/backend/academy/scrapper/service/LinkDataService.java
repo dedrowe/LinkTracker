@@ -55,11 +55,13 @@ public class LinkDataService {
         List<LinkResponse> linkResponses = new ArrayList<>(links.size());
         for (LinkData linkData : links) {
             Link link = unwrap(linkRepository.getById(linkData.linkId())).orElseThrow(() -> {
+                String exceptionMessage = "Произошла ошибка при получении зарегистрированных ссылок";
+                RuntimeException ex = new RuntimeException(exceptionMessage);
                 MDC.put("chatId", String.valueOf(chatId));
                 MDC.put("linkId", String.valueOf(linkData.linkId()));
-                log.error("Произошла ошибка при получении зарегистрированных ссылок");
+                log.error(exceptionMessage, ex);
                 MDC.clear();
-                return new RuntimeException("Произошла ошибка при получении зарегистрированных ссылок");
+                return ex;
             });
             linkResponses.add(linkMapper.createLinkResponse(linkData, link.link()));
         }
@@ -90,19 +92,23 @@ public class LinkDataService {
     public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         Link link = unwrap(linkRepository.getByLink(request.link())).orElseThrow(() -> {
+            String exceptionMessage = "Ссылка не найдена";
+            NotFoundException ex = new NotFoundException(exceptionMessage);
             MDC.put("chatId", String.valueOf(chatId));
             MDC.put("link", String.valueOf(request.link()));
-            log.error("Ссылка не найдена");
+            log.error(exceptionMessage, ex);
             MDC.clear();
-            return new NotFoundException("Ссылка не найдена");
+            return ex;
         });
         LinkData linkData = unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()))
                 .orElseThrow(() -> {
+                    String exceptionMessage = "Данные о ссылке не найдены";
+                    NotFoundException ex = new NotFoundException(exceptionMessage);
                     MDC.put("chatId", String.valueOf(tgChat.id()));
                     MDC.put("linkId", String.valueOf(link.id()));
-                    log.error("Данные о ссылке не найдены");
+                    log.error(exceptionMessage, ex);
                     MDC.clear();
-                    return new NotFoundException("Данные о ссылке не найдены");
+                    return ex;
                 });
         unwrap(linkDataRepository.delete(linkData));
         return linkMapper.createLinkResponse(linkData, link.link());

@@ -54,10 +54,11 @@ public class InMemoryLinkRepository implements LinkRepository {
     @Async
     public Future<Void> create(Link link) {
         if (getByLinkInternal(link.link()).isPresent()) {
+            BaseException ex = new BaseException("Эта ссылка уже существует");
             MDC.put("link", link.link());
-            log.error("Эта ссылка уже существует");
+            log.error("Эта ссылка уже существует", ex);
             MDC.clear();
-            throw new BaseException("Эта ссылка уже существует");
+            throw ex;
         }
         link.id(idSequence++);
         links.add(link);

@@ -41,17 +41,19 @@ public class ScrapperClient {
     private RestClient.ResponseSpec setStatusHandler(RestClient.ResponseSpec responseSpec) {
         return responseSpec.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
             ApiErrorResponse error = mapper.readValue(response.getBody(), ApiErrorResponse.class);
+            ApiCallException ex;
+            String exceptionMessage = "Произошла ошибка";
+            if (error.code().equals("500")) {
+                ex = new ApiCallException(exceptionMessage, Integer.parseInt(error.code()));
+            } else {
+                ex = new ApiCallException(
+                        error.description(), error.exceptionMessage(), Integer.parseInt(error.code()));
+            }
             MDC.put("url", request.getURI().toString());
             MDC.put("code", error.code());
-            MDC.put("description", error.description());
-            MDC.put("exceptionName", error.exceptionName());
-            MDC.put("exceptionMessage", error.exceptionMessage());
-            log.error("Произошла ошибка");
+            log.error(exceptionMessage, ex);
             MDC.clear();
-            if (error.code().equals("500")) {
-                throw new ApiCallException("Произошла ошибка", Integer.parseInt(error.code()));
-            }
-            throw new ApiCallException(error.description(), error.exceptionMessage(), Integer.parseInt(error.code()));
+            throw ex;
         });
     }
 
