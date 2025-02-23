@@ -26,7 +26,7 @@ public class TgBot {
 
     public TgBot(TgCommandsDispatcher dispatcher, BotConfig config) {
         this.dispatcher = dispatcher;
-        this.bot = new TelegramBot(config.telegramToken());
+        this.bot = new TelegramBot(config.telegram().token());
         bot.setUpdatesListener(new TgUpdatesListener());
         setCommands();
     }

@@ -1,6 +1,8 @@
 app:
-  telegram-token: ${TELEGRAM_TOKEN} # env variable
-  scrapper-url: ${SCRAPPER_URL}
+  telegram:
+    token: ${TELEGRAM_TOKEN} # env variable
+  scrapper:
+    url: ${SCRAPPER_URL:http://localhost:8081}
 
 spring:
   application:

@@ -25,11 +25,7 @@ public class StackOverflowClient extends ApiClient {
     public StackOverflowClient(ScrapperConfig config) {
         key = config.stackOverflow().key();
         accessToken = config.stackOverflow().accessToken();
-        String baseUrl = "https://api.stackexchange.com/2.3";
-        if (!config.SOBaseUrl().equals("${SO_URL}")) {
-            baseUrl = config.SOBaseUrl();
-        }
-        client = RestClient.create(baseUrl);
+        client = RestClient.create(config.stackOverflow().SOBaseUrl());
     }
 
     public StackOverflowClient(RestClient client) {

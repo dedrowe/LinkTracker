@@ -1,11 +1,13 @@
 app:
-  github-token: ${GITHUB_TOKEN} # env variable
+  bot:
+    url: ${BOT_URL:http://localhost:8080}
+  github:
+    github-token: ${GITHUB_TOKEN} # env variable
+    github-base-url: ${GITHUB_URL:https://api.github.com/repos}
   stackoverflow:
     key: ${SO_TOKEN_KEY}
     access-token: ${SO_ACCESS_TOKEN}
-  github-base-url: ${GITHUB_URL}
-  so-base-url: ${SO_URL}
-  bot-url: ${BOT_URL}
+    so-base-url: ${SO_URL:https://api.stackexchange.com/2.3}
 
 spring:
   application:

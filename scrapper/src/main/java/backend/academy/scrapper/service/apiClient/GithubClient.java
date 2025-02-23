@@ -19,14 +19,10 @@ public class GithubClient extends ApiClient {
 
     @Autowired
     public GithubClient(ScrapperConfig config) {
-        String baseUrl = "https://api.github.com/repos";
-        if (!config.githubBaseUrl().equals("${GITHUB_URL}")) {
-            baseUrl = config.githubBaseUrl();
-        }
         client = RestClient.builder()
-                .baseUrl(baseUrl)
+                .baseUrl(config.github().githubBaseUrl())
                 .defaultHeader("Accept", "application/vnd.github+json")
-                .defaultHeader("Authorization", "Bearer " + config.githubToken())
+                .defaultHeader("Authorization", "Bearer " + config.github().githubToken())
                 .defaultHeader("X-GitHub-Api-Version", "2022-11-28")
                 .build();
     }

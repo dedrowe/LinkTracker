@@ -25,11 +25,7 @@ public class ScrapperClient {
 
     @Autowired
     public ScrapperClient(BotConfig config) {
-        String baseUrl = "http://localhost:8081";
-        if (!config.scrapperUrl().equals("${SCRAPPER_URL}")) {
-            baseUrl = config.scrapperUrl();
-        }
-        client = RestClient.create(baseUrl);
+        client = RestClient.create(config.scrapper().url());
         mapper = new ObjectMapper();
     }
 
