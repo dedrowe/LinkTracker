@@ -17,7 +17,7 @@ public class ExceptionsHandler {
     public ResponseEntity<ApiErrorResponse> handle(NotFoundException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ex.getDescription(),
-                String.valueOf(ex.getCode()),
+                HttpStatus.resolve(ex.getCode()),
                 ex.getClass().getName(),
                 ex.getMessage(),
                 Arrays.stream(ex.getStackTrace())
@@ -30,7 +30,7 @@ public class ExceptionsHandler {
     public ResponseEntity<ApiErrorResponse> handle(ApiCallException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ex.getDescription(),
-                String.valueOf(ex.getCode()),
+                HttpStatus.resolve(ex.getCode()),
                 ex.getClass().getName(),
                 ex.getMessage(),
                 Arrays.stream(ex.getStackTrace())
@@ -43,7 +43,7 @@ public class ExceptionsHandler {
     public ResponseEntity<ApiErrorResponse> handle(BaseException ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 ex.getDescription(),
-                String.valueOf(ex.getCode()),
+                HttpStatus.resolve(ex.getCode()),
                 ex.getClass().getName(),
                 ex.getMessage(),
                 Arrays.stream(ex.getStackTrace())
@@ -56,7 +56,7 @@ public class ExceptionsHandler {
     public ResponseEntity<ApiErrorResponse> handle(Exception ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 "Некорректные параметры запроса",
-                "500",
+                HttpStatus.valueOf("500"),
                 ex.getClass().getName(),
                 ex.getMessage(),
                 Arrays.stream(ex.getStackTrace())

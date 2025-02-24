@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -40,14 +41,16 @@ public class ScrapperClient {
             ApiErrorResponse error = mapper.readValue(response.getBody(), ApiErrorResponse.class);
             ApiCallException ex;
             String exceptionMessage = "Произошла ошибка";
-            if (error.code().equals("500")) {
-                ex = new ApiCallException(exceptionMessage, Integer.parseInt(error.code()));
+            if (error.code().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+                ex = new ApiCallException(exceptionMessage, error.code().value());
             } else {
                 ex = new ApiCallException(
-                        error.description(), error.exceptionMessage(), Integer.parseInt(error.code()));
+                        error.description(),
+                        error.exceptionMessage(),
+                        error.code().value());
             }
             try (var var1 = MDC.putCloseable("url", request.getURI().toString());
-                    var var2 = MDC.putCloseable("code", error.code())) {
+                    var var2 = MDC.putCloseable("code", String.valueOf(error.code().value()))) {
                 log.error(exceptionMessage, ex);
             }
             throw ex;
