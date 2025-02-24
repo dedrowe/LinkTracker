@@ -3,12 +3,11 @@ package backend.academy.scrapper.service.apiClient;
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.github.GHRepository;
 import backend.academy.scrapper.dto.github.Issue;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -31,26 +30,18 @@ public class GithubClient extends ApiClient {
         this.client = client;
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getIssueUpdate(URI uri) {
         Issue issue = getRequest(uri).body(Issue.class);
         if (issue == null) {
-            try (var var = MDC.putCloseable("url", uri.toString())) {
-                log.error("Issue не найден");
-            }
-            throw new BaseException("Ошибка при обращении по ссылке " + uri);
+            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return ZonedDateTime.parse(issue.updatedAt()).toLocalDateTime();
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getRepositoryUpdate(URI uri) {
         GHRepository repository = getRequest(uri).body(GHRepository.class);
         if (repository == null) {
-            try (var var = MDC.putCloseable("url", uri.toString())) {
-                log.error("Репозиторий не найден");
-            }
-            throw new BaseException("Ошибка при обращении по ссылке " + uri);
+            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return ZonedDateTime.parse(repository.updatedAt()).toLocalDateTime();
     }

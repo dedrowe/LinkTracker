@@ -14,6 +14,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,7 +44,7 @@ public class TgBot {
 
             @Override
             public void onFailure(SendMessage sendMessage, IOException e) {
-                log.error("Произошла ошибка при запросе {}", e.getMessage());
+                log.error("Произошла ошибка при запросе", e);
             }
         });
     }
@@ -73,12 +74,19 @@ public class TgBot {
                                             chatId,
                                             "Команда не найдена, для просмотра доступных команд введите /help"));
 
-                } catch (ApiCallException e) {
-                    sendMessage(chatId, e.getDescription());
-                } catch (InvalidCommandSyntaxException e) {
-                    sendMessage(chatId, e.getMessage());
-                } catch (RuntimeException e) {
-                    log.error("Ошибка при обращении к скрапперу", e);
+                } catch (ApiCallException ex) {
+                    try (var ignored1 = MDC.putCloseable("url", ex.url());
+                            var ignored2 = MDC.putCloseable("code", String.valueOf(ex.code()))) {
+                        log.error("Ошибка при обращении к скрапперу", ex);
+                    }
+                    sendMessage(chatId, ex.description());
+                } catch (InvalidCommandSyntaxException ex) {
+                    try (var ignored = MDC.putCloseable("command", ex.command())) {
+                        log.warn("Неверный формат команды", ex);
+                    }
+                    sendMessage(chatId, ex.getMessage());
+                } catch (RuntimeException ex) {
+                    log.error("Произошла ошибка", ex);
                     sendMessage(chatId, "Произошла ошибка");
                 }
             }

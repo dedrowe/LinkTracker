@@ -4,12 +4,12 @@ import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.exceptionHandling.exceptions.WrongServiceException;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
-import backend.academy.shared.exceptions.BaseException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -63,7 +62,6 @@ public class UpdatesCheckerService {
         }
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public void checkResource(String url) {
         try {
             URI uri = new URI(url);
@@ -71,12 +69,7 @@ public class UpdatesCheckerService {
             ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
             client.getLastUpdate(uri);
         } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
-            String exceptionMessage = "Ошибка в синтаксисе ссылки";
-            BaseException ex = new BaseException(exceptionMessage, e);
-            try (var var = MDC.putCloseable("url", url)) {
-                log.info(exceptionMessage, ex);
-            }
-            throw ex;
+            throw new WrongServiceException("Ошибка в синтаксисе ссылки", url, e);
         }
     }
 }

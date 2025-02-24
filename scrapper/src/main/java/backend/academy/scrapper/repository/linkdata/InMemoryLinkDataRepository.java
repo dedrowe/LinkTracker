@@ -1,7 +1,7 @@
 package backend.academy.scrapper.repository.linkdata;
 
 import backend.academy.scrapper.entity.LinkData;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -65,17 +64,13 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public Future<Void> create(LinkData linkData) {
         Optional<LinkData> curLink = getByChatIdLinkIdInternal(linkData.chatId(), linkData.linkId());
         if (curLink.isPresent()) {
-            String exceptionMessage = "Ссылка уже зарегистрирована";
-            BaseException ex = new BaseException(exceptionMessage);
-            try (var var1 = MDC.putCloseable("linkId", String.valueOf(linkData.linkId()));
-                    var var2 = MDC.putCloseable("chatId", String.valueOf(linkData.chatId()))) {
-                log.error(exceptionMessage, ex);
-            }
-            throw ex;
+            throw new LinkDataException(
+                    "Ссылка уже зарегистрирована",
+                    String.valueOf(linkData.linkId()),
+                    String.valueOf(linkData.chatId()));
         }
         linkData.id(idSequence.incrementAndGet());
         data.add(linkData);

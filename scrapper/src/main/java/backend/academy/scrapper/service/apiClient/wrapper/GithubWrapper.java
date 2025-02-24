@@ -1,12 +1,11 @@
 package backend.academy.scrapper.service.apiClient.wrapper;
 
 import backend.academy.scrapper.service.apiClient.GithubClient;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 @Component("github.com")
@@ -17,7 +16,6 @@ public class GithubWrapper implements ApiClientWrapper {
     private final GithubClient client;
 
     @Override
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getLastUpdate(URI uri) {
         String[] path = uri.getPath().split("/");
         if (path.length == 3) {
@@ -25,12 +23,7 @@ public class GithubWrapper implements ApiClientWrapper {
         } else if (path.length == 5 && path[3].equals("issues")) {
             return client.getIssueUpdate(uri);
         } else {
-            String exceptionMessage = "Ресурс не поддерживается";
-            BaseException ex = new BaseException(exceptionMessage + " " + uri);
-            try (var var = MDC.putCloseable("uri", uri.toString())) {
-                log.info(exceptionMessage, ex);
-            }
-            throw ex;
+            throw new ApiCallException("Ресурс не поддерживается", 400, uri.toString());
         }
     }
 }

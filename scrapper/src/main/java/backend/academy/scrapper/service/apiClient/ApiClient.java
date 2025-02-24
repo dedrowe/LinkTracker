@@ -4,7 +4,6 @@ import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 
@@ -17,25 +16,19 @@ public abstract class ApiClient {
         return setStatusHandlers(client.get().uri(uri.getPath()).retrieve(), uri);
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     protected RestClient.ResponseSpec setStatusHandlers(RestClient.ResponseSpec responseSpec, URI uri) {
         return responseSpec
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                     String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
-                    try (var var1 = MDC.putCloseable("uri", uri.toString());
-                            var var2 = MDC.putCloseable(
-                                    "code", response.getStatusCode().toString())) {
-                        log.warn("Ошибка при обращении по ссылке");
-                    }
                     throw new ApiCallException(
-                            "Ошибка при обращении по ссылке " + uri,
+                            "Ошибка при обращении по ссылке ",
                             body,
-                            response.getStatusCode().value());
+                            response.getStatusCode().value(),
+                            uri.toString());
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     throw new ApiCallException(
-                            "Сервис по ссылке " + uri + " сейчас недоступен",
-                            response.getStatusCode().value());
+                            "Сервис сейчас недоступен", response.getStatusCode().value(), uri.toString());
                 });
     }
 }

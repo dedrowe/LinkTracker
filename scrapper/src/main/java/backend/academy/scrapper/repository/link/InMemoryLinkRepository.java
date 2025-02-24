@@ -1,7 +1,7 @@
 package backend.academy.scrapper.repository.link;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -53,15 +52,9 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     @Override
     @Async
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public Future<Void> create(Link link) {
         if (getByLinkInternal(link.link()).isPresent()) {
-            String exceptionMessage = "Эта ссылка уже существует";
-            BaseException ex = new BaseException(exceptionMessage);
-            try (var var = MDC.putCloseable("link", link.link())) {
-                log.error(exceptionMessage, ex);
-            }
-            throw ex;
+            throw new LinkException("Эта ссылка уже существует", link.link());
         }
         link.id(idSequence.incrementAndGet());
         links.add(link);

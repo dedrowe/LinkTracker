@@ -1,12 +1,11 @@
 package backend.academy.scrapper.service;
 
+import backend.academy.scrapper.exceptionHandling.exceptions.WrongServiceException;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
-import backend.academy.shared.exceptions.BaseException;
 import java.net.URI;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,12 +19,7 @@ public class LinkDispatcher {
     public ApiClientWrapper dispatchLink(URI uri) {
         ApiClientWrapper apiClient = apiClients.getOrDefault(uri.getAuthority(), null);
         if (apiClient == null) {
-            String exceptionMessage = "Отслеживание ссылок этого сервиса не поддерживается";
-            BaseException ex = new BaseException(exceptionMessage);
-            try (var var = MDC.putCloseable("uri", uri.toString())) {
-                log.warn(exceptionMessage, ex);
-            }
-            throw ex;
+            throw new WrongServiceException("Отслеживание ссылок этого сервиса не поддерживается", uri.toString());
         }
         return apiClient;
     }

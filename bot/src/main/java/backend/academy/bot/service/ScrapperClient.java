@@ -8,7 +8,6 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.shared.exceptions.ApiCallException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -35,25 +34,18 @@ public class ScrapperClient {
         this.mapper = mapper;
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     private RestClient.ResponseSpec setStatusHandler(RestClient.ResponseSpec responseSpec) {
         return responseSpec.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
             ApiErrorResponse error = mapper.readValue(response.getBody(), ApiErrorResponse.class);
-            ApiCallException ex;
-            String exceptionMessage = "Произошла ошибка";
+            String exceptionDescription = error.description();
             if (error.code().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                ex = new ApiCallException(exceptionMessage, error.code().value());
-            } else {
-                ex = new ApiCallException(
-                        error.description(),
-                        error.exceptionMessage(),
-                        error.code().value());
+                exceptionDescription = "Произошла ошибка";
             }
-            try (var var1 = MDC.putCloseable("url", request.getURI().toString());
-                    var var2 = MDC.putCloseable("code", String.valueOf(error.code().value()))) {
-                log.error(exceptionMessage, ex);
-            }
-            throw ex;
+            throw new ApiCallException(
+                    exceptionDescription,
+                    error.exceptionMessage(),
+                    error.code().value(),
+                    request.getURI().toString());
         });
     }
 

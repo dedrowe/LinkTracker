@@ -1,7 +1,7 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -47,16 +46,10 @@ public class InMemoryTgChatRepository implements TgChatRepository {
 
     @Override
     @Async
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public Future<Void> create(TgChat tgChat) {
         Optional<TgChat> curChat = getByChatIdInternal(tgChat.chatId());
         if (curChat.isPresent()) {
-            String exceptionMessage = "Чат с таким id уже зарегистрирован";
-            BaseException ex = new BaseException(exceptionMessage);
-            try (var var = MDC.putCloseable("id", String.valueOf(tgChat.chatId()))) {
-                log.error(exceptionMessage, ex);
-            }
-            throw ex;
+            throw new TgChatException("Чат с таким id уже зарегистрирован", String.valueOf(tgChat.chatId()));
         }
         tgChat.id(idSequence.incrementAndGet());
         data.add(tgChat);

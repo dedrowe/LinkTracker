@@ -10,7 +10,6 @@ import com.pengrad.telegrambot.model.Update;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 @Component("/track")
@@ -39,16 +38,12 @@ public class TrackLinkCommand extends TgBotCommand {
         };
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     private Optional<String> setLink(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
-            InvalidCommandSyntaxException ex =
-                    new InvalidCommandSyntaxException("Неверный формат команды, ожидается: /track <link>");
-            try (var var = MDC.putCloseable("command", update.message().text())) {
-                log.error("Неверный формат команды", ex);
-            }
-            throw ex;
+            throw new InvalidCommandSyntaxException(
+                    "Неверный формат команды, ожидается: /track <link>",
+                    update.message().text());
         }
         LinkState linkState = new LinkState();
         linkState.link(command[1]);
@@ -67,19 +62,15 @@ public class TrackLinkCommand extends TgBotCommand {
         return Optional.of("Введите через пробел фильтры для ссылки в формате key:value, введите /skip для пропуска");
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     private Optional<String> setFilters(Update update, LinkState linkState) {
         String[] command = update.message().text().split(" ");
         if (!command[0].equals("/skip")) {
             for (String filter : command) {
                 String[] tokens = filter.split(":");
                 if (tokens.length != 2 || tokens[0].isEmpty() || tokens[1].isEmpty()) {
-                    InvalidCommandSyntaxException ex =
-                            new InvalidCommandSyntaxException("Фильтры должны указываться в формате key:value");
-                    try (var var = MDC.putCloseable("command", update.message().text())) {
-                        log.error("Неверный формат фильтров", ex);
-                    }
-                    throw ex;
+                    throw new InvalidCommandSyntaxException(
+                            "Фильтры должны указываться в формате key:value",
+                            update.message().text());
                 }
             }
             List<String> filters = List.of(command);

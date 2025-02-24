@@ -1,18 +1,13 @@
 package backend.academy.shared.exceptions;
 
+import lombok.Getter;
+
+@Getter
 public class BaseException extends RuntimeException {
 
     protected String description;
 
     protected int code = 400;
-
-    public String getDescription() {
-        return description;
-    }
-
-    public int getCode() {
-        return code;
-    }
 
     public BaseException(String message) {
         super(message);

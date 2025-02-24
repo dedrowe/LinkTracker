@@ -2,13 +2,12 @@ package backend.academy.scrapper.service.apiClient;
 
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -32,14 +31,10 @@ public class StackOverflowClient extends ApiClient {
         this.client = client;
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public LocalDateTime getQuestionUpdate(URI uri) {
         SOResponse responseBody = getRequest(uri).body(SOResponse.class);
         if (responseBody == null || responseBody.items().isEmpty()) {
-            try (var var = MDC.putCloseable("url", uri.toString())) {
-                log.error("Вопрос не найден");
-            }
-            throw new BaseException("Ошибка при обращении по ссылке " + uri);
+            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         Instant instant = Instant.ofEpochSecond(responseBody.items().getFirst().lastActivityDate());
         return instant.atZone(ZoneOffset.UTC).toLocalDateTime();
