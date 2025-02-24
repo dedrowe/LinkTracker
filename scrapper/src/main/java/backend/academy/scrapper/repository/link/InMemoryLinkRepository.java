@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Scope("singleton")
+@Scope
 @Slf4j
 public class InMemoryLinkRepository implements LinkRepository {
 
