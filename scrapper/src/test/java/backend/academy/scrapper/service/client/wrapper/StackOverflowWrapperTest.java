@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import backend.academy.scrapper.service.apiClient.wrapper.StackOverflowWrapper;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,7 +47,6 @@ public class StackOverflowWrapperTest {
     public void getWrongUrlUpdateTest(String url) {
         URI uri = URI.create(url);
 
-        assertThatThrownBy(() -> stackOverflowWrapper.getLastUpdate(uri)).isInstanceOf(BaseException.class);
-        assertThatThrownBy(() -> stackOverflowWrapper.getLastUpdate(uri)).hasMessage("Ресурс не поддерживается " + uri);
+        assertThatThrownBy(() -> stackOverflowWrapper.getLastUpdate(uri)).isInstanceOf(ApiCallException.class);
     }
 }

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
+import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import java.util.List;
@@ -61,7 +61,7 @@ public class TgChatServiceTest {
         when(tgChatRepository.getByChatId(Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
-        assertThatThrownBy(() -> tgChatService.deleteTgChat(123)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> tgChatService.deleteTgChat(123)).isInstanceOf(TgChatException.class);
         verify(tgChatRepository, times(1)).getByChatId(Mockito.anyLong());
     }
 
@@ -83,7 +83,7 @@ public class TgChatServiceTest {
         when(tgChatRepository.getById(Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
-        assertThatThrownBy(() -> tgChatService.getById(123)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> tgChatService.getById(123)).isInstanceOf(TgChatException.class);
         verify(tgChatRepository, times(1)).getById(Mockito.anyLong());
     }
 
@@ -105,7 +105,7 @@ public class TgChatServiceTest {
         when(tgChatRepository.getByChatId(Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
-        assertThatThrownBy(() -> tgChatService.getByChatId(123)).isInstanceOf(NotFoundException.class);
+        assertThatThrownBy(() -> tgChatService.getByChatId(123)).isInstanceOf(TgChatException.class);
         verify(tgChatRepository, times(1)).getByChatId(Mockito.anyLong());
     }
 }

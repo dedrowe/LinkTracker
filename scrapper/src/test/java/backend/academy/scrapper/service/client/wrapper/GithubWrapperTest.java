@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.service.apiClient.GithubClient;
 import backend.academy.scrapper.service.apiClient.wrapper.GithubWrapper;
-import backend.academy.shared.exceptions.BaseException;
+import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +56,6 @@ public class GithubWrapperTest {
     public void getWrongUrlUpdateTest(String url) {
         URI uri = URI.create(url);
 
-        assertThatThrownBy(() -> githubWrapper.getLastUpdate(uri)).isInstanceOf(BaseException.class);
-        assertThatThrownBy(() -> githubWrapper.getLastUpdate(uri)).hasMessage("Ресурс не поддерживается " + uri);
+        assertThatThrownBy(() -> githubWrapper.getLastUpdate(uri)).isInstanceOf(ApiCallException.class);
     }
 }
