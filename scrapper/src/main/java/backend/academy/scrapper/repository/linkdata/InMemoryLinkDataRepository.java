@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
@@ -21,7 +22,7 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     private final List<LinkData> data;
 
-    private long idSequence;
+    private final AtomicLong idSequence;
 
     public InMemoryLinkDataRepository() {
         this(new ArrayList<>());
@@ -29,7 +30,7 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     public InMemoryLinkDataRepository(List<LinkData> data) {
         this.data = Collections.synchronizedList(data);
-        idSequence = data.size() + 1L;
+        idSequence = new AtomicLong(data.size() + 1L);
     }
 
     @Override
@@ -76,7 +77,7 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
             }
             throw ex;
         }
-        linkData.id(idSequence++);
+        linkData.id(idSequence.incrementAndGet());
         data.add(linkData);
         return CompletableFuture.completedFuture(null);
     }

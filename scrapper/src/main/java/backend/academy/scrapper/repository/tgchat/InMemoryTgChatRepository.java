@@ -3,10 +3,12 @@ package backend.academy.scrapper.repository.tgchat;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.shared.exceptions.BaseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
@@ -20,15 +22,15 @@ public class InMemoryTgChatRepository implements TgChatRepository {
 
     private final List<TgChat> data;
 
-    private long idSequence;
+    private final AtomicLong idSequence;
 
     public InMemoryTgChatRepository() {
         this(new ArrayList<>());
     }
 
     public InMemoryTgChatRepository(List<TgChat> data) {
-        this.data = data;
-        idSequence = data.size() + 1L;
+        this.data = Collections.synchronizedList(data);
+        idSequence = new AtomicLong(data.size() + 1L);
     }
 
     @Override
@@ -56,7 +58,7 @@ public class InMemoryTgChatRepository implements TgChatRepository {
             }
             throw ex;
         }
-        tgChat.id(idSequence++);
+        tgChat.id(idSequence.incrementAndGet());
         data.add(tgChat);
         return CompletableFuture.completedFuture(null);
     }
