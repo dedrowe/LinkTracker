@@ -22,7 +22,7 @@ public class ExceptionsHandler {
 
     private static final String LOG_MESSAGE = "Произошла ошибка";
 
-    @ExceptionHandler
+    @ExceptionHandler(TgChatException.class)
     public ResponseEntity<ApiErrorResponse> handle(TgChatException ex) {
         try (var ignored = MDC.putCloseable("id", ex.id())) {
             log.error(LOG_MESSAGE, ex);
@@ -30,7 +30,7 @@ public class ExceptionsHandler {
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(LinkException.class)
     public ResponseEntity<ApiErrorResponse> handle(LinkException ex) {
         try (var ignored = MDC.putCloseable("link", ex.link())) {
             log.error(LOG_MESSAGE, ex);
@@ -38,7 +38,7 @@ public class ExceptionsHandler {
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(LinkDataException.class)
     public ResponseEntity<ApiErrorResponse> handle(LinkDataException ex) {
         try (var ignored = MDC.putCloseable("linkId", ex.linkId());
                 var ignored1 = MDC.putCloseable("chatId", ex.chatId())) {
@@ -47,7 +47,7 @@ public class ExceptionsHandler {
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(WrongServiceException.class)
     public ResponseEntity<ApiErrorResponse> handle(WrongServiceException ex) {
         try (var ignored = MDC.putCloseable("service", ex.service())) {
             log.error(LOG_MESSAGE, ex);
@@ -55,12 +55,12 @@ public class ExceptionsHandler {
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handle(NotFoundException ex) {
         return new ResponseEntity<>(createResponse(ex), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ApiCallException.class)
     public ResponseEntity<ApiErrorResponse> handle(ApiCallException ex) {
         try (var ignored = MDC.putCloseable("url", ex.url())) {
             log.error(LOG_MESSAGE, ex);
@@ -73,7 +73,7 @@ public class ExceptionsHandler {
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handle(Exception ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 "Некорректные параметры запроса",
