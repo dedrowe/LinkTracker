@@ -77,7 +77,7 @@ public class ExceptionsHandler {
     public ResponseEntity<ApiErrorResponse> handle(Exception ex) {
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 "Некорректные параметры запроса",
-                HttpStatus.valueOf("500"),
+                HttpStatus.valueOf(500),
                 ex.getClass().getName(),
                 ex.getMessage(),
                 Arrays.stream(ex.getStackTrace())
