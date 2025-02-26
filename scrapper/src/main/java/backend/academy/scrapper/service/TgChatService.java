@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class TgChatService {
 
-    public final TgChatRepository tgChatRepository;
+    private final TgChatRepository tgChatRepository;
 
-    public final LinkDataRepository linkDataRepository;
+    private final LinkDataRepository linkDataRepository;
 
     public void registerTgChat(long chatId) {
         TgChat tgChat = new TgChat(chatId);
