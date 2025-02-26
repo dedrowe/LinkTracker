@@ -21,11 +21,4 @@ public class LinkData {
     private List<String> tags;
 
     private List<String> filters;
-
-    public LinkData(long linkId, long chatId, List<String> tags, List<String> filters) {
-        this.linkId = linkId;
-        this.chatId = chatId;
-        this.tags = tags;
-        this.filters = filters;
-    }
 }
