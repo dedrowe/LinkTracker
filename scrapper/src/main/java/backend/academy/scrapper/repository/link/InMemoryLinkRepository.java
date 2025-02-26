@@ -34,25 +34,25 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     @Override
     @Async
-    public Future<List<Link>> getAll() {
+    public CompletableFuture<List<Link>> getAll() {
         return CompletableFuture.completedFuture(List.copyOf(links));
     }
 
     @Override
     @Async
-    public Future<Optional<Link>> getById(long id) {
+    public CompletableFuture<Optional<Link>> getById(long id) {
         return CompletableFuture.completedFuture(getByIdInternal(id));
     }
 
     @Override
     @Async
-    public Future<Optional<Link>> getByLink(String link) {
+    public CompletableFuture<Optional<Link>> getByLink(String link) {
         return CompletableFuture.completedFuture(getByLinkInternal(link));
     }
 
     @Override
     @Async
-    public Future<Void> create(Link link) {
+    public CompletableFuture<Void> create(Link link) {
         if (getByLinkInternal(link.link()).isPresent()) {
             throw new LinkException("Эта ссылка уже существует", link.link());
         }
@@ -63,7 +63,7 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     @Override
     @Async
-    public Future<Void> update(Link newLink) {
+    public CompletableFuture<Void> update(Link newLink) {
         Optional<Link> curLink = getByIdInternal(newLink.id());
         if (curLink.isEmpty()) {
             return CompletableFuture.completedFuture(null);
@@ -77,7 +77,7 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     @Override
     @Async
-    public Future<Void> deleteById(int id) {
+    public CompletableFuture<Void> deleteById(int id) {
         Optional<Link> link = getByIdInternal(id);
         link.ifPresent(links::remove);
         return CompletableFuture.completedFuture(null);
@@ -85,7 +85,7 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     @Override
     @Async
-    public Future<Void> delete(Link link) {
+    public CompletableFuture<Void> delete(Link link) {
         links.remove(link);
         return CompletableFuture.completedFuture(null);
     }

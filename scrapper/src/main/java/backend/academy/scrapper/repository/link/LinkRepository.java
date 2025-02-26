@@ -3,21 +3,21 @@ package backend.academy.scrapper.repository.link;
 import backend.academy.scrapper.entity.Link;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public interface LinkRepository {
 
-    Future<List<Link>> getAll();
+    CompletableFuture<List<Link>> getAll();
 
-    Future<Optional<Link>> getById(long id);
+    CompletableFuture<Optional<Link>> getById(long id);
 
-    Future<Optional<Link>> getByLink(String link);
+    CompletableFuture<Optional<Link>> getByLink(String link);
 
-    Future<Void> create(Link link);
+    CompletableFuture<Void> create(Link link);
 
-    Future<Void> update(Link link);
+    CompletableFuture<Void> update(Link link);
 
-    Future<Void> deleteById(int id);
+    CompletableFuture<Void> deleteById(int id);
 
-    Future<Void> delete(Link link);
+    CompletableFuture<Void> delete(Link link);
 }

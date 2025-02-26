@@ -34,19 +34,19 @@ public class InMemoryTgChatRepository implements TgChatRepository {
 
     @Override
     @Async
-    public Future<Optional<TgChat>> getById(long id) {
+    public CompletableFuture<Optional<TgChat>> getById(long id) {
         return CompletableFuture.completedFuture(getByIdInternal(id));
     }
 
     @Override
     @Async
-    public Future<Optional<TgChat>> getByChatId(long chatId) {
+    public CompletableFuture<Optional<TgChat>> getByChatId(long chatId) {
         return CompletableFuture.completedFuture(getByChatIdInternal(chatId));
     }
 
     @Override
     @Async
-    public Future<Void> create(TgChat tgChat) {
+    public CompletableFuture<Void> create(TgChat tgChat) {
         Optional<TgChat> curChat = getByChatIdInternal(tgChat.chatId());
         if (curChat.isPresent()) {
             throw new TgChatException("Чат с таким id уже зарегистрирован", String.valueOf(tgChat.chatId()));
@@ -58,7 +58,7 @@ public class InMemoryTgChatRepository implements TgChatRepository {
 
     @Override
     @Async
-    public Future<Void> deleteById(long id) {
+    public CompletableFuture<Void> deleteById(long id) {
         Optional<TgChat> chat = getByIdInternal(id);
         chat.ifPresent(data::remove);
         return CompletableFuture.completedFuture(null);
@@ -66,7 +66,7 @@ public class InMemoryTgChatRepository implements TgChatRepository {
 
     @Override
     @Async
-    public Future<Void> delete(TgChat tgChat) {
+    public CompletableFuture<Void> delete(TgChat tgChat) {
         data.remove(tgChat);
         return CompletableFuture.completedFuture(null);
     }

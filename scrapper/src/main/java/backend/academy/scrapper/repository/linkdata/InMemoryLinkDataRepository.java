@@ -34,37 +34,37 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public Future<List<LinkData>> getAll() {
+    public CompletableFuture<List<LinkData>> getAll() {
         return CompletableFuture.completedFuture(List.copyOf(data));
     }
 
     @Override
     @Async
-    public Future<Optional<LinkData>> getById(long id) {
+    public CompletableFuture<Optional<LinkData>> getById(long id) {
         return CompletableFuture.completedFuture(getByIdInternal(id));
     }
 
     @Override
     @Async
-    public Future<List<LinkData>> getByChatId(long chatId) {
+    public CompletableFuture<List<LinkData>> getByChatId(long chatId) {
         return CompletableFuture.completedFuture(getByChatIdInternal(chatId));
     }
 
     @Override
     @Async
-    public Future<List<LinkData>> getByLinkId(long linkId) {
+    public CompletableFuture<List<LinkData>> getByLinkId(long linkId) {
         return CompletableFuture.completedFuture(getByLinkIdInternal(linkId));
     }
 
     @Override
     @Async
-    public Future<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId) {
+    public CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId) {
         return CompletableFuture.completedFuture(getByChatIdLinkIdInternal(chatId, linkId));
     }
 
     @Override
     @Async
-    public Future<Void> create(LinkData linkData) {
+    public CompletableFuture<Void> create(LinkData linkData) {
         Optional<LinkData> curLink = getByChatIdLinkIdInternal(linkData.chatId(), linkData.linkId());
         if (curLink.isPresent()) {
             throw new LinkDataException(
@@ -79,7 +79,7 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public Future<Void> update(LinkData link) {
+    public CompletableFuture<Void> update(LinkData link) {
         Optional<LinkData> curLink = getByChatIdLinkIdInternal(link.chatId(), link.linkId());
         if (curLink.isEmpty()) {
             return CompletableFuture.completedFuture(null);
@@ -93,7 +93,7 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public Future<Void> deleteById(long id) {
+    public CompletableFuture<Void> deleteById(long id) {
         Optional<LinkData> link = getByIdInternal(id);
         link.ifPresent(data::remove);
         return CompletableFuture.completedFuture(null);
@@ -101,7 +101,7 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public Future<Void> delete(LinkData link) {
+    public CompletableFuture<Void> delete(LinkData link) {
         data.remove(link);
         return CompletableFuture.completedFuture(null);
     }

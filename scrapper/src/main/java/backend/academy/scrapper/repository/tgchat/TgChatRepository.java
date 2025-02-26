@@ -2,17 +2,17 @@ package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
 import java.util.Optional;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public interface TgChatRepository {
 
-    Future<Optional<TgChat>> getById(long id);
+    CompletableFuture<Optional<TgChat>> getById(long id);
 
-    Future<Optional<TgChat>> getByChatId(long chatId);
+    CompletableFuture<Optional<TgChat>> getByChatId(long chatId);
 
-    Future<Void> create(TgChat tgChat);
+    CompletableFuture<Void> create(TgChat tgChat);
 
-    Future<Void> deleteById(long id);
+    CompletableFuture<Void> deleteById(long id);
 
-    Future<Void> delete(TgChat tgChat);
+    CompletableFuture<Void> delete(TgChat tgChat);
 }
