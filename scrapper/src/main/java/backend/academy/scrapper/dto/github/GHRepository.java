@@ -1,60 +1,26 @@
 package backend.academy.scrapper.dto.github;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class GHRepository {
-    @JsonProperty("id")
-    private long id;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("full_name")
-    private String fullName;
-
-    @JsonProperty("owner")
-    private User owner;
-
-    @JsonProperty("private")
-    private boolean isPrivate;
-
-    @JsonProperty("html_url")
-    private String htmlUrl;
-
-    @JsonProperty("description")
-    private String description;
-
-    @JsonProperty("fork")
-    private boolean fork;
-
-    @JsonProperty("created_at")
-    private String createdAt;
-
-    @JsonProperty("updated_at")
-    private String updatedAt;
-
-    @JsonProperty("pushed_at")
-    private String pushedAt;
-
-    @JsonProperty("stargazers_count")
-    private int stargazersCount;
-
-    @JsonProperty("watchers_count")
-    private int watchersCount;
-
-    @JsonProperty("language")
-    private String language;
-
-    @JsonProperty("forks_count")
-    private int forksCount;
-
-    @JsonProperty("open_issues_count")
-    private int openIssuesCount;
-
-    @JsonProperty("default_branch")
-    private String defaultBranch;
-}
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record GHRepository(
+    long id,
+    String name,
+    String fullName,
+    User owner,
+    boolean isPrivate,
+    String htmlUrl,
+    String description,
+    boolean fork,
+    String createdAt,
+    String updatedAt,
+    String pushedAt,
+    int stargazersCount,
+    int watchersCount,
+    String language,
+    int forksCount,
+    int openIssuesCount,
+    String defaultBranch
+) {}

@@ -1,21 +1,13 @@
 package backend.academy.scrapper.dto.github;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@Getter
-@Setter
-public class Label {
-    @JsonProperty("id")
-    private int id;
-
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("color")
-    private String color;
-
-    @JsonProperty("description")
-    private String description;
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record Label(
+    int id,
+    String name,
+    String color,
+    String description
+) {
 }

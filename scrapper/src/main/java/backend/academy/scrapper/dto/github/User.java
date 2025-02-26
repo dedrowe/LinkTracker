@@ -1,22 +1,13 @@
 package backend.academy.scrapper.dto.github;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@Getter
-@Setter
-public class User {
-
-    @JsonProperty("login")
-    private String login;
-
-    @JsonProperty("id")
-    private int id;
-
-    @JsonProperty("avatar_url")
-    private String avatarUrl;
-
-    @JsonProperty("html_url")
-    private String htmlUrl;
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record User(
+    String login,
+    int id,
+    String avatarUrl,
+    String htmlUrl
+) {
 }
