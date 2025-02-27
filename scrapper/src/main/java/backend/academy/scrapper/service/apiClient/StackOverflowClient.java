@@ -16,9 +16,9 @@ import org.springframework.web.client.RestClient;
 @Slf4j
 public class StackOverflowClient extends ApiClient {
 
-    private String key;
+    private final String key;
 
-    private String accessToken;
+    private final String accessToken;
 
     @Autowired
     public StackOverflowClient(ScrapperConfig config) {
@@ -27,8 +27,10 @@ public class StackOverflowClient extends ApiClient {
         client = RestClient.create(config.stackOverflow().SOBaseUrl());
     }
 
-    public StackOverflowClient(RestClient client) {
+    public StackOverflowClient(RestClient client, String key, String accessToken) {
         this.client = client;
+        this.key = key;
+        this.accessToken = accessToken;
     }
 
     public LocalDateTime getQuestionUpdate(URI uri) {
