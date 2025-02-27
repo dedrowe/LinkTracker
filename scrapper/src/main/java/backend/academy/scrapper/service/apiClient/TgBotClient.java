@@ -34,13 +34,13 @@ public class TgBotClient {
                     String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
                     MDC.put("code", response.getStatusCode().toString());
                     log.error(body);
-                    MDC.clear();
+                    MDC.remove("code");
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
                     String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
                     MDC.put("code", response.getStatusCode().toString());
                     log.error(body);
-                    MDC.clear();
+                    MDC.remove("code");
                 })
                 .toBodilessEntity();
     }
