@@ -13,10 +13,12 @@ import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
+import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.GithubWrapper;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +47,7 @@ public class UpdatesCheckerServiceTest {
     private TgBotClient tgBotClient;
 
     @Mock
-    private TgChatService tgChatService;
+    private TgChatRepository tgChatRepository;
 
     @Mock
     private GithubWrapper githubClient;
@@ -67,7 +69,8 @@ public class UpdatesCheckerServiceTest {
                         CompletableFuture.completedFuture(List.of(
                                 new LinkData(1L, 1L, 1L, List.of(), List.of()),
                                 new LinkData(1L, 1L, 1L, List.of(), List.of()))));
-        when(tgChatService.getById(anyLong())).thenReturn(new TgChat(1L, 123L));
+        when(tgChatRepository.getById(anyLong()))
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(new TgChat(1L, 123L))));
         when(linkRepository.update(any())).thenReturn(CompletableFuture.completedFuture(null));
     }
 
@@ -78,7 +81,7 @@ public class UpdatesCheckerServiceTest {
                 linkDispatcher,
                 githubClient,
                 linkDataRepository,
-                tgChatService,
+                tgChatRepository,
                 linkMapper,
                 tgBotClient);
 
@@ -90,7 +93,7 @@ public class UpdatesCheckerServiceTest {
         order.verify(githubClient).getLastUpdate(any());
         order.verify(linkRepository).update(any());
         order.verify(linkDataRepository).getByLinkId(anyLong());
-        order.verify(tgChatService, times(1)).getById(anyLong());
+        order.verify(tgChatRepository, times(1)).getById(anyLong());
         order.verify(linkMapper).createLinkUpdate(anyLong(), anyString(), anyString(), any());
         order.verify(tgBotClient).sendUpdates(any());
 
@@ -98,7 +101,7 @@ public class UpdatesCheckerServiceTest {
         order.verify(githubClient).getLastUpdate(any());
         order.verify(linkRepository).update(any());
         order.verify(linkDataRepository).getByLinkId(anyLong());
-        order.verify(tgChatService, times(2)).getById(anyLong());
+        order.verify(tgChatRepository, times(2)).getById(anyLong());
         order.verify(linkMapper).createLinkUpdate(anyLong(), anyString(), anyString(), any());
         order.verify(tgBotClient).sendUpdates(any());
     }

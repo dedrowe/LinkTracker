@@ -4,7 +4,6 @@ import backend.academy.scrapper.entity.LinkData;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public interface LinkDataRepository {
 

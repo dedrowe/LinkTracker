@@ -47,8 +47,7 @@ public class StackOverflowClientTest {
 
     @Test
     public void getQuestionsSuccessTest() {
-        Question question = new Question(null, null, false, 1L, 1, 1,
-            123123L, 1L, 1L, "", "", "");
+        Question question = new Question(null, null, false, 1L, 1, 1, 123123L, 1L, 1L, "", "", "");
         SOResponse response = new SOResponse(List.of(question), false, 1, 1);
 
         LocalDateTime expectedTime =

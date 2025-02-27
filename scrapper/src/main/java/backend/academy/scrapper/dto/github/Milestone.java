@@ -5,15 +5,13 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record Milestone(
-    int id,
-    String title,
-    String description,
-    User creator,
-    int openIssues,
-    int closedIssues,
-    String createdAt,
-    String updatedAt,
-    String dueOn,
-    String closedAt
-) {
-}
+        int id,
+        String title,
+        String description,
+        User creator,
+        int openIssues,
+        int closedIssues,
+        String createdAt,
+        String updatedAt,
+        String dueOn,
+        String closedAt) {}
