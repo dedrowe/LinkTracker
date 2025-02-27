@@ -2,7 +2,6 @@ package backend.academy.scrapper.exceptionHandling;
 
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
-import backend.academy.scrapper.exceptionHandling.exceptions.NotFoundException;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.exceptionHandling.exceptions.WrongServiceException;
 import backend.academy.shared.dto.ApiErrorResponse;
@@ -55,11 +54,6 @@ public class ExceptionsHandler {
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiErrorResponse> handle(NotFoundException ex) {
-        return new ResponseEntity<>(createResponse(ex), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(ApiCallException.class)
     public ResponseEntity<ApiErrorResponse> handle(ApiCallException ex) {
         try (var ignored = MDC.putCloseable("url", ex.url())) {
@@ -70,11 +64,13 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiErrorResponse> handle(BaseException ex) {
+        log.error(LOG_MESSAGE, ex);
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handle(Exception ex) {
+        log.error(LOG_MESSAGE, ex);
         ApiErrorResponse errorResponse = new ApiErrorResponse(
                 "Некорректные параметры запроса",
                 HttpStatus.valueOf(500),
