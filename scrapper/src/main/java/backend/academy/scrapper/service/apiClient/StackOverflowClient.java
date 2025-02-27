@@ -1,8 +1,11 @@
 package backend.academy.scrapper.service.apiClient;
 
+import static backend.academy.shared.utils.client.RetryWrapper.retry;
+
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -24,7 +27,10 @@ public class StackOverflowClient extends ApiClient {
     public StackOverflowClient(ScrapperConfig config) {
         key = config.stackOverflow().key();
         accessToken = config.stackOverflow().accessToken();
-        client = RestClient.create(config.stackOverflow().SOBaseUrl());
+        client = RestClient.builder()
+                .requestFactory(new RequestFactoryBuilder().build())
+                .baseUrl(config.stackOverflow().SOBaseUrl())
+                .build();
     }
 
     public StackOverflowClient(RestClient client, String key, String accessToken) {
@@ -34,7 +40,7 @@ public class StackOverflowClient extends ApiClient {
     }
 
     public LocalDateTime getQuestionUpdate(URI uri) {
-        SOResponse responseBody = getRequest(uri).body(SOResponse.class);
+        SOResponse responseBody = retry(() -> getRequest(uri).body(SOResponse.class));
         if (responseBody == null || responseBody.items().isEmpty()) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }

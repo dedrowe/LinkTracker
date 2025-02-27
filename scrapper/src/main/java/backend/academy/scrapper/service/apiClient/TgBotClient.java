@@ -1,7 +1,10 @@
 package backend.academy.scrapper.service.apiClient;
 
+import static backend.academy.shared.utils.client.RetryWrapper.retry;
+
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.shared.dto.LinkUpdate;
+import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -18,7 +21,10 @@ public class TgBotClient {
 
     @Autowired
     public TgBotClient(ScrapperConfig config) {
-        client = RestClient.create(config.bot().url());
+        client = RestClient.builder()
+                .requestFactory(new RequestFactoryBuilder().build())
+                .baseUrl(config.bot().url())
+                .build();
     }
 
     public TgBotClient(RestClient client) {
@@ -26,7 +32,7 @@ public class TgBotClient {
     }
 
     public void sendUpdates(LinkUpdate updates) {
-        client.post()
+        retry(() -> client.post()
                 .uri("/updates")
                 .body(updates)
                 .retrieve()
@@ -42,6 +48,6 @@ public class TgBotClient {
                     log.error(body);
                     MDC.remove("code");
                 })
-                .toBodilessEntity();
+                .toBodilessEntity());
     }
 }

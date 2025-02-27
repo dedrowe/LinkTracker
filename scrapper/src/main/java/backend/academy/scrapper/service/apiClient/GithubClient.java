@@ -1,9 +1,12 @@
 package backend.academy.scrapper.service.apiClient;
 
+import static backend.academy.shared.utils.client.RetryWrapper.retry;
+
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.github.GHRepository;
 import backend.academy.scrapper.dto.github.Issue;
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -19,6 +22,7 @@ public class GithubClient extends ApiClient {
     @Autowired
     public GithubClient(ScrapperConfig config) {
         client = RestClient.builder()
+                .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.github().githubBaseUrl())
                 .defaultHeader("Accept", "application/vnd.github+json")
                 .defaultHeader("Authorization", "Bearer " + config.github().githubToken())
@@ -31,7 +35,7 @@ public class GithubClient extends ApiClient {
     }
 
     public LocalDateTime getIssueUpdate(URI uri) {
-        Issue issue = getRequest(uri).body(Issue.class);
+        Issue issue = retry(() -> getRequest(uri).body(Issue.class));
         if (issue == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
@@ -39,7 +43,7 @@ public class GithubClient extends ApiClient {
     }
 
     public LocalDateTime getRepositoryUpdate(URI uri) {
-        GHRepository repository = getRequest(uri).body(GHRepository.class);
+        GHRepository repository = retry(() -> getRequest(uri).body(GHRepository.class));
         if (repository == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }

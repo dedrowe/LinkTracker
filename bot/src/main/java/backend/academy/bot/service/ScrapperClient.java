@@ -1,11 +1,14 @@
 package backend.academy.bot.service;
 
+import static backend.academy.shared.utils.client.RetryWrapper.retry;
+
 import backend.academy.bot.BotConfig;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.ApiErrorResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +28,10 @@ public class ScrapperClient {
 
     @Autowired
     public ScrapperClient(BotConfig config) {
-        client = RestClient.create(config.scrapper().url());
+        client = RestClient.builder()
+                .requestFactory(new RequestFactoryBuilder().build())
+                .baseUrl(config.scrapper().url())
+                .build();
         mapper = new ObjectMapper();
     }
 
@@ -50,44 +56,46 @@ public class ScrapperClient {
     }
 
     public void registerChat(long chatId) {
-        setStatusHandler(client.post().uri("/tg-chat/{id}", chatId).retrieve()).toBodilessEntity();
+        retry(() -> setStatusHandler(client.post().uri("/tg-chat/{id}", chatId).retrieve())
+                .toBodilessEntity());
     }
 
     public void deleteChat(long chatId) {
-        setStatusHandler(client.delete().uri("/tg-chat/{id}", chatId).retrieve())
-                .toBodilessEntity();
+        retry(() -> setStatusHandler(
+                        client.delete().uri("/tg-chat/{id}", chatId).retrieve())
+                .toBodilessEntity());
     }
 
     public ListLinkResponse getLinks(long chatId) {
-        return setStatusHandler(client.get()
+        return retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .retrieve())
                 .toEntity(ListLinkResponse.class)
-                .getBody();
+                .getBody());
     }
 
     public void trackLink(long chatId, AddLinkRequest request) {
-        setStatusHandler(client.post()
+        retry(() -> setStatusHandler(client.post()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .body(request)
                         .retrieve())
-                .toBodilessEntity();
+                .toBodilessEntity());
     }
 
     public void untrackLink(long chatId, RemoveLinkRequest request) {
-        setStatusHandler(client.method(HttpMethod.DELETE)
+        retry(() -> setStatusHandler(client.method(HttpMethod.DELETE)
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .body(request)
                         .retrieve())
-                .toBodilessEntity();
+                .toBodilessEntity());
     }
 }
