@@ -17,6 +17,7 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,13 +41,17 @@ public class LinkDataService {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         List<LinkData> links = unwrap(linkDataRepository.getByChatId(tgChat.id()));
         List<LinkResponse> linkResponses = new ArrayList<>(links.size());
-        for (LinkData linkData : links) {
-            Link link = unwrap(linkRepository.getById(linkData.linkId()))
+        CompletableFuture<Optional<Link>>[] futures = links.stream()
+                .map(link -> linkRepository.getById(link.linkId()))
+                .toArray(CompletableFuture[]::new);
+        for (int i = 0; i < futures.length; ++i) {
+            int finalI = i;
+            Link link = unwrap(futures[finalI])
                     .orElseThrow(() -> new LinkDataException(
                             "Произошла ошибка при получении зарегистрированных ссылок",
-                            String.valueOf(linkData.linkId()),
+                            String.valueOf(links.get(finalI).linkId()),
                             String.valueOf(chatId)));
-            linkResponses.add(linkMapper.createLinkResponse(linkData, link.link()));
+            linkResponses.add(linkMapper.createLinkResponse(links.get(finalI), link.link()));
         }
         return new ListLinkResponse(linkResponses, linkResponses.size());
     }

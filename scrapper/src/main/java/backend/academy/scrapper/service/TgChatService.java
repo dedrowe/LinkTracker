@@ -1,13 +1,15 @@
 package backend.academy.scrapper.service;
 
+import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
+
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
-import backend.academy.scrapper.utils.FutureUnwrapper;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,16 +25,15 @@ public class TgChatService {
 
     public void registerTgChat(long chatId) {
         TgChat tgChat = new TgChat(chatId);
-        FutureUnwrapper.unwrap(tgChatRepository.create(tgChat));
+        unwrap(tgChatRepository.create(tgChat));
     }
 
     public void deleteTgChat(long chatId) {
-        TgChat tgChat = checkOptional(FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId)), chatId);
-        List<LinkData> links = FutureUnwrapper.unwrap(linkDataRepository.getByChatId(tgChat.id()));
-        for (LinkData linkData : links) {
-            FutureUnwrapper.unwrap(linkDataRepository.delete(linkData));
-        }
-        FutureUnwrapper.unwrap(tgChatRepository.delete(tgChat));
+        TgChat tgChat = checkOptional(unwrap(tgChatRepository.getByChatId(chatId)), chatId);
+        List<LinkData> links = unwrap(linkDataRepository.getByChatId(tgChat.id()));
+        unwrap(CompletableFuture.allOf(
+                links.stream().map(linkDataRepository::delete).toArray(CompletableFuture[]::new)));
+        unwrap(tgChatRepository.delete(tgChat));
     }
 
     /**
@@ -43,7 +44,7 @@ public class TgChatService {
      * @throws TgChatException если чат не найден
      */
     public TgChat getById(long id) {
-        return checkOptional(FutureUnwrapper.unwrap(tgChatRepository.getById(id)), id);
+        return checkOptional(unwrap(tgChatRepository.getById(id)), id);
     }
 
     /**
@@ -54,7 +55,7 @@ public class TgChatService {
      * @throws TgChatException если чат не найден
      */
     public TgChat getByChatId(long chatId) {
-        return checkOptional(FutureUnwrapper.unwrap(tgChatRepository.getByChatId(chatId)), chatId);
+        return checkOptional(unwrap(tgChatRepository.getByChatId(chatId)), chatId);
     }
 
     private TgChat checkOptional(Optional<TgChat> chat, long id) {
