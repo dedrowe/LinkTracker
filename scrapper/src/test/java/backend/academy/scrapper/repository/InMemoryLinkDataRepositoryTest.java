@@ -94,7 +94,7 @@ public class InMemoryLinkDataRepositoryTest {
 
     @Test
     public void createTest() {
-        LinkData linkData = new LinkData(5, 3, List.of("work"), List.of("user=user1"));
+        LinkData linkData = new LinkData(1L, 5, 3, List.of("work"), List.of("user=user1"));
 
         unwrap(repository.create(linkData));
         Optional<LinkData> actualLink = unwrap(repository.getByChatIdLinkId(3, 5));
@@ -108,7 +108,7 @@ public class InMemoryLinkDataRepositoryTest {
 
     @Test
     public void createDuplicateTest() {
-        LinkData linkData = new LinkData(5, 3, List.of("work"), List.of("user=user1"));
+        LinkData linkData = new LinkData(1L, 5, 3, List.of("work"), List.of("user=user1"));
 
         unwrap(repository.create(linkData));
         Optional<LinkData> actualLink = unwrap(repository.getByChatIdLinkId(3, 5));
@@ -123,7 +123,7 @@ public class InMemoryLinkDataRepositoryTest {
 
     @Test
     public void updateTest() {
-        LinkData linkData = new LinkData(1, 1, List.of("work"), List.of("user=user1"));
+        LinkData linkData = new LinkData(1L, 1, 1, List.of("work"), List.of("user=user1"));
 
         unwrap(repository.update(linkData));
         Optional<LinkData> actualLink = unwrap(repository.getByChatIdLinkId(1, 1));

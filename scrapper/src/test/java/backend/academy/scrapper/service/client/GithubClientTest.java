@@ -45,8 +45,9 @@ public class GithubClientTest {
 
     @Test
     public void getIssuesSuccessTest() {
-        Issue issue = new Issue();
-        issue.updatedAt("2025-02-13T08:04:58Z");
+        Issue issue = new Issue(1L, "", "", 1, "", null, "", false,
+            null, null, null, null, 1, "",
+            "2025-02-13T08:04:58Z", "", "");
         LocalDateTime expectedTime = ZonedDateTime.parse(issue.updatedAt()).toLocalDateTime();
 
         when(responseSpec.body(Issue.class)).thenReturn(issue);
@@ -68,8 +69,9 @@ public class GithubClientTest {
 
     @Test
     public void getRepositorySuccessTest() {
-        GHRepository repository = new GHRepository();
-        repository.updatedAt("2025-02-13T08:04:58Z");
+        GHRepository repository = new GHRepository(1L, "", "", null, false,
+            "", "", false, "", "2025-02-13T08:04:58Z",
+            "", 1, 1, "", 1, 1, "");
         LocalDateTime expectedTime = ZonedDateTime.parse(repository.updatedAt()).toLocalDateTime();
 
         when(responseSpec.body(GHRepository.class)).thenReturn(repository);

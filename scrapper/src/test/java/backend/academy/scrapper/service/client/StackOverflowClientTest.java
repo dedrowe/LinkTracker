@@ -47,10 +47,9 @@ public class StackOverflowClientTest {
 
     @Test
     public void getQuestionsSuccessTest() {
-        SOResponse response = new SOResponse();
-        Question question = new Question();
-        question.lastActivityDate(123123L);
-        response.items(List.of(question));
+        Question question = new Question(null, null, false, 1L, 1, 1,
+            123123L, 1L, 1L, "", "", "");
+        SOResponse response = new SOResponse(List.of(question), false, 1, 1);
 
         LocalDateTime expectedTime =
                 Instant.ofEpochSecond(123123L).atZone(ZoneOffset.UTC).toLocalDateTime();
@@ -75,8 +74,7 @@ public class StackOverflowClientTest {
 
     @Test
     public void getWrongQuestionUrlTest() {
-        SOResponse response = new SOResponse();
-        response.items(List.of());
+        SOResponse response = new SOResponse(List.of(), false, 1, 1);
 
         when(responseSpec.body(SOResponse.class)).thenReturn(response);
 
