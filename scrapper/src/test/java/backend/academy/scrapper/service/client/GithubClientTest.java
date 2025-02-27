@@ -70,8 +70,7 @@ public class GithubClientTest {
     public void getIssuesFailTest() {
         String expectedDescription = "Ошибка при обращении по ссылке";
         int status = 400;
-        stubFor(get(urlPathMatching("/-1/-1/issues/-1"))
-                .willReturn(aResponse().withStatus(200)));
+        stubFor(get(urlPathMatching("/-1/-1/issues/-1")).willReturn(aResponse().withStatus(200)));
 
         assertThatExceptionOfType(ApiCallException.class)
                 .isThrownBy(() -> githubClient.getIssueUpdate(URI.create(issuesUrl)))
