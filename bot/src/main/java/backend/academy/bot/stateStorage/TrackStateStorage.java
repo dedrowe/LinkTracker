@@ -1,14 +1,14 @@
 package backend.academy.bot.stateStorage;
 
 import backend.academy.bot.dto.LinkState;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TrackStateStorage {
 
-    private Map<Long, LinkState> storage = new HashMap<>();
+    private final ConcurrentMap<Long, LinkState> storage = new ConcurrentHashMap<>();
 
     public LinkState getState(long id) {
         return storage.get(id);
