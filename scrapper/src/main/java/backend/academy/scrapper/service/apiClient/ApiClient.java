@@ -21,7 +21,7 @@ public abstract class ApiClient {
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
                     String body = new String(response.getBody().readAllBytes(), StandardCharsets.UTF_8);
                     throw new ApiCallException(
-                            "Ошибка при обращении по ссылке ",
+                            "Ошибка при обращении по ссылке",
                             body,
                             response.getStatusCode().value(),
                             uri.toString());
