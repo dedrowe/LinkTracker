@@ -1,85 +1,110 @@
 package backend.academy.scrapper.service.client;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import backend.academy.scrapper.dto.stackOverflow.Question;
-import backend.academy.scrapper.dto.stackOverflow.SOResponse;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import backend.academy.shared.exceptions.ApiCallException;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.function.Function;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriBuilder;
 
-@ExtendWith(MockitoExtension.class)
 public class StackOverflowClientTest {
 
-    private final RestClient client = mock(RestClient.class);
+    private final String mockServerAddress = "localhost";
 
-    private final StackOverflowClient stackOverflowClient = new StackOverflowClient(client);
+    private final int mockServerPort = 8080;
 
-    private final RestClient.RequestHeadersUriSpec requestHeadersUriSpec = mock(RestClient.RequestHeadersUriSpec.class);
+    private final WireMockServer wireMockServer = new WireMockServer(
+            WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
-    private final RestClient.RequestHeadersSpec requestHeadersSpec = mock(RestClient.RequestHeadersSpec.class);
+    private final String key = "123";
 
-    private final RestClient.ResponseSpec responseSpec = mock(RestClient.ResponseSpec.class);
+    private final String accessToken = "123";
+
+    private final StackOverflowClient stackOverflowClient = new StackOverflowClient(
+            RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), key, accessToken);
 
     @BeforeEach
     void setUp() {
-        when(client.get()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri((Function<UriBuilder, URI>) any())).thenReturn(requestHeadersSpec);
-        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-
-        when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
+        wireMockServer.start();
+        configureFor(mockServerAddress, wireMockServer.port());
     }
+
+    @AfterEach
+    void tearDown() {
+        wireMockServer.stop();
+    }
+
+    private final String questionsUrl = "https://stackoverflow.com/questions/-1";
 
     @Test
     public void getQuestionsSuccessTest() {
-        Question question = new Question(null, null, false, 1L, 1, 1, 123123L, 1L, 1L, "", "", "");
-        SOResponse response = new SOResponse(List.of(question), false, 1, 1);
-
+        long expectedUpdate = 123123L;
+        String wireMockUrl = "/questions/-1*";
         LocalDateTime expectedTime =
-                Instant.ofEpochSecond(123123L).atZone(ZoneOffset.UTC).toLocalDateTime();
+                Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime();
+        stubFor(get(urlPathMatching(wireMockUrl))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(200)
+                        .withBody("{\"items\": [{\"last_activity_date\": \"" + expectedUpdate + "\"}]}")));
 
-        when(responseSpec.body(SOResponse.class)).thenReturn(response);
+        LocalDateTime actualTime = stackOverflowClient.getQuestionUpdate(URI.create(questionsUrl));
 
-        LocalDateTime actualTime =
-                stackOverflowClient.getQuestionUpdate(URI.create("https://api.stackexchange.com/2.3/questions/-1"));
-
+        verify(getRequestedFor(urlPathMatching(wireMockUrl)));
         assertThat(actualTime).isEqualTo(expectedTime);
     }
 
     @Test
     public void getQuestionsFailTest() {
-        when(responseSpec.body(SOResponse.class)).thenReturn(null);
+        String expectedDescription = "Ошибка при обращении по ссылке";
+        int status = 400;
+        String wireMockUrl = "/questions/-1*";
+        stubFor(get(urlPathMatching(wireMockUrl)).willReturn(aResponse().withStatus(200)));
 
-        String url = "https://api.stackexchange.com/2.3/questions/-1";
-
-        assertThatThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(url)))
-                .isInstanceOf(ApiCallException.class);
+        assertThatExceptionOfType(ApiCallException.class)
+                .isThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(questionsUrl)))
+                .satisfies(ex -> {
+                    assertThat(ex.description()).isEqualTo(expectedDescription);
+                    assertThat(ex.getMessage()).isEqualTo(expectedDescription);
+                    assertThat(ex.url()).isEqualTo(questionsUrl);
+                    assertThat(ex.code()).isEqualTo(status);
+                });
     }
 
     @Test
     public void getWrongQuestionUrlTest() {
-        SOResponse response = new SOResponse(List.of(), false, 1, 1);
+        String expectedDescription = "Ошибка при обращении по ссылке";
+        int status = 400;
+        String wireMockUrl = "/questions/-1*";
+        stubFor(get(urlPathMatching(wireMockUrl))
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(200)
+                        .withBody("{\"items\": []}")));
 
-        when(responseSpec.body(SOResponse.class)).thenReturn(response);
-
-        String url = "https://api.stackexchange.com/2.3/questions/-1";
-
-        assertThatThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(url)))
-                .isInstanceOf(ApiCallException.class);
+        assertThatExceptionOfType(ApiCallException.class)
+                .isThrownBy(() -> stackOverflowClient.getQuestionUpdate(URI.create(questionsUrl)))
+                .satisfies(ex -> {
+                    assertThat(ex.description()).isEqualTo(expectedDescription);
+                    assertThat(ex.getMessage()).isEqualTo(expectedDescription);
+                    assertThat(ex.url()).isEqualTo(questionsUrl);
+                    assertThat(ex.code()).isEqualTo(status);
+                });
     }
 }
