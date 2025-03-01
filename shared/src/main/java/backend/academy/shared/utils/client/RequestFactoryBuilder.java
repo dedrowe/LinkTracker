@@ -1,7 +1,7 @@
 package backend.academy.shared.utils.client;
 
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.ReactorClientHttpRequestFactory;
 
 public class RequestFactoryBuilder {
 
@@ -20,7 +20,7 @@ public class RequestFactoryBuilder {
     }
 
     public ClientHttpRequestFactory build() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        ReactorClientHttpRequestFactory factory = new ReactorClientHttpRequestFactory();
         factory.setConnectTimeout(connectionTimeoutMillis);
         factory.setReadTimeout(readTimeoutMillis);
         return factory;
