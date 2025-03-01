@@ -20,8 +20,8 @@ public class TgBotClient {
     private final RestClient client;
 
     @Autowired
-    public TgBotClient(ScrapperConfig config) {
-        client = RestClient.builder()
+    public TgBotClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
+        client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.bot().url())
                 .build();

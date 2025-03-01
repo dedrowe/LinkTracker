@@ -27,8 +27,8 @@ public class ScrapperClient {
     private final ObjectMapper mapper;
 
     @Autowired
-    public ScrapperClient(BotConfig config) {
-        client = RestClient.builder()
+    public ScrapperClient(BotConfig config, RestClient.Builder clientBuilder) {
+        client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.scrapper().url())
                 .build();

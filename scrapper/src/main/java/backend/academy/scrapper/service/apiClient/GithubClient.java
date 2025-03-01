@@ -20,8 +20,8 @@ import org.springframework.web.client.RestClient;
 public class GithubClient extends ApiClient {
 
     @Autowired
-    public GithubClient(ScrapperConfig config) {
-        client = RestClient.builder()
+    public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
+        client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.github().githubBaseUrl())
                 .defaultHeader("Accept", "application/vnd.github+json")

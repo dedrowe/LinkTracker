@@ -24,10 +24,10 @@ public class StackOverflowClient extends ApiClient {
     private final String accessToken;
 
     @Autowired
-    public StackOverflowClient(ScrapperConfig config) {
+    public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
         key = config.stackOverflow().key();
         accessToken = config.stackOverflow().accessToken();
-        client = RestClient.builder()
+        client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.stackOverflow().SOBaseUrl())
                 .build();
