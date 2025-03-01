@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,11 +26,18 @@ public class TgBot {
 
     private final TelegramBot bot;
 
+    @Autowired
     public TgBot(TgCommandsDispatcher dispatcher, BotConfig config) {
         this.dispatcher = dispatcher;
         this.bot = new TelegramBot(config.telegram().token());
         bot.setUpdatesListener(new TgUpdatesListener());
         setCommands();
+    }
+
+    TgBot(TgCommandsDispatcher dispatcher, TelegramBot bot) {
+        this.dispatcher = dispatcher;
+        this.bot = bot;
+        bot.setUpdatesListener(new TgUpdatesListener());
     }
 
     public void sendMessage(long chatId, String message) {
@@ -56,7 +64,7 @@ public class TgBot {
         bot.execute(setMyCommands);
     }
 
-    private class TgUpdatesListener implements UpdatesListener {
+    class TgUpdatesListener implements UpdatesListener {
 
         @Override
         public int process(List<Update> list) {
