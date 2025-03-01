@@ -24,9 +24,13 @@ public class ScrapperClientTest {
     private final int mockServerPort = 8080;
 
     private final WireMockServer wireMockServer = new WireMockServer(
-        WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
+            WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
-    private final ScrapperClient scrapperClient = new ScrapperClient(RestClient.builder().baseUrl("http://" + mockServerAddress + ":" + mockServerPort).build(), new ObjectMapper());
+    private final ScrapperClient scrapperClient = new ScrapperClient(
+            RestClient.builder()
+                    .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
+                    .build(),
+            new ObjectMapper());
 
     @BeforeEach
     void setUp() {
@@ -50,19 +54,19 @@ public class ScrapperClientTest {
         sb.append("\"code\": ").append("\"BAD_REQUEST\"").append(",");
         sb.append("\"stacktrace\": ").append("[]}");
         stubFor(get(urlPathMatching("/links*"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(400)
-                .withBody(sb.toString())));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(400)
+                        .withBody(sb.toString())));
 
         assertThatExceptionOfType(ApiCallException.class)
-            .isThrownBy(() -> scrapperClient.getLinks(1))
-            .satisfies(ex -> {
-                assertThat(ex.description()).isEqualTo("example description");
-                assertThat(ex.getMessage()).isEqualTo("example message");
-                assertThat(ex.url()).isEqualTo(expectedUrl);
-                assertThat(ex.code()).isEqualTo(expectedStatus);
-            });
+                .isThrownBy(() -> scrapperClient.getLinks(1))
+                .satisfies(ex -> {
+                    assertThat(ex.description()).isEqualTo("example description");
+                    assertThat(ex.getMessage()).isEqualTo("example message");
+                    assertThat(ex.url()).isEqualTo(expectedUrl);
+                    assertThat(ex.code()).isEqualTo(expectedStatus);
+                });
     }
 
     @Test
@@ -76,18 +80,18 @@ public class ScrapperClientTest {
         sb.append("\"code\": ").append("\"INTERNAL_SERVER_ERROR\"").append(",");
         sb.append("\"stacktrace\": ").append("[]}");
         stubFor(get(urlPathMatching("/links*"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(400)
-                .withBody(sb.toString())));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(400)
+                        .withBody(sb.toString())));
 
         assertThatExceptionOfType(ApiCallException.class)
-            .isThrownBy(() -> scrapperClient.getLinks(1))
-            .satisfies(ex -> {
-                assertThat(ex.description()).isEqualTo("Произошла ошибка");
-                assertThat(ex.getMessage()).isEqualTo("example message");
-                assertThat(ex.url()).isEqualTo(expectedUrl);
-                assertThat(ex.code()).isEqualTo(expectedStatus);
-            });
+                .isThrownBy(() -> scrapperClient.getLinks(1))
+                .satisfies(ex -> {
+                    assertThat(ex.description()).isEqualTo("Произошла ошибка");
+                    assertThat(ex.getMessage()).isEqualTo("example message");
+                    assertThat(ex.url()).isEqualTo(expectedUrl);
+                    assertThat(ex.code()).isEqualTo(expectedStatus);
+                });
     }
 }

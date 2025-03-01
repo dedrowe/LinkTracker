@@ -11,6 +11,7 @@ import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.shared.dto.LinkUpdate;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class TgBotClientTest {
@@ -31,9 +31,10 @@ public class TgBotClientTest {
     private final int mockServerPort = 8080;
 
     private final WireMockServer wireMockServer = new WireMockServer(
-        WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
+            WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
-    private final TgBotClient tgBotClient = new TgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort));
+    private final TgBotClient tgBotClient =
+            new TgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort));
 
     @BeforeEach
     void setUp() {
@@ -52,10 +53,10 @@ public class TgBotClientTest {
         String expectedBody = "example body";
         HttpStatus expectedStatus = HttpStatus.BAD_REQUEST;
         stubFor(post(urlPathMatching("/updates"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(expectedStatus.value())
-                .withBody(expectedBody)));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(expectedStatus.value())
+                        .withBody(expectedBody)));
 
         try (MockedStatic<MDC> context = Mockito.mockStatic(MDC.class)) {
 
@@ -72,10 +73,10 @@ public class TgBotClientTest {
         String expectedBody = "example body";
         HttpStatus expectedStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         stubFor(post(urlPathMatching("/updates"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(expectedStatus.value())
-                .withBody(expectedBody)));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(expectedStatus.value())
+                        .withBody(expectedBody)));
 
         try (MockedStatic<MDC> context = Mockito.mockStatic(MDC.class)) {
 
