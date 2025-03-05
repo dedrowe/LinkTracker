@@ -1,0 +1,99 @@
+package backend.academy.scrapper.repository.link;
+
+import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicLong;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Repository;
+
+@Repository
+@Scope
+@Slf4j
+public class InMemoryLinkRepository implements LinkRepository {
+
+    private final List<Link> links;
+
+    private final AtomicLong idSequence;
+
+    public InMemoryLinkRepository() {
+        this(new ArrayList<>());
+    }
+
+    public InMemoryLinkRepository(List<Link> links) {
+        this.links = Collections.synchronizedList(links);
+        idSequence = new AtomicLong(links.size() + 1L);
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<List<Link>> getAll() {
+        return CompletableFuture.completedFuture(List.copyOf(links));
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Optional<Link>> getById(long id) {
+        return CompletableFuture.completedFuture(getByIdInternal(id));
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Optional<Link>> getByLink(String link) {
+        return CompletableFuture.completedFuture(getByLinkInternal(link));
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> create(Link link) {
+        if (getByLinkInternal(link.link()).isPresent()) {
+            throw new LinkException("Эта ссылка уже существует", link.link());
+        }
+        link.id(idSequence.incrementAndGet());
+        links.add(link);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> update(Link newLink) {
+        Optional<Link> curLink = getByIdInternal(newLink.id());
+        if (curLink.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
+        Link link = curLink.orElseThrow();
+        int index = links.indexOf(link);
+        link.id(link.id());
+        links.set(index, link);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> deleteById(int id) {
+        Optional<Link> link = getByIdInternal(id);
+        link.ifPresent(links::remove);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> delete(Link link) {
+        links.remove(link);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private Optional<Link> getByLinkInternal(String link) {
+        return links.stream().filter(l -> l.link().equals(link)).findFirst();
+    }
+
+    private Optional<Link> getByIdInternal(long id) {
+        return links.stream().filter(l -> l.id() == id).findFirst();
+    }
+}
