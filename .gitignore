@@ -1,6 +1,8 @@
 ### Project ##
 !**/src/main/**
 !**/src/test/**
+data
+*.env*
 
 ### Maven ###
 !.mvn/wrapper/maven-wrapper.jar
