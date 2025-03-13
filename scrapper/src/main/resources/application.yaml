@@ -8,6 +8,7 @@ app:
     key: ${SO_TOKEN_KEY}
     access-token: ${SO_ACCESS_TOKEN}
     so-base-url: ${SO_URL:https://api.stackexchange.com/2.3}
+  access-type: ${ACCESS_TYPE:SQL}
 
 spring:
   application:
@@ -22,6 +23,11 @@ spring:
     import: optional:.env.properties
   mvc:
     log-resolved-exception: false
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
 logging:
   structured:
