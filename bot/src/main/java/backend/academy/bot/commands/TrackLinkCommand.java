@@ -57,6 +57,8 @@ public class TrackLinkCommand extends TgBotCommand {
         if (!command[0].equals("/skip")) {
             List<String> tags = List.of(command);
             linkState.tags(tags);
+        } else {
+            linkState.tags(List.of());
         }
         linkState.state(LinkTrackState.FILTERS);
         return Optional.of("Введите через пробел фильтры для ссылки в формате key:value, введите /skip для пропуска");
@@ -75,6 +77,8 @@ public class TrackLinkCommand extends TgBotCommand {
             }
             List<String> filters = List.of(command);
             linkState.filters(filters);
+        } else {
+            linkState.filters(List.of());
         }
         storage.remove(update.message().chat().id());
         client.trackLink(update.message().chat().id(), linkMapper.createAddLinkRequest(linkState));
