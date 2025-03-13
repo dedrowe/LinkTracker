@@ -123,7 +123,7 @@ public class TrackLinkCommandTest {
         Optional<String> actualResult = commandExecutor.execute(update);
 
         assertThat(state.state()).isEqualTo(LinkTrackState.FILTERS);
-        assertThat(state.tags()).isEqualTo(null);
+        assertThat(state.tags()).isEqualTo(List.of());
         assertThat(actualResult.get()).isEqualTo(expectedResult);
     }
 
@@ -160,7 +160,7 @@ public class TrackLinkCommandTest {
 
         Optional<String> actualResult = commandExecutor.execute(update);
 
-        assertThat(state.filters()).isEqualTo(null);
+        assertThat(state.filters()).isEqualTo(List.of());
         verify(trackStateStorage, times(1)).remove(chatId);
         verify(client, times(1)).trackLink(anyLong(), any());
         assertThat(actualResult.get()).isEqualTo(expectedResult);
