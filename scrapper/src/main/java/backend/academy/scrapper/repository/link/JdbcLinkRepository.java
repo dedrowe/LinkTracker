@@ -33,6 +33,15 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Override
+    public CompletableFuture<List<Link>> getAll(long skip, long limit) {
+        String query = "SELECT * FROM links WHERE deleted = false OFFSET :skip LIMIT :limit";
+
+        List<Link> links = jdbcClient.sql(query).param("skip", skip).param("limit", limit).query(Link.class).list();
+
+        return CompletableFuture.completedFuture(links);
+    }
+
+    @Override
     @Async
     public CompletableFuture<Optional<Link>> getById(long id) {
         String query = "SELECT * FROM links WHERE id = :id and deleted = false";

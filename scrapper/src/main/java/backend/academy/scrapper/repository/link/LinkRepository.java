@@ -9,6 +9,8 @@ public interface LinkRepository {
 
     CompletableFuture<List<Link>> getAll();
 
+    CompletableFuture<List<Link>> getAll(long skip, long limit);
+
     CompletableFuture<Optional<Link>> getById(long id);
 
     CompletableFuture<Optional<Link>> getByLink(String link);

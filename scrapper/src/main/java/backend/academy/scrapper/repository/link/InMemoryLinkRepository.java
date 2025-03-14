@@ -38,6 +38,11 @@ public class InMemoryLinkRepository implements LinkRepository {
     }
 
     @Override
+    public CompletableFuture<List<Link>> getAll(long skip, long limit) {
+        return CompletableFuture.completedFuture(List.copyOf(links.stream().skip(skip).limit(limit).toList()));
+    }
+
+    @Override
     @Async
     public CompletableFuture<Optional<Link>> getById(long id) {
         return CompletableFuture.completedFuture(getByIdInternal(id));

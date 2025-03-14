@@ -3,6 +3,7 @@ package backend.academy.scrapper.entity;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Link {
 
     private Long id;

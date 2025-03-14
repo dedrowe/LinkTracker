@@ -56,6 +56,11 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
     }
 
     @Override
+    public CompletableFuture<List<LinkData>> getByLinkId(long linkId, long skip, long limit) {
+        return CompletableFuture.completedFuture(getByLinkIdInternal(linkId, skip, limit));
+    }
+
+    @Override
     @Async
     public CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId) {
         return CompletableFuture.completedFuture(getByChatIdLinkIdInternal(chatId, linkId));
@@ -115,6 +120,10 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
 
     private List<LinkData> getByLinkIdInternal(long linkId) {
         return List.copyOf(data.stream().filter(l -> l.linkId() == linkId).toList());
+    }
+
+    private List<LinkData> getByLinkIdInternal(long linkId, long skip, long limit) {
+        return List.copyOf(data.stream().filter(l -> l.linkId() == linkId).skip(skip).limit(limit).toList());
     }
 
     private Optional<LinkData> getByChatIdLinkIdInternal(long chatId, long linkId) {
