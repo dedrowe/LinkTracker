@@ -1,4 +1,4 @@
-package backend.academy.scrapper.repository;
+package backend.academy.scrapper.repository.inMemory;
 
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
