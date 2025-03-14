@@ -18,9 +18,11 @@ public class InMemoryLinkDataRepositoryTest {
 
     private InMemoryLinkDataRepository repository;
 
+    private List<LinkData> data;
+
     @BeforeEach
     public void setUp() {
-        List<LinkData> data = new ArrayList<>();
+        data = new ArrayList<>();
         data.add(new LinkData(1L, 1, 1, new ArrayList<>(), new ArrayList<>()));
         data.add(new LinkData(2L, 2, 1, new ArrayList<>(), new ArrayList<>()));
         data.add(new LinkData(3L, 3, 2, new ArrayList<>(), new ArrayList<>()));
@@ -70,6 +72,23 @@ public class InMemoryLinkDataRepositoryTest {
         List<LinkData> data = unwrap(repository.getByLinkId(linkId));
 
         assertThat(data.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void getByLinkIdWithSkipLimitTest() {
+        long skip = 1L;
+        long limit = 3L;
+        long linkId = 1L;
+        LinkData linkData1 = new LinkData(6L, linkId, 3L, List.of(), List.of());
+        LinkData linkData2 = new LinkData(7L, linkId, 4L, List.of(), List.of());
+        LinkData linkData3 = new LinkData(8L, linkId, 5L, List.of(), List.of());
+        data.add(linkData1);
+        data.add(linkData2);
+        data.add(linkData3);
+
+        List<LinkData> actualResult = unwrap(repository.getByLinkId(linkId, skip, limit));
+
+        assertThat(actualResult).contains(linkData1, linkData2, linkData3);
     }
 
     @Test

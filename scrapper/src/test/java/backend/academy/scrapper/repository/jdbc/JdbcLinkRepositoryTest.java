@@ -59,6 +59,25 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
     }
 
     @Test
+    public void getAllWithSkipLimitTest() {
+        long skip = 1L;
+        long limit = 3L;
+        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example3.com', '2025-03-13 17:23:25')")
+            .update();
+        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example4.com', '2025-03-13 17:23:25')")
+            .update();
+        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example5.com', '2025-03-13 17:23:25')")
+            .update();
+        Link link1 = new Link(3L, "https://example3.com", testTimestamp);
+        Link link2 = new Link(4L, "https://example4.com", testTimestamp);
+        Link link3 = new Link(5L, "https://example5.com", testTimestamp);
+
+        List<Link> actualResult = unwrap(repository.getAll(skip, limit));
+
+        assertThat(actualResult).containsExactly(link1, link2, link3);
+    }
+
+    @Test
     public void getByIdTest() {
         long id = 1L;
         Link expectedResult = new Link(id, "https://example.com", testTimestamp);

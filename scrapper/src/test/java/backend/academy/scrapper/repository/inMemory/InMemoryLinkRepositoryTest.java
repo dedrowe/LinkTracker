@@ -19,9 +19,11 @@ public class InMemoryLinkRepositoryTest {
 
     private InMemoryLinkRepository repository;
 
+    private List<Link> links;
+
     @BeforeEach
     public void setUp() {
-        List<Link> links = new ArrayList<>();
+        links = new ArrayList<>();
         links.add(new Link(1L, "string", LocalDateTime.now()));
         repository = new InMemoryLinkRepository(links);
     }
@@ -31,6 +33,24 @@ public class InMemoryLinkRepositoryTest {
         List<Link> links = unwrap(repository.getAll());
 
         assertThat(links.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void getAllWithSkipLimitTest() {
+        long skip = 1L;
+        long limit = 3L;
+        Link link1 = new Link(2L, "string1", LocalDateTime.now());
+        Link link2 = new Link(3L, "string2", LocalDateTime.now());
+        Link link3 = new Link(4L, "string3", LocalDateTime.now());
+        Link link4 = new Link(5L, "string4", LocalDateTime.now());
+        links.add(link1);
+        links.add(link2);
+        links.add(link3);
+        links.add(link4);
+
+        List<Link> links = unwrap(repository.getAll(skip, limit));
+
+        assertThat(links).containsExactly(link1, link2, link3);
     }
 
     @Test
