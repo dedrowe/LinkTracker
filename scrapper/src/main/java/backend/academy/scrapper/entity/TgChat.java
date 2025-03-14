@@ -15,7 +15,14 @@ public class TgChat {
 
     private long chatId;
 
+    private boolean deleted = false;
+
     public TgChat(long chatId) {
+        this.chatId = chatId;
+    }
+
+    public TgChat(Long id, long chatId) {
+        this.id = id;
         this.chatId = chatId;
     }
 }

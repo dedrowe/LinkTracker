@@ -9,11 +9,13 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @Slf4j
+@ConditionalOnProperty(havingValue = "RAM", prefix = "app", name = "access-type")
 public class InMemoryTgChatRepository implements TgChatRepository {
 
     private final List<TgChat> data;

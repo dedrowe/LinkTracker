@@ -19,8 +19,16 @@ public class Link {
 
     private LocalDateTime lastUpdate;
 
+    private boolean deleted = false;
+
     public Link(String link) {
         this.link = link;
         this.lastUpdate = LocalDateTime.now(ZoneOffset.UTC);
+    }
+
+    public Link(Long id, String link, LocalDateTime lastUpdate) {
+        this.id = id;
+        this.link = link;
+        this.lastUpdate = lastUpdate;
     }
 }

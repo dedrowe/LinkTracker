@@ -10,7 +10,9 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record ScrapperConfig(
-        @Valid GithubCredentials github, @Valid StackOverflowCredentials stackOverflow, @Valid Bot bot,
+        @Valid GithubCredentials github,
+        @Valid StackOverflowCredentials stackOverflow,
+        @Valid Bot bot,
         @NotNull DbAccessType accessType) {
 
     public record Bot(@NotEmpty String url) {}
