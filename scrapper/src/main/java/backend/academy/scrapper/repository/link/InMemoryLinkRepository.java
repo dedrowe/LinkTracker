@@ -1,7 +1,10 @@
 package backend.academy.scrapper.repository.link;
 
+import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
@@ -22,13 +26,25 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     private final AtomicLong idSequence;
 
+    private final Duration linksCheckInterval;
+
     public InMemoryLinkRepository() {
         this(new ArrayList<>());
     }
 
+    @Autowired
+    public InMemoryLinkRepository(ScrapperConfig config) {
+        this(new ArrayList<>(), Duration.ofSeconds(config.linksCheckIntervalSeconds()));
+    }
+
     public InMemoryLinkRepository(List<Link> links) {
+        this(links, Duration.ZERO);
+    }
+
+    public InMemoryLinkRepository(List<Link> links, Duration linksCheckInterval) {
         this.links = Collections.synchronizedList(links);
         idSequence = new AtomicLong(links.size() + 1L);
+        this.linksCheckInterval = linksCheckInterval;
     }
 
     @Override
@@ -39,7 +55,17 @@ public class InMemoryLinkRepository implements LinkRepository {
 
     @Override
     public CompletableFuture<List<Link>> getAll(long skip, long limit) {
-        return CompletableFuture.completedFuture(List.copyOf(links.stream().skip(skip).limit(limit).toList()));
+        return CompletableFuture.completedFuture(
+                List.copyOf(links.stream().skip(skip).limit(limit).toList()));
+    }
+
+    @Override
+    public CompletableFuture<List<Link>> getAllNotChecked(long skip, long limit, LocalDateTime curTime) {
+        return CompletableFuture.completedFuture(List.copyOf(links.stream()
+                .filter(link -> curTime.isAfter(link.lastUpdate().plus(linksCheckInterval)))
+                .skip(skip)
+                .limit(limit)
+                .toList()));
     }
 
     @Override

@@ -1,12 +1,15 @@
 package backend.academy.scrapper.repository.link;
 
+import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -17,10 +20,27 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Slf4j
 @ConditionalOnProperty(havingValue = "SQL", prefix = "app", name = "access-type")
-@AllArgsConstructor
 public class JdbcLinkRepository implements LinkRepository {
 
     private final JdbcClient jdbcClient;
+
+    private final Duration linksCheckInterval;
+
+    public JdbcLinkRepository(JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
+        this.linksCheckInterval = Duration.ZERO;
+    }
+
+    public JdbcLinkRepository(JdbcClient jdbcClient, Duration linksCheckInterval) {
+        this.jdbcClient = jdbcClient;
+        this.linksCheckInterval = linksCheckInterval;
+    }
+
+    @Autowired
+    public JdbcLinkRepository(JdbcClient client, ScrapperConfig config) {
+        jdbcClient = client;
+        linksCheckInterval = Duration.ofSeconds(config.linksCheckIntervalSeconds());
+    }
 
     @Override
     @Async
@@ -36,7 +56,29 @@ public class JdbcLinkRepository implements LinkRepository {
     public CompletableFuture<List<Link>> getAll(long skip, long limit) {
         String query = "SELECT * FROM links WHERE deleted = false OFFSET :skip LIMIT :limit";
 
-        List<Link> links = jdbcClient.sql(query).param("skip", skip).param("limit", limit).query(Link.class).list();
+        List<Link> links = jdbcClient
+                .sql(query)
+                .param("skip", skip)
+                .param("limit", limit)
+                .query(Link.class)
+                .list();
+
+        return CompletableFuture.completedFuture(links);
+    }
+
+    @Override
+    public CompletableFuture<List<Link>> getAllNotChecked(long skip, long limit, LocalDateTime curTime) {
+        String query =
+                "SELECT * FROM links WHERE deleted = false and extract(epoch from(:curTime - last_update)) > :checkInterval OFFSET :skip LIMIT :limit";
+
+        List<Link> links = jdbcClient
+                .sql(query)
+                .param("skip", skip)
+                .param("limit", limit)
+                .param("curTime", curTime)
+                .param("checkInterval", linksCheckInterval.getSeconds())
+                .query(Link.class)
+                .list();
 
         return CompletableFuture.completedFuture(links);
     }

@@ -9,6 +9,7 @@ app:
     access-token: ${SO_ACCESS_TOKEN}
     so-base-url: ${SO_URL:https://api.stackexchange.com/2.3}
   access-type: ${ACCESS_TYPE:SQL}
+  links-check-interval-seconds: ${CHECK_INTERVAL:0}
 
 spring:
   application:

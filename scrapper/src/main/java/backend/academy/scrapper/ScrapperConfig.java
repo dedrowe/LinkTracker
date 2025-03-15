@@ -4,6 +4,7 @@ import backend.academy.shared.validation.url.Url;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -13,7 +14,8 @@ public record ScrapperConfig(
         @Valid GithubCredentials github,
         @Valid StackOverflowCredentials stackOverflow,
         @Valid Bot bot,
-        @NotNull DbAccessType accessType) {
+        @NotNull DbAccessType accessType,
+        @PositiveOrZero int linksCheckIntervalSeconds) {
 
     public record Bot(@NotEmpty String url) {}
 
