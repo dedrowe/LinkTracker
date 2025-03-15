@@ -149,14 +149,14 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
         long limit = 2L;
         client.sql("INSERT INTO tg_chats (chat_id, deleted) VALUES (4, false)").update();
         client.sql(
-                "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 1, array[]::varchar[], array[]::varchar[], false)")
-            .update();
+                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 1, array[]::varchar[], array[]::varchar[], false)")
+                .update();
         client.sql(
-                "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 3, array[]::varchar[], array[]::varchar[], false)")
-            .update();
+                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 3, array[]::varchar[], array[]::varchar[], false)")
+                .update();
         client.sql(
-                "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 4, array[]::varchar[], array[]::varchar[], false)")
-            .update();
+                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 4, array[]::varchar[], array[]::varchar[], false)")
+                .update();
         LinkData linkData1 = new LinkData(4L, 2L, 3L, List.of(), List.of());
         LinkData linkData2 = new LinkData(5L, 2L, 4L, List.of(), List.of());
 

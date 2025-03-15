@@ -123,7 +123,11 @@ public class InMemoryLinkDataRepository implements LinkDataRepository {
     }
 
     private List<LinkData> getByLinkIdInternal(long linkId, long skip, long limit) {
-        return List.copyOf(data.stream().filter(l -> l.linkId() == linkId).skip(skip).limit(limit).toList());
+        return List.copyOf(data.stream()
+                .filter(l -> l.linkId() == linkId)
+                .skip(skip)
+                .limit(limit)
+                .toList());
     }
 
     private Optional<LinkData> getByChatIdLinkIdInternal(long chatId, long linkId) {

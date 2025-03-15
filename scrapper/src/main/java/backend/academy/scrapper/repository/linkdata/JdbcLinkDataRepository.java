@@ -80,12 +80,12 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
         String query = "SELECT * FROM links_data WHERE link_id = :linkId and deleted = false OFFSET :skip LIMIT :limit";
 
         List<LinkData> linksData = jdbcClient
-            .sql(query)
-            .param("linkId", linkId)
-            .param("skip", skip)
-            .param("limit", limit)
-            .query(linkDataRowMapper)
-            .list();
+                .sql(query)
+                .param("linkId", linkId)
+                .param("skip", skip)
+                .param("limit", limit)
+                .query(linkDataRowMapper)
+                .list();
 
         return CompletableFuture.completedFuture(linksData);
     }
