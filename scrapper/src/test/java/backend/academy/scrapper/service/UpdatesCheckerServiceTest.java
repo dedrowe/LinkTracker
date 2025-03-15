@@ -3,6 +3,7 @@ package backend.academy.scrapper.service;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -52,23 +52,61 @@ public class UpdatesCheckerServiceTest {
     @Mock
     private GithubWrapper githubClient;
 
-    @InjectMocks
+    private final int batchSize = 3;
+
+    private final int threadsSize = 1;
+
     private UpdatesCheckerService updatesCheckerService;
 
     @BeforeEach
     public void setUp() {
-        when(linkRepository.getAll())
-                .thenReturn(CompletableFuture.completedFuture(List.of(
-                        new Link(1L, "https://example.com", LocalDateTime.of(2025, 2, 21, 0, 0)),
-                        new Link(2L, "https://example2.com", LocalDateTime.of(2025, 2, 21, 0, 0)))));
+        updatesCheckerService = new UpdatesCheckerService(
+                batchSize,
+                threadsSize,
+                linkDispatcher,
+                linkDataRepository,
+                linkRepository,
+                linkMapper,
+                tgBotClient,
+                tgChatRepository);
+        when(linkRepository.getAllNotChecked(anyLong(), anyLong(), any()))
+                .thenReturn(
+                        CompletableFuture.completedFuture(List.of(
+                                new Link(1L, "https://example.com", LocalDateTime.of(2025, 2, 21, 0, 0)),
+                                new Link(2L, "https://example2.com", LocalDateTime.of(2025, 2, 21, 0, 0)),
+                                new Link(3L, "https://example3.com", LocalDateTime.of(2025, 2, 21, 0, 0)))),
+                        CompletableFuture.completedFuture(
+                                List.of(new Link(4L, "https://example4.com", LocalDateTime.of(2025, 2, 21, 0, 0)))),
+                        CompletableFuture.completedFuture(List.of()));
         when(linkDispatcher.dispatchLink(any())).thenReturn(githubClient);
         when(githubClient.getLastUpdate(any())).thenReturn(LocalDateTime.of(2025, 2, 22, 0, 0));
-        when(linkDataRepository.getByLinkId(anyLong()))
+
+        when(linkDataRepository.getByLinkId(eq(1L), anyLong(), anyLong()))
                 .thenReturn(
                         CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of()));
+        when(linkDataRepository.getByLinkId(eq(2L), anyLong(), anyLong()))
+                .thenReturn(
                         CompletableFuture.completedFuture(List.of(
                                 new LinkData(1L, 1L, 1L, List.of(), List.of()),
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()))));
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of()));
+        when(linkDataRepository.getByLinkId(eq(3L), anyLong(), anyLong()))
+                .thenReturn(
+                        CompletableFuture.completedFuture(List.of(
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of()));
+        when(linkDataRepository.getByLinkId(eq(4L), anyLong(), anyLong()))
+                .thenReturn(
+                        CompletableFuture.completedFuture(List.of(
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
+                                new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of()));
+
         when(tgChatRepository.getById(anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new TgChat(1L, 123L))));
         when(linkRepository.update(any())).thenReturn(CompletableFuture.completedFuture(null));
@@ -87,22 +125,35 @@ public class UpdatesCheckerServiceTest {
 
         updatesCheckerService.checkUpdates();
 
-        order.verify(linkRepository).getAll();
+        order.verify(linkRepository).getAllNotChecked(anyLong(), anyLong(), any());
 
+        checkOneLinkIteration(order, 1);
+        checkOneLinkIteration(order, 4);
+        checkOneLinkIteration(order, 3);
+
+        order.verify(linkRepository).getAllNotChecked(anyLong(), anyLong(), any());
+
+        checkOneLinkIteration(order, 2);
+
+        order.verify(linkRepository).getAllNotChecked(anyLong(), anyLong(), any());
+
+        order.verifyNoMoreInteractions();
+    }
+
+    private void checkOneLinkIteration(InOrder order, int chatsCount) {
         order.verify(linkDispatcher).dispatchLink(any());
         order.verify(githubClient).getLastUpdate(any());
         order.verify(linkRepository).update(any());
-        order.verify(linkDataRepository).getByLinkId(anyLong());
-        order.verify(tgChatRepository, times(1)).getById(anyLong());
-        order.verify(linkMapper).createLinkUpdate(anyLong(), anyString(), anyString(), any());
-        order.verify(tgBotClient).sendUpdates(any());
 
-        order.verify(linkDispatcher).dispatchLink(any());
-        order.verify(githubClient).getLastUpdate(any());
-        order.verify(linkRepository).update(any());
-        order.verify(linkDataRepository).getByLinkId(anyLong());
-        order.verify(tgChatRepository, times(2)).getById(anyLong());
-        order.verify(linkMapper).createLinkUpdate(anyLong(), anyString(), anyString(), any());
-        order.verify(tgBotClient).sendUpdates(any());
+        int loopsCount = Math.ceilDiv(chatsCount, batchSize);
+        for (int i = 0; i < loopsCount; i++) {
+            int chats = Math.min(batchSize, chatsCount - batchSize * i);
+            order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
+            order.verify(tgChatRepository, times(chats)).getById(anyLong());
+            order.verify(linkMapper).createLinkUpdate(anyLong(), anyString(), anyString(), any());
+            order.verify(tgBotClient).sendUpdates(any());
+        }
+
+        order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
     }
 }
