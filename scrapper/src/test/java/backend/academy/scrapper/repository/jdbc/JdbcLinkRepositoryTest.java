@@ -8,6 +8,7 @@ import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
 import backend.academy.scrapper.repository.link.JdbcLinkRepository;
 import jakarta.annotation.PostConstruct;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -22,6 +23,8 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
 
     private JdbcLinkRepository repository;
 
+    private final Duration linksCheckInterval = Duration.ofSeconds(60);
+
     @Autowired
     public JdbcLinkRepositoryTest(JdbcClient client) {
         super(client);
@@ -29,7 +32,7 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
 
     @PostConstruct
     public void init() {
-        repository = new JdbcLinkRepository(client);
+        repository = new JdbcLinkRepository(client, linksCheckInterval);
     }
 
     private LocalDateTime testTimestamp =
@@ -63,11 +66,11 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
         long skip = 1L;
         long limit = 3L;
         client.sql("INSERT INTO links (link, last_update) VALUES ('https://example3.com', '2025-03-13 17:23:25')")
-            .update();
+                .update();
         client.sql("INSERT INTO links (link, last_update) VALUES ('https://example4.com', '2025-03-13 17:23:25')")
-            .update();
+                .update();
         client.sql("INSERT INTO links (link, last_update) VALUES ('https://example5.com', '2025-03-13 17:23:25')")
-            .update();
+                .update();
         Link link1 = new Link(3L, "https://example3.com", testTimestamp);
         Link link2 = new Link(4L, "https://example4.com", testTimestamp);
         Link link3 = new Link(5L, "https://example5.com", testTimestamp);
@@ -75,6 +78,19 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
         List<Link> actualResult = unwrap(repository.getAll(skip, limit));
 
         assertThat(actualResult).containsExactly(link1, link2, link3);
+    }
+
+    @Test
+    public void getAllNotCheckedTest() {
+        Link expectedResult =
+                new Link(3L, "https://example3.com", testTimestamp.minus(linksCheckInterval.plusSeconds(30)));
+        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example3.com', :lastUpdate)")
+                .param("lastUpdate", expectedResult.lastUpdate())
+                .update();
+
+        List<Link> actualResult = unwrap(repository.getAllNotChecked(0L, 10L, testTimestamp));
+
+        assertThat(actualResult).containsExactly(expectedResult);
     }
 
     @Test

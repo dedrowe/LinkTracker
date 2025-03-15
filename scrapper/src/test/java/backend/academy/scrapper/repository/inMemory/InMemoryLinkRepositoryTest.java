@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.fail;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.InMemoryLinkRepository;
 import backend.academy.shared.exceptions.BaseException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +22,15 @@ public class InMemoryLinkRepositoryTest {
 
     private List<Link> links;
 
+    private final Duration linksCheckInterval = Duration.ofSeconds(60);
+
+    private final LocalDateTime now = LocalDateTime.now();
+
     @BeforeEach
     public void setUp() {
         links = new ArrayList<>();
-        links.add(new Link(1L, "string", LocalDateTime.now()));
-        repository = new InMemoryLinkRepository(links);
+        links.add(new Link(1L, "string", now));
+        repository = new InMemoryLinkRepository(links, linksCheckInterval);
     }
 
     @Test
@@ -39,10 +44,10 @@ public class InMemoryLinkRepositoryTest {
     public void getAllWithSkipLimitTest() {
         long skip = 1L;
         long limit = 3L;
-        Link link1 = new Link(2L, "string1", LocalDateTime.now());
-        Link link2 = new Link(3L, "string2", LocalDateTime.now());
-        Link link3 = new Link(4L, "string3", LocalDateTime.now());
-        Link link4 = new Link(5L, "string4", LocalDateTime.now());
+        Link link1 = new Link(2L, "string1", now);
+        Link link2 = new Link(3L, "string2", now);
+        Link link3 = new Link(4L, "string3", now);
+        Link link4 = new Link(5L, "string4", now);
         links.add(link1);
         links.add(link2);
         links.add(link3);
@@ -51,6 +56,16 @@ public class InMemoryLinkRepositoryTest {
         List<Link> links = unwrap(repository.getAll(skip, limit));
 
         assertThat(links).containsExactly(link1, link2, link3);
+    }
+
+    @Test
+    public void getAllNotCheckedTest() {
+        Link expectedResult = new Link(1L, "string1", now.minus(linksCheckInterval.plusSeconds(30)));
+        links.add(expectedResult);
+
+        List<Link> links = unwrap(repository.getAllNotChecked(0L, 10L, now));
+
+        assertThat(links).containsExactly(expectedResult);
     }
 
     @Test
