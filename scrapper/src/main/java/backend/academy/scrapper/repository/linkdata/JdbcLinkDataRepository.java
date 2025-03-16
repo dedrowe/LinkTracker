@@ -156,15 +156,17 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Async
     public CompletableFuture<Void> update(LinkData link) {
         String query =
-                "UPDATE links_data SET tags = :tags, filters = :filters WHERE chat_id = :chatId and link_id = :linkId and deleted = false";
+                "UPDATE links_data SET tags = :tags, filters = :filters WHERE chat_id = :chatId and link_id = :linkId and deleted = false RETURNING id";
 
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient
                 .sql(query)
                 .param("tags", link.tags().toArray(new String[0]))
                 .param("filters", link.filters().toArray(new String[0]))
                 .param("chatId", link.chatId())
                 .param("linkId", link.linkId())
-                .update();
+                .update(keyHolder);
+        link.id(keyHolder.getKeyAs(Long.class));
 
         return CompletableFuture.completedFuture(null);
     }
