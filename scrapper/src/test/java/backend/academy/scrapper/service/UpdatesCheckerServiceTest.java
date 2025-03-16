@@ -142,18 +142,17 @@ public class UpdatesCheckerServiceTest {
 
     private void checkOneLinkIteration(InOrder order, int chatsCount) {
         order.verify(linkDispatcher).dispatchLink(any());
+        order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
         order.verify(githubClient).getLastUpdate(any(), any());
-        order.verify(linkRepository).update(any());
 
         int loopsCount = Math.ceilDiv(chatsCount, batchSize);
         for (int i = 0; i < loopsCount; i++) {
             int chats = Math.min(batchSize, chatsCount - batchSize * i);
-            order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
             order.verify(tgChatRepository, times(chats)).getById(anyLong());
             order.verify(linkMapper).createLinkUpdate(anyLong(), anyString(), anyString(), any());
             order.verify(tgBotClient).sendUpdates(any());
+            order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
         }
-
-        order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
+        order.verify(linkRepository).update(any());
     }
 }
