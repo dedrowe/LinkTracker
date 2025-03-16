@@ -10,14 +10,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import backend.academy.scrapper.dto.stackOverflow.Answer;
+import backend.academy.scrapper.dto.stackOverflow.Comment;
+import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import backend.academy.shared.exceptions.ApiCallException;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.net.URI;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,19 +56,25 @@ public class StackOverflowClientTest {
     @Test
     public void getQuestionsSuccessTest() {
         long expectedUpdate = 123123L;
+        String expectedBody = "test";
         String wireMockUrl = "/questions/-1*";
-        LocalDateTime expectedTime =
-                Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime();
+        Answer expectedAnswer = new Answer(null, 0, 0, List.of(), expectedBody);
+        Comment expectedComment = new Comment(null, 0, expectedBody);
+        Question expectedResult =
+                new Question(null, expectedUpdate, 0, null, List.of(expectedComment), List.of(expectedAnswer));
         stubFor(get(urlPathMatching(wireMockUrl))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
                         .withStatus(200)
-                        .withBody("{\"items\": [{\"last_activity_date\": \"" + expectedUpdate + "\"}]}")));
+                        .withBody("{\"items\": [{\"last_activity_date\": \"" + expectedUpdate + "\","
+                                + "\"comments\": [{\"body\": \""
+                                + expectedBody + "\"}]," + "\"answers\": [{\"body\": \""
+                                + expectedBody + "\"}]" + "}]}")));
 
-        LocalDateTime actualTime = stackOverflowClient.getQuestionUpdate(URI.create(questionsUrl));
+        Question actualResult = stackOverflowClient.getQuestionUpdate(URI.create(questionsUrl));
 
         verify(getRequestedFor(urlPathMatching(wireMockUrl)));
-        assertThat(actualTime).isEqualTo(expectedTime);
+        assertThat(actualResult).isEqualTo(expectedResult);
     }
 
     @Test

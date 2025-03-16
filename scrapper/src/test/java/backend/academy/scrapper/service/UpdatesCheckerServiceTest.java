@@ -79,7 +79,7 @@ public class UpdatesCheckerServiceTest {
                                 List.of(new Link(4L, "https://example4.com", LocalDateTime.of(2025, 2, 21, 0, 0)))),
                         CompletableFuture.completedFuture(List.of()));
         when(linkDispatcher.dispatchLink(any())).thenReturn(githubClient);
-        when(githubClient.getLastUpdate(any())).thenReturn(LocalDateTime.of(2025, 2, 22, 0, 0));
+        when(githubClient.getLastUpdate(any(), any())).thenReturn(Optional.of(""));
 
         when(linkDataRepository.getByLinkId(eq(1L), anyLong(), anyLong()))
                 .thenReturn(
@@ -142,7 +142,7 @@ public class UpdatesCheckerServiceTest {
 
     private void checkOneLinkIteration(InOrder order, int chatsCount) {
         order.verify(linkDispatcher).dispatchLink(any());
-        order.verify(githubClient).getLastUpdate(any());
+        order.verify(githubClient).getLastUpdate(any(), any());
         order.verify(linkRepository).update(any());
 
         int loopsCount = Math.ceilDiv(chatsCount, batchSize);
