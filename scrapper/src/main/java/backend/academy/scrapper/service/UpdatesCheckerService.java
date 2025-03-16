@@ -33,6 +33,7 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -42,6 +43,8 @@ public class UpdatesCheckerService {
     private static final int DEFAULT_BATCH_SIZE = 200;
 
     private static final int DEFAULT_THREAD_POOL_SIZE = 4;
+
+    private final InternalChecker checker = new InternalChecker();
 
     private final int batchSize;
 
@@ -89,7 +92,7 @@ public class UpdatesCheckerService {
                 }
 
                 List<Future<Void>> results = executorService.invokeAll(links.stream()
-                        .map(link -> (Callable<Void>) () -> checkUpdatesForLink(link))
+                        .map(link -> (Callable<Void>) () -> checker.checkUpdatesForLink(link))
                         .toList());
                 for (int i = 0; i < results.size(); i++) {
                     try {
@@ -108,47 +111,52 @@ public class UpdatesCheckerService {
         }
     }
 
-    private Void checkUpdatesForLink(Link link) {
-        URI uri = URI.create(link.link());
-        ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
+    private class InternalChecker {
 
-        long linksDataBatchesCount = 0;
-        Optional<String> description = Optional.empty();
-        while (true) {
-            List<LinkData> linkDataList =
-                unwrap(linkDataRepository.getByLinkId(link.id(), linksDataBatchesCount * batchSize, batchSize));
-            if (linkDataList.isEmpty()) {
-                break;
-            }
-            if (linksDataBatchesCount == 0) {
-                description = client.getLastUpdate(uri, link.lastUpdate());
-            }
-            if (description.isPresent()) {
-                sendUpdatesForLink(link.id(), link.link(), description.orElseThrow(), linkDataList);
-            }
-            ++linksDataBatchesCount;
-        }
-        link.lastUpdate(LocalDateTime.now(ZoneOffset.UTC));
-        unwrap(linkRepository.update(link));
-        return null;
-    }
+        @Transactional
+        protected Void checkUpdatesForLink(Link link) {
+            URI uri = URI.create(link.link());
+            ApiClientWrapper client = linkDispatcher.dispatchLink(uri);
 
-    private void sendUpdatesForLink(long linkId, String link, String description, List<LinkData> linkDataList) {
-        List<Long> chatIds = new ArrayList<>();
-        CompletableFuture<Optional<TgChat>>[] futures = linkDataList.stream()
-                .map(linkData -> tgChatRepository.getById(linkData.chatId()))
-                .toArray(CompletableFuture[]::new);
-        for (int i = 0; i < futures.length; i++) {
-            int finalI = i;
-            unwrap(futures[i]).ifPresentOrElse(tgChat -> chatIds.add(tgChat.chatId()), () -> {
-                try (var ignored = MDC.putCloseable(
-                        "id", String.valueOf(linkDataList.get(finalI).chatId()))) {
-                    log.warn("Чат не найден");
+            long linksDataBatchesCount = 0;
+            Optional<String> description = Optional.empty();
+            while (true) {
+                List<LinkData> linkDataList =
+                        unwrap(linkDataRepository.getByLinkId(link.id(), linksDataBatchesCount * batchSize, batchSize));
+                if (linkDataList.isEmpty()) {
+                    break;
                 }
-            });
+                if (linksDataBatchesCount == 0) {
+                    description = client.getLastUpdate(uri, link.lastUpdate());
+                }
+                if (description.isPresent()) {
+                    sendUpdatesForLink(link.id(), link.link(), description.orElseThrow(), linkDataList);
+                }
+                ++linksDataBatchesCount;
+            }
+            link.lastUpdate(LocalDateTime.now(ZoneOffset.UTC));
+            unwrap(linkRepository.update(link));
+            return null;
         }
-        tgBotClient.sendUpdates(linkMapper.createLinkUpdate(
-                linkId, link, "Получено обновление по ссылке " + link + "\n" + description, chatIds));
+
+        @Transactional
+        protected void sendUpdatesForLink(long linkId, String link, String description, List<LinkData> linkDataList) {
+            List<Long> chatIds = new ArrayList<>();
+            CompletableFuture<Optional<TgChat>>[] futures = linkDataList.stream()
+                    .map(linkData -> tgChatRepository.getById(linkData.chatId()))
+                    .toArray(CompletableFuture[]::new);
+            for (int i = 0; i < futures.length; i++) {
+                int finalI = i;
+                unwrap(futures[i]).ifPresentOrElse(tgChat -> chatIds.add(tgChat.chatId()), () -> {
+                    try (var ignored = MDC.putCloseable(
+                            "id", String.valueOf(linkDataList.get(finalI).chatId()))) {
+                        log.warn("Чат не найден");
+                    }
+                });
+            }
+            tgBotClient.sendUpdates(linkMapper.createLinkUpdate(
+                    linkId, link, "Получено обновление по ссылке " + link + "\n" + description, chatIds));
+        }
     }
 
     public void checkResource(String url) {

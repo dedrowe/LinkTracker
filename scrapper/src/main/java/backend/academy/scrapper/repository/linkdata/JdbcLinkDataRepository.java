@@ -64,7 +64,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<List<LinkData>> getByLinkId(long linkId) {
-        String query = "SELECT * FROM links_data WHERE link_id = :linkId and deleted = false";
+        String query = "SELECT * FROM links_data WHERE link_id = :linkId and deleted = false FOR UPDATE";
 
         List<LinkData> linksData = jdbcClient
                 .sql(query)
