@@ -7,7 +7,7 @@ create table tg_chats (
 create table links (
     id bigserial primary key,
     link varchar(512) unique not null,
-    last_update timestamp,
+    last_update timestamp not null,
     deleted boolean default false
 );
 
