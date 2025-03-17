@@ -15,7 +15,23 @@ create table links_data (
     id bigserial primary key,
     link_id bigserial references links (id) not null,
     chat_id bigserial references tg_chats (id) not null,
-    tags varchar(16)[] not null default array[]::varchar[],
-    filters varchar(32)[] not null default array[]::varchar[],
     deleted boolean default false
+);
+
+create table tags (
+    id bigserial primary key,
+    tag varchar(16) not null unique
+);
+
+create table links_data_to_tags (
+    id bigserial primary key,
+    data_id bigserial references links_data (id) not null,
+    tag_id bigserial references  tags (id) not null,
+    deleted boolean default false
+);
+
+create table filters (
+    id bigserial primary key,
+    data_id bigserial references links_data (id) not null,
+    filter varchar(32) not null
 );
