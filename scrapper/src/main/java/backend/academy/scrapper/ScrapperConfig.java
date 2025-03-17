@@ -25,7 +25,6 @@ public record ScrapperConfig(
             @NotEmpty String key, @NotEmpty String accessToken, @NotEmpty @Url String SOBaseUrl) {}
 
     public enum DbAccessType {
-        RAM,
         SQL,
         ORM
     }
