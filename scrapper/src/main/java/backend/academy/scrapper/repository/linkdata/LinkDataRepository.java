@@ -19,9 +19,9 @@ public interface LinkDataRepository {
 
     CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId);
 
-    CompletableFuture<Void> create(LinkData linkData);
+    CompletableFuture<List<LinkData>> getByTagAndChatId(String tag, long chatId);
 
-    CompletableFuture<Void> update(LinkData link);
+    CompletableFuture<Void> create(LinkData linkData);
 
     CompletableFuture<Void> deleteById(long id);
 

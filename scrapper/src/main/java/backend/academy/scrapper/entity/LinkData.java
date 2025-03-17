@@ -1,6 +1,5 @@
 package backend.academy.scrapper.entity;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,24 +19,16 @@ public class LinkData {
 
     private long chatId;
 
-    private List<String> tags;
-
-    private List<String> filters;
-
     private boolean deleted = false;
 
-    public LinkData(long linkId, long chatId, List<String> tags, List<String> filters) {
+    public LinkData(long linkId, long chatId) {
         this.linkId = linkId;
         this.chatId = chatId;
-        this.tags = tags;
-        this.filters = filters;
     }
 
-    public LinkData(Long id, long linkId, long chatId, List<String> tags, List<String> filters) {
+    public LinkData(Long id, long linkId, long chatId) {
         this.id = id;
         this.linkId = linkId;
         this.chatId = chatId;
-        this.tags = tags;
-        this.filters = filters;
     }
 }
