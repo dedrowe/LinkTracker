@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.tgchat.JdbcTgChatRepository;
-import jakarta.annotation.PostConstruct;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,15 +15,11 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 
 public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
-    private JdbcTgChatRepository repository;
+    private final JdbcTgChatRepository repository;
 
     @Autowired
     public JdbcTgChatRepositoryTest(JdbcClient client) {
         super(client);
-    }
-
-    @PostConstruct
-    public void init() {
         repository = new JdbcTgChatRepository(client);
     }
 

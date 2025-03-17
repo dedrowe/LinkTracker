@@ -7,8 +7,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import backend.academy.scrapper.repository.linkdata.JdbcLinkDataRepository;
-import backend.academy.scrapper.repository.rowMappers.LinkDataRowMapper;
-import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,15 +16,11 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 
 public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
 
-    private JdbcLinkDataRepository repository;
+    private final JdbcLinkDataRepository repository;
 
     @Autowired
     public JdbcLinkDataRepositoryTest(JdbcClient client) {
         super(client);
-    }
-
-    @PostConstruct
-    public void init() {
         repository = new JdbcLinkDataRepository(client);
     }
 
@@ -49,17 +43,15 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
                         "INSERT INTO links (link, last_update, deleted) VALUES ('https://example3.com', '2025-03-13 17:23:25', false)")
                 .update();
 
-        client.sql(
-                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (1, 1, array[]::varchar[], array[]::varchar[], false)")
+        client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (1, 1, false)")
                 .update();
-        client.sql(
-                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 2, array[]::varchar[], array[]::varchar[], true)")
+        client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (2, 2, true)")
                 .update();
     }
 
     @Test
     public void getAllTest() {
-        LinkData expectedResult = new LinkData(1L, 1L, 1L, List.of(), List.of());
+        LinkData expectedResult = new LinkData(1L, 1L, 1L);
 
         List<LinkData> actualResult = unwrap(repository.getAll());
 
@@ -67,22 +59,18 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.getFirst().tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.getFirst().filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
     public void getByIdTest() {
         long id = 1L;
-        LinkData expectedResult = new LinkData(id, 1L, 1L, List.of(), List.of());
+        LinkData expectedResult = new LinkData(id, 1L, 1L);
 
         LinkData actualResult = unwrap(repository.getById(id)).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
@@ -102,7 +90,7 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
     @Test
     public void getByChatIdTest() {
         long id = 1L;
-        LinkData expectedResult = new LinkData(1L, 1L, id, List.of(), List.of());
+        LinkData expectedResult = new LinkData(1L, 1L, id);
 
         List<LinkData> actualResult = unwrap(repository.getByChatId(id));
 
@@ -110,8 +98,6 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.getFirst().tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.getFirst().filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
@@ -131,7 +117,7 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
     @Test
     public void getByLinkIdTest() {
         long id = 1L;
-        LinkData expectedResult = new LinkData(1L, id, 1L, List.of(), List.of());
+        LinkData expectedResult = new LinkData(1L, id, 1L);
 
         List<LinkData> actualResult = unwrap(repository.getByLinkId(id));
 
@@ -139,8 +125,6 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.getFirst().tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.getFirst().filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
@@ -148,17 +132,14 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
         long skip = 1L;
         long limit = 2L;
         client.sql("INSERT INTO tg_chats (chat_id, deleted) VALUES (4, false)").update();
-        client.sql(
-                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 1, array[]::varchar[], array[]::varchar[], false)")
+        client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (2, 1, false)")
                 .update();
-        client.sql(
-                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 3, array[]::varchar[], array[]::varchar[], false)")
+        client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (2, 3, false)")
                 .update();
-        client.sql(
-                        "INSERT INTO links_data (link_id, chat_id, tags, filters, deleted) VALUES (2, 4, array[]::varchar[], array[]::varchar[], false)")
+        client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (2, 4, false)")
                 .update();
-        LinkData linkData1 = new LinkData(4L, 2L, 3L, List.of(), List.of());
-        LinkData linkData2 = new LinkData(5L, 2L, 4L, List.of(), List.of());
+        LinkData linkData1 = new LinkData(4L, 2L, 3L);
+        LinkData linkData2 = new LinkData(5L, 2L, 4L);
 
         List<LinkData> actualResult = unwrap(repository.getByLinkId(2L, skip, limit));
 
@@ -183,7 +164,7 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
     public void getByChatIdLinkIdTest() {
         long linkId = 1L;
         long chatId = 1L;
-        LinkData expectedResult = new LinkData(1L, linkId, chatId, List.of(), List.of());
+        LinkData expectedResult = new LinkData(1L, linkId, chatId);
 
         LinkData actualResult =
                 unwrap(repository.getByChatIdLinkId(chatId, linkId)).get();
@@ -191,8 +172,6 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
@@ -210,67 +189,65 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
     }
 
     @Test
+    public void getByTagAndChatIdTest() {
+        client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (2, 1, false)")
+                .update();
+        client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (3, 1, false)")
+                .update();
+        client.sql("INSERT INTO tags (tag) values ('test')").update();
+        client.sql("INSERT INTO links_data_to_tags (data_id, tag_id) VALUES (1, 1)")
+                .update();
+        client.sql("INSERT INTO links_data_to_tags (data_id, tag_id) VALUES (3, 1)")
+                .update();
+        LinkData linkData1 = new LinkData(1L, 1L, 1L);
+        LinkData linkData2 = new LinkData(3L, 2L, 1L);
+
+        List<LinkData> actualResult = unwrap(repository.getByTagAndChatId("test", 1));
+
+        assertThat(actualResult).containsExactly(linkData1, linkData2);
+    }
+
+    @Test
     public void createNewTest() {
         long chatId = 3L;
         long linkId = 3L;
-        LinkData expectedResult = new LinkData(3L, linkId, chatId, List.of(), List.of());
+        LinkData expectedResult = new LinkData(3L, linkId, chatId);
 
         unwrap(repository.create(expectedResult));
         LinkData actualResult = client.sql("SELECT * FROM links_data WHERE chat_id = :chatId and link_id = :linkId")
                 .param("chatId", chatId)
                 .param("linkId", linkId)
-                .query(new LinkDataRowMapper())
+                .query(LinkData.class)
                 .single();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
     public void createDeletedTest() {
         long chatId = 2L;
         long linkId = 2L;
-        LinkData expectedResult = new LinkData(2L, linkId, chatId, List.of(), List.of());
+        LinkData expectedResult = new LinkData(2L, linkId, chatId);
 
         unwrap(repository.create(expectedResult));
         LinkData actualResult = client.sql("SELECT * FROM links_data WHERE chat_id = :chatId and link_id = :linkId")
                 .param("chatId", chatId)
                 .param("linkId", linkId)
-                .query(new LinkDataRowMapper())
+                .query(LinkData.class)
                 .single();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
     public void createExistingTest() {
-        LinkData expectedResult = new LinkData(1L, 1L, 1L, List.of(), List.of());
+        LinkData expectedResult = new LinkData(1L, 1L, 1L);
 
         assertThatThrownBy(() -> unwrap(repository.create(expectedResult))).isInstanceOf(LinkDataException.class);
-    }
-
-    @Test
-    public void updateTest() {
-        LinkData expectedResult = new LinkData(1L, 1L, 1L, List.of("asd"), List.of("asd:asd"));
-
-        unwrap(repository.update(expectedResult));
-        LinkData actualResult = client.sql("SELECT * FROM links_data WHERE id = ?")
-                .param(expectedResult.id())
-                .query(new LinkDataRowMapper())
-                .single();
-
-        assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
-        assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
-        assertThat(actualResult.tags()).isEqualTo(expectedResult.tags());
-        assertThat(actualResult.filters()).isEqualTo(expectedResult.filters());
     }
 
     @Test
@@ -301,7 +278,7 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteTest() {
-        LinkData linkData = new LinkData(1L, 1L, 1L, List.of(), List.of());
+        LinkData linkData = new LinkData(1L, 1L, 1L);
 
         unwrap(repository.delete(linkData));
 
@@ -314,7 +291,7 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteAlreadyDeletedTest() {
-        LinkData linkData = new LinkData(2L, 2L, 2L, List.of(), List.of());
+        LinkData linkData = new LinkData(2L, 2L, 2L);
 
         unwrap(repository.delete(linkData));
 

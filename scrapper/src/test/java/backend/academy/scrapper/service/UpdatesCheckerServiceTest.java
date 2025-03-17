@@ -83,28 +83,22 @@ public class UpdatesCheckerServiceTest {
 
         when(linkDataRepository.getByLinkId(eq(1L), anyLong(), anyLong()))
                 .thenReturn(
-                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L))),
                         CompletableFuture.completedFuture(List.of()));
         when(linkDataRepository.getByLinkId(eq(2L), anyLong(), anyLong()))
                 .thenReturn(
-                        CompletableFuture.completedFuture(List.of(
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()))),
-                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(
+                                List.of(new LinkData(1L, 1L, 1L), new LinkData(1L, 1L, 1L), new LinkData(1L, 1L, 1L))),
+                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L))),
                         CompletableFuture.completedFuture(List.of()));
         when(linkDataRepository.getByLinkId(eq(3L), anyLong(), anyLong()))
                 .thenReturn(
-                        CompletableFuture.completedFuture(List.of(
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(
+                                List.of(new LinkData(1L, 1L, 1L), new LinkData(1L, 1L, 1L), new LinkData(1L, 1L, 1L))),
                         CompletableFuture.completedFuture(List.of()));
         when(linkDataRepository.getByLinkId(eq(4L), anyLong(), anyLong()))
                 .thenReturn(
-                        CompletableFuture.completedFuture(List.of(
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()),
-                                new LinkData(1L, 1L, 1L, List.of(), List.of()))),
+                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L), new LinkData(1L, 1L, 1L))),
                         CompletableFuture.completedFuture(List.of()));
 
         when(tgChatRepository.getById(anyLong()))

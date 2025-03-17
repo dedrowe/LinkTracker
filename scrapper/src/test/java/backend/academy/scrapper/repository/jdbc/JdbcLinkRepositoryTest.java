@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
 import backend.academy.scrapper.repository.link.JdbcLinkRepository;
-import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -28,10 +27,6 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
     @Autowired
     public JdbcLinkRepositoryTest(JdbcClient client) {
         super(client);
-    }
-
-    @PostConstruct
-    public void init() {
         repository = new JdbcLinkRepository(client, linksCheckInterval);
     }
 
