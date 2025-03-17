@@ -6,6 +6,7 @@ import backend.academy.bot.BotConfig;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.ApiErrorResponse;
 import backend.academy.shared.dto.ListLinkResponse;
+import backend.academy.shared.dto.ListTagLinkCount;
 import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
@@ -97,5 +98,28 @@ public class ScrapperClient {
                         .body(request)
                         .retrieve())
                 .toBodilessEntity());
+    }
+
+    public ListTagLinkCount getTagLinksCount(long chatId) {
+        return retry(() -> setStatusHandler(client.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/tag/links/count")
+                                .queryParam("Tg-Chat-Id", chatId)
+                                .build())
+                        .retrieve()))
+                .toEntity(ListTagLinkCount.class)
+                .getBody();
+    }
+
+    public ListLinkResponse getLinksByTag(long chatId, String tag) {
+        return retry(() -> setStatusHandler(client.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/tag/links")
+                                .queryParam("Tg-Chat-Id", chatId)
+                                .queryParam("tag", tag)
+                                .build())
+                        .retrieve()))
+                .toEntity(ListLinkResponse.class)
+                .getBody();
     }
 }
