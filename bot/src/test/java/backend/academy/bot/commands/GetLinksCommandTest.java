@@ -1,6 +1,7 @@
 package backend.academy.bot.commands;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +47,9 @@ public class GetLinksCommandTest {
 
     @Test
     public void emptyListTest() {
+        String command = "/list";
         when(client.getLinks(anyLong())).thenReturn(new ListLinkResponse(List.of(), 0));
+        when(update.message().text()).thenReturn(command);
 
         String expectedResult = "В данный момент никакие ссылки не отслеживаются";
 
@@ -59,6 +62,7 @@ public class GetLinksCommandTest {
     @Test
     @SuppressWarnings("MisleadingEscapedSpace")
     public void notEmptyListTest() {
+        String command = "/list";
         when(client.getLinks(anyLong()))
                 .thenReturn(new ListLinkResponse(
                         List.of(
@@ -66,6 +70,7 @@ public class GetLinksCommandTest {
                                         1L, "https://example.com", List.of("tag1", "tag2"), List.of("user=user1")),
                                 new LinkResponse(1L, "https://example2.com", List.of("tag3", "tag4"), List.of())),
                         2));
+        when(update.message().text()).thenReturn(command);
 
         String expectedResult =
                 """
@@ -80,6 +85,35 @@ public class GetLinksCommandTest {
         Optional<String> actualResult = commandExecutor.execute(update);
 
         assertThat(actualResult).isPresent();
+        assertThat(actualResult.get()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    @SuppressWarnings("MisleadingEscapedSpace")
+    public void tagListTest() {
+        String command = "/list tag1";
+        when(client.getLinksByTag(anyLong(), any()))
+                .thenReturn(new ListLinkResponse(
+                        List.of(
+                                new LinkResponse(
+                                        1L, "https://example.com", List.of("tag1", "tag2"), List.of("user=user1")),
+                                new LinkResponse(1L, "https://example2.com", List.of("tag3", "tag4"), List.of())),
+                        2));
+        when(update.message().text()).thenReturn(command);
+
+        String expectedResult =
+                """
+       Ссылки с тэгом tag1:
+       Ссылка: https://example.com
+       Тэги: tag1, tag2
+       Фильтры: user=user1
+       Ссылка: https://example2.com
+       Тэги: tag3, tag4
+       Фильтры:\s
+       """;
+
+        Optional<String> actualResult = commandExecutor.execute(update);
+
         assertThat(actualResult.get()).isEqualTo(expectedResult);
     }
 }
