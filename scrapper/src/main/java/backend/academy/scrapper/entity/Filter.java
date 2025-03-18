@@ -1,5 +1,12 @@
 package backend.academy.scrapper.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,24 +18,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Entity
+@Table(name = "filters")
 public class Filter {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+        generator = "filters_id_gen")
+    @SequenceGenerator(name = "filters_id_gen",
+        allocationSize = 1,
+        sequenceName = "filters_id_seq")
     private Long id;
 
-    private long data_id;
+    @Column(name = "data_id", nullable = false)
+    private long dataId;
 
+    @Column(name = "filter", nullable = false)
     private String filter;
 
-    private boolean deleted = false;
-
-    public Filter(long data_id, String filter) {
-        this.data_id = data_id;
+    public Filter(long dataId, String filter) {
+        this.dataId = dataId;
         this.filter = filter;
-    }
-
-    public Filter(long data_id, String filter, boolean deleted) {
-        this.data_id = data_id;
-        this.filter = filter;
-        this.deleted = deleted;
     }
 }

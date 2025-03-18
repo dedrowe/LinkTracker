@@ -1,3 +1,3 @@
 package backend.academy.shared.dto;
 
-public record TagLinkCount(String tag, int linksCount) {}
+public record TagLinkCount(String tag, long linksCount) {}

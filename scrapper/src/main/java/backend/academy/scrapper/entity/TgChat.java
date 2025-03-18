@@ -1,5 +1,12 @@
 package backend.academy.scrapper.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -11,12 +18,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Entity
+@Table(name = "tg_chats")
 public class TgChat {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+        generator = "tg_chats_id_gen")
+    @SequenceGenerator(name = "tg_chats_id_gen",
+        allocationSize = 1,
+        sequenceName = "tg_chats_id_seq")
     private Long id;
 
+    @Column(name = "chat_id", nullable = false, unique = true)
     private long chatId;
 
+    @Column(name = "deleted")
     private boolean deleted = false;
 
     public TgChat(long chatId) {

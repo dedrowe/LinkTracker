@@ -1,9 +1,7 @@
 package backend.academy.scrapper.repository.link;
 
-import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,22 +22,9 @@ public class JdbcLinkRepository implements LinkRepository {
 
     private final JdbcClient jdbcClient;
 
-    private final Duration linksCheckInterval;
-
-    public JdbcLinkRepository(JdbcClient jdbcClient) {
-        this.jdbcClient = jdbcClient;
-        this.linksCheckInterval = Duration.ZERO;
-    }
-
-    public JdbcLinkRepository(JdbcClient jdbcClient, Duration linksCheckInterval) {
-        this.jdbcClient = jdbcClient;
-        this.linksCheckInterval = linksCheckInterval;
-    }
-
     @Autowired
-    public JdbcLinkRepository(JdbcClient client, ScrapperConfig config) {
+    public JdbcLinkRepository(JdbcClient client) {
         jdbcClient = client;
-        linksCheckInterval = Duration.ofSeconds(config.linksCheckIntervalSeconds());
     }
 
     @Override
@@ -67,7 +52,7 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Override
-    public CompletableFuture<List<Link>> getAllNotChecked(long skip, long limit, LocalDateTime curTime) {
+    public CompletableFuture<List<Link>> getAllNotChecked(long skip, long limit, LocalDateTime curTime, long checkInterval) {
         String query =
                 "SELECT * FROM links WHERE deleted = false and extract(epoch from(:curTime - last_update)) > :checkInterval OFFSET :skip LIMIT :limit";
 
@@ -76,7 +61,7 @@ public class JdbcLinkRepository implements LinkRepository {
                 .param("skip", skip)
                 .param("limit", limit)
                 .param("curTime", curTime)
-                .param("checkInterval", linksCheckInterval.getSeconds())
+                .param("checkInterval", checkInterval)
                 .query(Link.class)
                 .list();
 

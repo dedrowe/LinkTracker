@@ -2,6 +2,7 @@ package backend.academy.scrapper.service;
 
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 
+import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
@@ -15,6 +16,7 @@ import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -62,6 +64,8 @@ public class UpdatesCheckerService {
 
     private final TgChatRepository tgChatRepository;
 
+    private final Duration linksCheckInterval;
+
     @Autowired
     public UpdatesCheckerService(
             LinkDispatcher linkDispatcher,
@@ -69,7 +73,8 @@ public class UpdatesCheckerService {
             LinkRepository linkRepository,
             LinkMapper linkMapper,
             TgBotClient tgBotClient,
-            TgChatRepository tgChatRepository) {
+            TgChatRepository tgChatRepository,
+            ScrapperConfig config) {
         this.linkDispatcher = linkDispatcher;
         this.linkDataRepository = linkDataRepository;
         this.linkRepository = linkRepository;
@@ -78,6 +83,7 @@ public class UpdatesCheckerService {
         this.tgChatRepository = tgChatRepository;
         this.batchSize = DEFAULT_BATCH_SIZE;
         this.threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+        linksCheckInterval = Duration.ofSeconds(config.linksCheckIntervalSeconds());
     }
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
@@ -86,7 +92,7 @@ public class UpdatesCheckerService {
             long linksBatchesCount = 0;
             while (true) {
                 List<Link> links = unwrap(linkRepository.getAllNotChecked(
-                        batchSize * linksBatchesCount, batchSize, LocalDateTime.now(ZoneOffset.UTC)));
+                        batchSize * linksBatchesCount, batchSize, LocalDateTime.now(ZoneOffset.UTC), linksCheckInterval.getSeconds()));
                 if (links.isEmpty()) {
                     break;
                 }

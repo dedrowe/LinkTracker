@@ -110,7 +110,8 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
                         + "join tg_chats on links_data.chat_id = tg_chats.id "
                         + "join links_data_to_tags on links_data.id = links_data_to_tags.data_id "
                         + "join tags on links_data_to_tags.tag_id = tags.id "
-                        + "where tags.tag = :tag and tg_chats.chat_id = :chatId and links_data.deleted = false";
+                        + "where tags.tag = :tag and tg_chats.chat_id = :chatId and links_data.deleted = false " +
+                    "and links_data_to_tags.deleted = false ";
 
         return CompletableFuture.completedFuture(jdbcClient
                 .sql(query)
