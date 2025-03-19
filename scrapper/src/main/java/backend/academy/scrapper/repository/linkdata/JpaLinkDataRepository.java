@@ -1,10 +1,8 @@
 package backend.academy.scrapper.repository.linkdata;
 
 
-import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
-import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -107,7 +105,7 @@ public interface JpaLinkDataRepository extends LinkDataRepository, Repository<Li
         "join TgChat tc on ld.chatId = tc.id " +
         "join LinkDataToTag ldt on ld.id = ldt.dataId " +
         "join Tag t on ldt.tagId = t.id " +
-        "where t.tag = :tag and tc.chatId = :chatId and ld.deleted = false and ldt.deleted = false")
+        "where t.tag = :tag and tc.chatId = :chatId and ld.deleted = false")
     List<LinkData> getByTagAndChatIdSync(@Param("tag") String tag, @Param("chatId") long chatId);
 
     @Query(value = "select l from LinkData l where l.chatId = :chatId and l.linkId = :linkId")
@@ -124,7 +122,7 @@ public interface JpaLinkDataRepository extends LinkDataRepository, Repository<Li
                     String.valueOf(linkData.linkId()),
                     String.valueOf(linkData.chatId()));
             }
-            restoreLinkDataSync(linkData.id());
+            restoreLinkDataSync(data.orElseThrow().id());
         } else {
             insertLinkDataSync(linkData.chatId(), linkData.linkId());
         }

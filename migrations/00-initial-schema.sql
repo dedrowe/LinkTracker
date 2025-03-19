@@ -26,8 +26,7 @@ create table tags (
 create table links_data_to_tags (
     id bigserial primary key,
     data_id bigserial references links_data (id) not null,
-    tag_id bigserial references  tags (id) not null,
-    deleted boolean default false
+    tag_id bigserial references  tags (id) not null
 );
 
 create table filters (

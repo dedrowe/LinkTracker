@@ -36,17 +36,8 @@ public class LinkDataToTag {
     @Column(name = "tag_id", nullable = false)
     private long tagId;
 
-    @Column(name = "deleted")
-    private boolean deleted = false;
-
     public LinkDataToTag(long dataId, long tagId) {
         this.dataId = dataId;
         this.tagId = tagId;
-    }
-
-    public LinkDataToTag(long dataId, long tagId, boolean deleted) {
-        this.dataId = dataId;
-        this.tagId = tagId;
-        this.deleted = deleted;
     }
 }

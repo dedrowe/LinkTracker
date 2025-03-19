@@ -1,12 +1,10 @@
 package backend.academy.scrapper.repository.tags;
 
-import backend.academy.scrapper.entity.LinkDataToTag;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.shared.dto.TagLinkCount;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
@@ -37,7 +35,7 @@ public class JdbcTagsRepository implements TagsRepository {
                 + "join tags on links_data_to_tags.tag_id = tags.id "
                 + "join links_data on links_data_to_tags.data_id = links_data.id "
                 + "join tg_chats on links_data.chat_id = tg_chats.id "
-                + "where tg_chats.chat_id = :chatId and links_data_to_tags.deleted = false "
+                + "where tg_chats.chat_id = :chatId "
                 + "group by tags.tag";
 
         return CompletableFuture.completedFuture(jdbcClient
@@ -64,12 +62,7 @@ public class JdbcTagsRepository implements TagsRepository {
             deleteRelation(dataId, tag.id());
         }
         getAllTagsByTagsSet(tagSet).forEach(tag -> {
-            Optional<LinkDataToTag> data = getRelationByDataIdAndTagId(dataId, tag.id());
-            if (data.isPresent()) {
-                restoreRelation(data.orElseThrow().id());
-            } else {
-                createRelation(dataId, tag.id());
-            }
+            createRelation(dataId, tag.id());
             tagSet.remove(tag.tag());
         });
         for (String tag : tagSet) {
@@ -82,28 +75,17 @@ public class JdbcTagsRepository implements TagsRepository {
     @Async
     @Override
     public CompletableFuture<Void> deleteAllByDataId(long dataId) {
-        String query = "update links_data_to_tags set deleted = true where data_id = :dataId";
+        String query = "delete from links_data_to_tags where data_id = :dataId";
 
         jdbcClient.sql(query).param("dataId", dataId).update();
 
         return CompletableFuture.completedFuture(null);
     }
 
-    private Optional<LinkDataToTag> getRelationByDataIdAndTagId(long dataId, long tagId) {
-        String query = "select * from links_data_to_tags where data_id = :dataId and tag_id = :tagId";
-
-        return jdbcClient
-                .sql(query)
-                .param("dataId", dataId)
-                .param("tagId", tagId)
-                .query(LinkDataToTag.class)
-                .optional();
-    }
-
     private List<Tag> getAllTagsByDataId(long dataId) {
         return jdbcClient
                 .sql("select * from tags " + "join links_data_to_tags on links_data_to_tags.tag_id = tags.id "
-                        + "where links_data_to_tags.data_id = :dataId and deleted = false")
+                        + "where links_data_to_tags.data_id = :dataId")
                 .param("dataId", dataId)
                 .query(Tag.class)
                 .list();
@@ -126,12 +108,6 @@ public class JdbcTagsRepository implements TagsRepository {
         jdbcClient.sql(query).param("dataId", dataId).param("tagId", tagId).update();
     }
 
-    private void restoreRelation(long id) {
-        String query = "update links_data_to_tags set deleted = false where id = :id";
-
-        jdbcClient.sql(query).param("id", id).update();
-    }
-
     private long createTag(String tag) {
         String query = "insert into tags (tag) values (:tag) returning id";
 
@@ -141,7 +117,7 @@ public class JdbcTagsRepository implements TagsRepository {
     }
 
     private void deleteRelation(long dataId, long tagId) {
-        String query = "update links_data_to_tags set deleted = true where data_id = :dataId and tag_id = :tagId";
+        String query = "delete from links_data_to_tags where data_id = :dataId and tag_id = :tagId";
 
         jdbcClient.sql(query).param("dataId", dataId).param("tagId", tagId).update();
     }
