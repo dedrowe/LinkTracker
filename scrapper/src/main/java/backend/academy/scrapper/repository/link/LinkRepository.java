@@ -24,5 +24,5 @@ public interface LinkRepository {
 
     CompletableFuture<Void> deleteById(long id);
 
-    CompletableFuture<Void> delete(Link link);
+    CompletableFuture<Void> deleteLink(Link link);
 }

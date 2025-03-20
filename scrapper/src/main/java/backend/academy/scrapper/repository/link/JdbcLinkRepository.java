@@ -52,7 +52,8 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Override
-    public CompletableFuture<List<Link>> getAllNotChecked(long skip, long limit, LocalDateTime curTime, long checkInterval) {
+    public CompletableFuture<List<Link>> getAllNotChecked(
+            long skip, long limit, LocalDateTime curTime, long checkInterval) {
         String query =
                 "SELECT * FROM links WHERE deleted = false and extract(epoch from(:curTime - last_update)) > :checkInterval OFFSET :skip LIMIT :limit";
 
@@ -109,6 +110,7 @@ public class JdbcLinkRepository implements LinkRepository {
             String restoreQuery = "UPDATE links SET deleted = false WHERE link = :link";
 
             jdbcClient.sql(restoreQuery).param("link", link.link()).update();
+            link.id(data.orElseThrow().id());
         } else {
             String query = "INSERT INTO links (link, last_update) VALUES (:link, :last_update) RETURNING id";
 
@@ -151,7 +153,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Override
     @Async
-    public CompletableFuture<Void> delete(Link link) {
+    public CompletableFuture<Void> deleteLink(Link link) {
         String query = "UPDATE links SET deleted = true WHERE link = :link";
 
         jdbcClient.sql(query).param("link", link.link()).update();

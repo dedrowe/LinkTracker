@@ -1,8 +1,10 @@
 package backend.academy.scrapper.mapper;
 
 import backend.academy.scrapper.entity.Filter;
+import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.Tag;
+import backend.academy.scrapper.entity.TgChat;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.LinkUpdate;
 import java.util.List;
@@ -26,6 +28,21 @@ public class LinkMapper {
         linkData.chatId(chatId);
 
         return linkData;
+    }
+
+    public LinkData createLinkData(TgChat tgChat, Link link) {
+        LinkData linkData = new LinkData();
+
+        linkData.link(link);
+        linkData.linkId(link.id());
+        linkData.tgChat(tgChat);
+        linkData.chatId(tgChat.id());
+
+        return linkData;
+    }
+
+    public Link createLink(String link) {
+        return new Link(link);
     }
 
     public LinkUpdate createLinkUpdate(long id, String url, String description, List<Long> chatIds) {

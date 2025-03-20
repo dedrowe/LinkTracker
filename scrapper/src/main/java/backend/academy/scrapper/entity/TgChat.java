@@ -5,8 +5,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,11 +25,8 @@ import lombok.Setter;
 public class TgChat {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-        generator = "tg_chats_id_gen")
-    @SequenceGenerator(name = "tg_chats_id_gen",
-        allocationSize = 1,
-        sequenceName = "tg_chats_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tg_chats_id_gen")
+    @SequenceGenerator(name = "tg_chats_id_gen", allocationSize = 1, sequenceName = "tg_chats_id_seq")
     private Long id;
 
     @Column(name = "chat_id", nullable = false, unique = true)
@@ -36,6 +35,9 @@ public class TgChat {
     @Column(name = "deleted")
     private boolean deleted = false;
 
+    @OneToMany(mappedBy = "tgChat")
+    private List<LinkData> linksData;
+
     public TgChat(long chatId) {
         this.chatId = chatId;
     }
@@ -43,5 +45,11 @@ public class TgChat {
     public TgChat(Long id, long chatId) {
         this.id = id;
         this.chatId = chatId;
+    }
+
+    public TgChat(Long id, long chatId, boolean deleted) {
+        this.id = id;
+        this.chatId = chatId;
+        this.deleted = deleted;
     }
 }

@@ -23,11 +23,11 @@ import lombok.Setter;
 public class LinkDataToTag {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-        generator = "links_data_to_tags_id_gen")
-    @SequenceGenerator(name = "links_data_to_tags_id_gen",
-        allocationSize = 1,
-        sequenceName = "links_data_to_tags_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "links_data_to_tags_id_gen")
+    @SequenceGenerator(
+            name = "links_data_to_tags_id_gen",
+            allocationSize = 1,
+            sequenceName = "links_data_to_tags_id_seq")
     private Long id;
 
     @Column(name = "data_id", nullable = false)

@@ -2,12 +2,10 @@ package backend.academy.scrapper.service;
 
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
@@ -30,10 +28,10 @@ public class TgChatService {
 
     public void deleteTgChat(long chatId) {
         TgChat tgChat = checkOptional(unwrap(tgChatRepository.getByChatId(chatId)), chatId);
-        List<LinkData> links = unwrap(linkDataRepository.getByChatId(tgChat.id()));
-        unwrap(CompletableFuture.allOf(
-                links.stream().map(linkDataRepository::delete).toArray(CompletableFuture[]::new)));
-        unwrap(tgChatRepository.delete(tgChat));
+        CompletableFuture<Void> links = linkDataRepository.deleteByChatId(tgChat.id());
+        CompletableFuture<Void> chat = tgChatRepository.delete(tgChat);
+        unwrap(links);
+        unwrap(chat);
     }
 
     /**

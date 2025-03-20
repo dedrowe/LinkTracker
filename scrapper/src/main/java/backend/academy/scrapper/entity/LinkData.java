@@ -5,8 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,21 +29,36 @@ import lombok.Setter;
 public class LinkData {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-        generator = "links_data_id_gen")
-    @SequenceGenerator(name = "links_data_id_gen",
-        allocationSize = 1,
-        sequenceName = "links_data_id_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "links_data_id_gen")
+    @SequenceGenerator(name = "links_data_id_gen", allocationSize = 1, sequenceName = "links_data_id_seq")
     private Long id;
 
-    @Column(name = "link_id", nullable = false)
-    private long linkId;
+    @Column(name = "link_id", nullable = false, insertable = false, updatable = false)
+    private Long linkId;
 
-    @Column(name = "chat_id", nullable = false)
-    private long chatId;
+    @Column(name = "chat_id", nullable = false, insertable = false, updatable = false)
+    private Long chatId;
 
     @Column(name = "deleted")
     private boolean deleted = false;
+
+    @ManyToOne
+    @JoinColumn(name = "link_id", nullable = false, referencedColumnName = "id")
+    private Link link;
+
+    @ManyToOne
+    @JoinColumn(name = "chat_id", nullable = false, referencedColumnName = "id")
+    private TgChat tgChat;
+
+    @OneToMany(mappedBy = "linkData")
+    private List<Filter> filters;
+
+    @ManyToMany
+    @JoinTable(
+            name = "links_data_to_tags",
+            joinColumns = @JoinColumn(name = "data_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private List<Tag> tags;
 
     public LinkData(long linkId, long chatId) {
         this.linkId = linkId;
@@ -48,5 +69,16 @@ public class LinkData {
         this.id = id;
         this.linkId = linkId;
         this.chatId = chatId;
+    }
+
+    public LinkData(Link link, TgChat tgChat) {
+        this.link = link;
+        this.tgChat = tgChat;
+    }
+
+    public LinkData(Link link, TgChat tgChat, boolean deleted) {
+        this.link = link;
+        this.tgChat = tgChat;
+        this.deleted = deleted;
     }
 }

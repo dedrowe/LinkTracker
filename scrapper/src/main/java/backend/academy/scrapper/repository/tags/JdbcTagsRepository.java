@@ -84,7 +84,7 @@ public class JdbcTagsRepository implements TagsRepository {
 
     private List<Tag> getAllTagsByDataId(long dataId) {
         return jdbcClient
-                .sql("select * from tags " + "join links_data_to_tags on links_data_to_tags.tag_id = tags.id "
+                .sql("select * from tags join links_data_to_tags on links_data_to_tags.tag_id = tags.id "
                         + "where links_data_to_tags.data_id = :dataId")
                 .param("dataId", dataId)
                 .query(Tag.class)

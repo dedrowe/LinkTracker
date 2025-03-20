@@ -2,6 +2,8 @@ package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,9 +11,6 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
 
 @ConditionalOnProperty(havingValue = "ORM", prefix = "app", name = "access-type")
 public interface JpaTgChatRepository extends TgChatRepository, Repository<TgChat, Long> {

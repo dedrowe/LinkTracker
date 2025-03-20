@@ -2,6 +2,11 @@ package backend.academy.scrapper.repository.tags;
 
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.shared.dto.TagLinkCount;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,11 +14,6 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 @ConditionalOnProperty(havingValue = "ORM", prefix = "app", name = "access-type")
 public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long> {
@@ -29,7 +29,7 @@ public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long>
     @Override
     @Async
     default CompletableFuture<List<Tag>> getAllByDataId(long dataId) {
-        return CompletableFuture.completedFuture(getAllTagsByDataIdSync(dataId));
+        return CompletableFuture.completedFuture(getAllByDataIdSync(dataId));
     }
 
     @Override
@@ -46,20 +46,20 @@ public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long>
         return CompletableFuture.completedFuture(getTagLinksCountByChatIdSync(chatId));
     }
 
-    @Query(value = "select t from Tag t " +
-        "join LinkDataToTag ldt on ldt.tagId = t.id " +
-        "where ldt.dataId = :dataId")
-    List<Tag> getAllTagsByDataIdSync(@Param("dataId") long dataId);
+    @Query(
+            value = "select t from Tag t " + "join LinkDataToTag ldt on ldt.tagId = t.id "
+                    + "where ldt.dataId = :dataId")
+    List<Tag> getAllByDataIdSync(@Param("dataId") long dataId);
 
     @Query(value = "select t from Tag t where t.tag in (:tags)")
-    List<Tag> getAllTagsByTagsSetSync(@Param("tags") Set<String> tags);
+    List<Tag> getAllByTagsSetSync(@Param("tags") Set<String> tags);
 
     @Query(value = "select t from Tag t where t.tag = :tag")
-    Optional<Tag> getTagByTag(@Param("tag") String tag);
+    Optional<Tag> getByTag(@Param("tag") String tag);
 
     @Transactional
     default void createAllSync(List<String> tags, long dataId) {
-        List<Tag> curTags = getAllTagsByDataIdSync(dataId);
+        List<Tag> curTags = getAllByDataIdSync(dataId);
         Set<String> tagSet = new HashSet<>(tags);
         Set<Tag> curTagsSet = new HashSet<>(curTags);
 
@@ -72,13 +72,13 @@ public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long>
         for (Tag tag : curTagsSet) {
             deleteRelationSync(dataId, tag.id());
         }
-        getAllTagsByTagsSetSync(tagSet).forEach(tag -> {
+        getAllByTagsSetSync(tagSet).forEach(tag -> {
             createRelationSync(dataId, tag.id());
             tagSet.remove(tag.tag());
         });
         for (String tag : tagSet) {
             createTagSync(tag);
-            createRelationSync(dataId, getTagByTag(tag).orElseThrow().id());
+            createRelationSync(dataId, getByTag(tag).orElseThrow().id());
         }
     }
 
@@ -97,12 +97,14 @@ public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long>
     @Query(value = "delete from LinkDataToTag ldt where ldt.dataId = :dataId")
     void deleteAllByDataIdSync(@Param("dataId") long dataId);
 
-    @Query(value = "select new backend.academy.shared.dto.TagLinkCount(t.tag, count(*)) links_count from LinkDataToTag ldt " +
-        "join Tag t on ldt.tagId = t.id " +
-        "join LinkData ld on ldt.dataId = ld.id " +
-        "join TgChat tc on ld.chatId = tc.id " +
-        "where tc.chatId = :chatId " +
-        "group by t.tag")
+    @Query(
+            value =
+                    "select new backend.academy.shared.dto.TagLinkCount(t.tag, count(*)) links_count from LinkDataToTag ldt "
+                            + "join Tag t on ldt.tagId = t.id "
+                            + "join LinkData ld on ldt.dataId = ld.id "
+                            + "join TgChat tc on ld.chatId = tc.id "
+                            + "where tc.chatId = :chatId "
+                            + "group by t.tag")
     List<TagLinkCount> getTagLinksCountByChatIdSync(@Param("chatId") long chatId);
 
     @Modifying

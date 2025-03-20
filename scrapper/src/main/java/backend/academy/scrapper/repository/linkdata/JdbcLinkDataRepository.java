@@ -110,8 +110,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
                         + "join tg_chats on links_data.chat_id = tg_chats.id "
                         + "join links_data_to_tags on links_data.id = links_data_to_tags.data_id "
                         + "join tags on links_data_to_tags.tag_id = tags.id "
-                        + "where tags.tag = :tag and tg_chats.chat_id = :chatId and links_data.deleted = false " +
-                    "and links_data_to_tags.deleted = false ";
+                        + "where tags.tag = :tag and tg_chats.chat_id = :chatId and links_data.deleted = false";
 
         return CompletableFuture.completedFuture(jdbcClient
                 .sql(query)
@@ -144,6 +143,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
             String restoreQuery = "UPDATE links_data SET deleted = false WHERE id = :id";
 
             jdbcClient.sql(restoreQuery).param("id", data.orElseThrow().id()).update();
+            linkData.id(data.orElseThrow().id());
         } else {
             String query = "INSERT INTO links_data (chat_id, link_id) VALUES (:chatId, :linkId) RETURNING id";
 
@@ -171,7 +171,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public CompletableFuture<Void> delete(LinkData link) {
+    public CompletableFuture<Void> deleteLinkData(LinkData link) {
         String query = "UPDATE links_data SET deleted = true WHERE link_id = :linkId and chat_id = :chatId";
 
         jdbcClient
@@ -179,6 +179,15 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
                 .param("linkId", link.linkId())
                 .param("chatId", link.chatId())
                 .update();
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<Void> deleteByChatId(long chatId) {
+        String query = "UPDATE links_data SET deleted = true WHERE chat_id = :chatId";
+
+        jdbcClient.sql(query).param("chatId", chatId).update();
 
         return CompletableFuture.completedFuture(null);
     }
