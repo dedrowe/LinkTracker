@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
+public class TgChatRepositoryTest extends AbstractJdbcTest {
 
     private final JdbcTgChatRepository repository;
 
     @Autowired
-    public JdbcTgChatRepositoryTest(JdbcClient client) {
+    public TgChatRepositoryTest(JdbcClient client) {
         super(client);
         repository = new JdbcTgChatRepository(client);
     }
@@ -32,7 +32,7 @@ public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getByIdTest() {
-        TgChat expectedResult = new TgChat(1L, 1L, false);
+        TgChat expectedResult = new TgChat(1L, 1L);
 
         TgChat actualResult = unwrap(repository.getById(1)).get();
 
@@ -57,7 +57,7 @@ public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getByChatIdTest() {
-        TgChat expectedResult = new TgChat(1L, 1L, false);
+        TgChat expectedResult = new TgChat(1L, 1L);
 
         TgChat actualResult = unwrap(repository.getByChatId(1)).get();
 
@@ -75,7 +75,7 @@ public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void createNewChatTest() {
-        TgChat expectedResult = new TgChat(3L, 3L, false);
+        TgChat expectedResult = new TgChat(3L, 3L);
 
         unwrap(repository.create(new TgChat(expectedResult.chatId())));
         TgChat actualResult = client.sql("SELECT * FROM tg_chats where id = ?")
@@ -90,7 +90,7 @@ public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void createDeletedTest() {
-        TgChat expectedResult = new TgChat(2L, 2L, false);
+        TgChat expectedResult = new TgChat(2L, 2L);
 
         unwrap(repository.create(new TgChat(expectedResult.chatId())));
         TgChat actualResult = client.sql("SELECT * FROM tg_chats where id = ?")
@@ -105,7 +105,7 @@ public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void createExistingTest() {
-        TgChat expectedResult = new TgChat(1L, 1L, false);
+        TgChat expectedResult = new TgChat(1L, 1L);
 
         assertThatThrownBy(() -> unwrap(repository.create(new TgChat(expectedResult.chatId()))))
                 .isInstanceOf(TgChatException.class);
@@ -113,7 +113,7 @@ public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteByIdTest() {
-        long id = 1;
+        long id = 1L;
 
         unwrap(repository.deleteById(id));
 
@@ -126,7 +126,7 @@ public class JdbcTgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteAlreadyDeletedByIdTest() {
-        long id = 1;
+        long id = 2L;
 
         unwrap(repository.deleteById(id));
 

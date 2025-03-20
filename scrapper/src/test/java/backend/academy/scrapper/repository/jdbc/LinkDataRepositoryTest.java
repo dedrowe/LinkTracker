@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
+public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
     private final JdbcLinkDataRepository repository;
 
     @Autowired
-    public JdbcLinkDataRepositoryTest(JdbcClient client) {
+    public LinkDataRepositoryTest(JdbcClient client) {
         super(client);
         repository = new JdbcLinkDataRepository(client);
     }
@@ -176,14 +176,14 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getDeletedByChatIdLinkIdTest() {
-        Optional<LinkData> actualResult = unwrap(repository.getByChatIdLinkId(2, 2));
+        Optional<LinkData> actualResult = unwrap(repository.getByChatIdLinkId(2L, 2L));
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByChatIdLinkIdFailTest() {
-        Optional<LinkData> actualResult = unwrap(repository.getByChatIdLinkId(-1, -1));
+        Optional<LinkData> actualResult = unwrap(repository.getByChatIdLinkId(-1L, -1L));
 
         assertThat(actualResult).isEmpty();
     }
@@ -280,7 +280,7 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
     public void deleteTest() {
         LinkData linkData = new LinkData(1L, 1L, 1L);
 
-        unwrap(repository.delete(linkData));
+        unwrap(repository.deleteLinkData(linkData));
 
         assertThat(client.sql("SELECT deleted FROM links_data WHERE id = ?")
                         .param(linkData.id())
@@ -293,7 +293,7 @@ public class JdbcLinkDataRepositoryTest extends AbstractJdbcTest {
     public void deleteAlreadyDeletedTest() {
         LinkData linkData = new LinkData(2L, 2L, 2L);
 
-        unwrap(repository.delete(linkData));
+        unwrap(repository.deleteLinkData(linkData));
 
         assertThat(client.sql("SELECT deleted FROM links_data WHERE id = ?")
                         .param(linkData.id())

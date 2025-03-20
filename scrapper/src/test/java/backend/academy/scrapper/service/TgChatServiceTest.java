@@ -8,12 +8,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
@@ -43,16 +41,14 @@ public class TgChatServiceTest {
     public void deleteSuccessTest() {
         when(tgChatRepository.getByChatId(Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new TgChat(1L, 123))));
-        when(linkDataRepository.getByChatId(Mockito.anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(List.of(new LinkData(), new LinkData())));
+        when(linkDataRepository.deleteByChatId(Mockito.anyLong())).thenReturn(CompletableFuture.completedFuture(null));
         when(tgChatRepository.delete(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(linkDataRepository.delete(any())).thenReturn(CompletableFuture.completedFuture(null));
+        when(linkDataRepository.deleteLinkData(any())).thenReturn(CompletableFuture.completedFuture(null));
 
         tgChatService.deleteTgChat(123);
 
         verify(tgChatRepository, times(1)).getByChatId(Mockito.anyLong());
-        verify(linkDataRepository, times(1)).getByChatId(Mockito.anyLong());
-        verify(linkDataRepository, times(2)).delete(any());
+        verify(linkDataRepository, times(1)).deleteByChatId(Mockito.anyLong());
         verify(tgChatRepository, times(1)).delete(any());
     }
 

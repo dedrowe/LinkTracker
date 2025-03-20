@@ -34,8 +34,8 @@ public class LinkMapperTest {
 
     @Test
     public void createLinkDataTest() {
-        int chatId = 1;
-        int linkId = 1;
+        long chatId = 1;
+        long linkId = 1;
 
         LinkData actualLinkData = linkMapper.createLinkData(chatId, linkId);
 

@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-public class JdbcTagsRepositoryTest extends AbstractJdbcTest {
+public class TagsRepositoryTest extends AbstractJdbcTest {
 
     private final JdbcTagsRepository repository;
 
     @Autowired
-    public JdbcTagsRepositoryTest(JdbcClient client) {
+    public TagsRepositoryTest(JdbcClient client) {
         super(client);
         repository = new JdbcTagsRepository(client);
     }
@@ -47,8 +47,6 @@ public class JdbcTagsRepositoryTest extends AbstractJdbcTest {
         client.sql("INSERT INTO links_data_to_tags (data_id, tag_id) VALUES (1, 1)")
                 .update();
         client.sql("INSERT INTO links_data_to_tags (data_id, tag_id) VALUES (1, 2)")
-                .update();
-        client.sql("INSERT INTO links_data_to_tags (data_id, tag_id, deleted) VALUES (1, 3, true)")
                 .update();
         client.sql("INSERT INTO links_data_to_tags (data_id, tag_id) VALUES (2, 3)")
                 .update();
@@ -84,12 +82,11 @@ public class JdbcTagsRepositoryTest extends AbstractJdbcTest {
     @Test
     public void createAllTest() {
         Tag newTag = new Tag(4L, "tag4");
-        LinkDataToTag data1 = new LinkDataToTag(1L, 1L, 1L, false);
-        LinkDataToTag data2 = new LinkDataToTag(2L, 1L, 2L, true);
-        LinkDataToTag data3 = new LinkDataToTag(3L, 1L, 3L, false);
-        LinkDataToTag data4 = new LinkDataToTag(5L, 1L, 4L, false);
+        LinkDataToTag data1 = new LinkDataToTag(1L, 1L, 1L);
+        LinkDataToTag data3 = new LinkDataToTag(4L, 1L, 3L);
+        LinkDataToTag data4 = new LinkDataToTag(5L, 1L, 4L);
 
-        unwrap(repository.createAll(List.of("tag1", "tag3", newTag.tag()), 1));
+        unwrap(repository.createAll(List.of("tag1", "tag3", newTag.tag()), 1L));
         List<LinkDataToTag> actualResult = client.sql("SELECT * FROM links_data_to_tags where data_id = 1")
                 .query(LinkDataToTag.class)
                 .list();
@@ -97,7 +94,7 @@ public class JdbcTagsRepositoryTest extends AbstractJdbcTest {
                 .query(Tag.class)
                 .single();
 
-        assertThat(actualResult).containsExactly(data1, data2, data3, data4);
+        assertThat(actualResult).containsExactly(data1, data3, data4);
         assertThat(actualNewTag).isEqualTo(newTag);
     }
 
@@ -106,11 +103,11 @@ public class JdbcTagsRepositoryTest extends AbstractJdbcTest {
 
         unwrap(repository.deleteAllByDataId(1));
 
-        assertThat(client.sql("SELECT * FROM links_data_to_tags where data_id = 1 and deleted = false")
+        assertThat(client.sql("SELECT * FROM links_data_to_tags where data_id = 1")
                         .query(Tag.class)
                         .list())
                 .isEmpty();
-        assertThat(client.sql("SELECT * FROM links_data_to_tags where data_id = 2 and deleted = false")
+        assertThat(client.sql("SELECT * FROM links_data_to_tags where data_id = 2")
                         .query(Tag.class)
                         .list()
                         .size())

@@ -18,19 +18,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
+public class LinkRepositoryTest extends AbstractJdbcTest {
 
-    private JdbcLinkRepository repository;
+    private final JdbcLinkRepository repository;
 
     private final Duration linksCheckInterval = Duration.ofSeconds(60);
 
     @Autowired
-    public JdbcLinkRepositoryTest(JdbcClient client) {
+    public LinkRepositoryTest(JdbcClient client) {
         super(client);
-        repository = new JdbcLinkRepository(client, linksCheckInterval);
+        repository = new JdbcLinkRepository(client);
     }
 
-    private LocalDateTime testTimestamp =
+    private final LocalDateTime testTimestamp =
             Instant.ofEpochSecond(1741886605).atZone(ZoneOffset.UTC).toLocalDateTime();
 
     @BeforeEach
@@ -83,7 +83,8 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
                 .param("lastUpdate", expectedResult.lastUpdate())
                 .update();
 
-        List<Link> actualResult = unwrap(repository.getAllNotChecked(0L, 10L, testTimestamp));
+        List<Link> actualResult =
+                unwrap(repository.getAllNotChecked(0L, 10L, testTimestamp, linksCheckInterval.getSeconds()));
 
         assertThat(actualResult).containsExactly(expectedResult);
     }
@@ -201,7 +202,7 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteAlreadyDeletedByIdTest() {
-        long id = 1L;
+        long id = 2L;
 
         unwrap(repository.deleteById(id));
 
@@ -216,7 +217,7 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
     public void deleteTest() {
         Link link = new Link(1L, "https://example.com", testTimestamp);
 
-        unwrap(repository.delete(link));
+        unwrap(repository.deleteLink(link));
 
         assertThat(client.sql("SELECT deleted FROM links WHERE id = ?")
                         .param(link.id())
@@ -229,7 +230,7 @@ public class JdbcLinkRepositoryTest extends AbstractJdbcTest {
     public void deleteAlreadyDeletedTest() {
         Link link = new Link(2L, "https://example2.com", testTimestamp);
 
-        unwrap(repository.delete(link));
+        unwrap(repository.deleteLink(link));
 
         assertThat(client.sql("SELECT deleted FROM links WHERE link = ?")
                         .param(link.link())

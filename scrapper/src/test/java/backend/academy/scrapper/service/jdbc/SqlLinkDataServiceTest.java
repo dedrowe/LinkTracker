@@ -1,4 +1,4 @@
-package backend.academy.scrapper.service;
+package backend.academy.scrapper.service.jdbc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -16,6 +16,9 @@ import backend.academy.scrapper.repository.filters.JdbcFiltersRepository;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tags.JdbcTagsRepository;
+import backend.academy.scrapper.service.TgChatService;
+import backend.academy.scrapper.service.sql.SqlLinkDataService;
+import backend.academy.scrapper.service.sql.SqlUpdatesCheckerService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.RemoveLinkRequest;
@@ -30,7 +33,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class LinkDataServiceTest {
+public class SqlLinkDataServiceTest {
 
     private final LinkDataRepository linkDataRepository = mock(LinkDataRepository.class);
 
@@ -44,9 +47,9 @@ public class LinkDataServiceTest {
 
     private final LinkMapper linkMapper = mock(LinkMapper.class);
 
-    private final UpdatesCheckerService updatesCheckerService = mock(UpdatesCheckerService.class);
+    private final SqlUpdatesCheckerService updatesCheckerService = mock(SqlUpdatesCheckerService.class);
 
-    private final LinkDataService linkDataService = new LinkDataService(
+    private final SqlLinkDataService linkDataService = new SqlLinkDataService(
             linkDataRepository,
             linkRepository,
             filtersRepository,
@@ -91,6 +94,7 @@ public class LinkDataServiceTest {
                         CompletableFuture.completedFuture(Optional.empty()),
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkMapper.createLinkData(anyLong(), anyLong())).thenReturn(new LinkData(1L, 1L, 1L));
+        when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
         when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
         when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
@@ -101,7 +105,8 @@ public class LinkDataServiceTest {
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
         verify(tgChatService, times(1)).getByChatId(Mockito.anyLong());
-        verify(linkRepository, times(2)).getByLink(Mockito.anyString());
+        verify(linkMapper, times(1)).createLink(anyString());
+        verify(linkRepository, times(1)).getByLink(Mockito.anyString());
         verify(linkRepository, times(1)).create(Mockito.any());
         verify(linkMapper, times(1)).createLinkData(Mockito.anyLong(), Mockito.anyLong());
         verify(linkDataRepository, times(1)).getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong());
@@ -118,6 +123,7 @@ public class LinkDataServiceTest {
         when(linkRepository.getByLink(Mockito.anyString()))
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
+        when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
         when(linkMapper.createLinkData(anyLong(), anyLong())).thenReturn(new LinkData(1L, 1L, 1L));
         when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(1L, 1L, 1L))));
@@ -129,6 +135,7 @@ public class LinkDataServiceTest {
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
         verify(tgChatService, times(1)).getByChatId(Mockito.anyLong());
+        verify(linkMapper, times(1)).createLink(anyString());
         verify(linkRepository, times(1)).getByLink(Mockito.anyString());
         verify(linkMapper, times(1)).createLinkData(Mockito.anyLong(), Mockito.anyLong());
         verify(linkDataRepository, times(1)).getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong());
@@ -147,7 +154,7 @@ public class LinkDataServiceTest {
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(1L, 1L, 1L))));
-        when(linkDataRepository.delete(any())).thenReturn(CompletableFuture.completedFuture(null));
+        when(linkDataRepository.deleteLinkData(any())).thenReturn(CompletableFuture.completedFuture(null));
         when(tagsRepository.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
         when(filtersRepository.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
 
@@ -156,7 +163,7 @@ public class LinkDataServiceTest {
         verify(tgChatService, times(1)).getByChatId(Mockito.anyLong());
         verify(linkRepository, times(1)).getByLink(Mockito.anyString());
         verify(linkDataRepository, times(1)).getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong());
-        verify(linkDataRepository, times(1)).delete(Mockito.any());
+        verify(linkDataRepository, times(1)).deleteLinkData(Mockito.any());
         verify(tagsRepository, times(1)).getAllByDataId(anyLong());
         verify(filtersRepository, times(1)).getAllByDataId(anyLong());
         verify(tagsRepository, times(1)).deleteAllByDataId(anyLong());

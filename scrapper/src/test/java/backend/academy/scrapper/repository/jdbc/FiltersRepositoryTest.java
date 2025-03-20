@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
-public class JdbcFiltersRepositoryTest extends AbstractJdbcTest {
+public class FiltersRepositoryTest extends AbstractJdbcTest {
 
     private final JdbcFiltersRepository repository;
 
     @Autowired
-    public JdbcFiltersRepositoryTest(JdbcClient client) {
+    public FiltersRepositoryTest(JdbcClient client) {
         super(client);
         repository = new JdbcFiltersRepository(client);
     }
@@ -48,8 +48,8 @@ public class JdbcFiltersRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getAllByDataIdTest() {
-        Filter filter1 = new Filter(1L, 1L, "key:value", false);
-        Filter filter2 = new Filter(2L, 1L, "key2:value2", false);
+        Filter filter1 = new Filter(1L, 1L, "key:value");
+        Filter filter2 = new Filter(2L, 1L, "key2:value2");
 
         List<Filter> filters = unwrap(repository.getAllByDataId(1));
 
@@ -68,8 +68,8 @@ public class JdbcFiltersRepositoryTest extends AbstractJdbcTest {
     public void createAllTest() {
         String newFilter = "key3:value3";
         long linkDataId = 1L;
-        Filter filter1 = new Filter(1L, linkDataId, "key:value", false);
-        Filter filter2 = new Filter(5L, linkDataId, "key3:value3", false);
+        Filter filter1 = new Filter(1L, linkDataId, "key:value");
+        Filter filter2 = new Filter(5L, linkDataId, "key3:value3");
 
         unwrap(repository.createAll(List.of(filter1.filter(), newFilter), linkDataId));
 
