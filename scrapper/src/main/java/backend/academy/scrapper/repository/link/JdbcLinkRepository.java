@@ -92,36 +92,48 @@ public class JdbcLinkRepository implements LinkRepository {
     @Override
     @Async
     public CompletableFuture<Void> create(Link link) {
-        String getQuery = "select * from links where link = :link";
-
-        Optional<Link> data = jdbcClient
-                .sql(getQuery)
-                .param("link", link.link())
-                .query(Link.class)
-                .optional();
+        Optional<Link> data = getByLinkWithDeleted(link.link());
 
         if (data.isPresent()) {
             if (!data.orElseThrow().deleted()) {
                 throw new LinkException("Эта ссылка уже существует", link.link());
             }
 
-            String restoreQuery = "update links set deleted = false where link = :link";
-
-            jdbcClient.sql(restoreQuery).param("link", link.link()).update();
+            restoreLink(link.link());
             link.id(data.orElseThrow().id());
         } else {
-            String query = "insert into links (link, last_update) values (:link, :last_update) returning id";
-
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            jdbcClient
-                    .sql(query)
-                    .param("link", link.link())
-                    .param("last_update", link.lastUpdate())
-                    .update(keyHolder);
-            link.id(keyHolder.getKeyAs(Long.class));
+            link.id(createInternal(link));
         }
 
         return CompletableFuture.completedFuture(null);
+    }
+
+    private Optional<Link> getByLinkWithDeleted(String link) {
+        String getQuery = "select * from links where link = :link";
+
+        return jdbcClient
+            .sql(getQuery)
+            .param("link", link)
+            .query(Link.class)
+            .optional();
+    }
+
+    private void restoreLink(String link) {
+        String restoreQuery = "update links set deleted = false where link = :link";
+
+        jdbcClient.sql(restoreQuery).param("link", link).update();
+    }
+
+    private Long createInternal(Link link) {
+        String query = "insert into links (link, last_update) values (:link, :last_update) returning id";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcClient
+            .sql(query)
+            .param("link", link.link())
+            .param("last_update", link.lastUpdate())
+            .update(keyHolder);
+        return keyHolder.getKeyAs(Long.class);
     }
 
     @Override

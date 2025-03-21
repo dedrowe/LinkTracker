@@ -123,14 +123,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<Void> create(LinkData linkData) {
-        String getQuery = "select * from links_data where chat_id = :chatId and link_id = :linkId";
-
-        Optional<LinkData> data = jdbcClient
-                .sql(getQuery)
-                .param("chatId", linkData.chatId())
-                .param("linkId", linkData.linkId())
-                .query(LinkData.class)
-                .optional();
+        Optional<LinkData> data = getByChatIdLinkIdWithDeleted(linkData.chatId(), linkData.linkId());
 
         if (data.isPresent()) {
             if (!data.orElseThrow().deleted()) {
@@ -140,23 +133,42 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
                         String.valueOf(linkData.chatId()));
             }
 
-            String restoreQuery = "update links_data set deleted = false where id = :id";
-
-            jdbcClient.sql(restoreQuery).param("id", data.orElseThrow().id()).update();
+            restoreLinkData(data.orElseThrow().id());
             linkData.id(data.orElseThrow().id());
         } else {
-            String query = "insert into links_data (chat_id, link_id) values (:chatId, :linkId) returning id";
-
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            jdbcClient
-                    .sql(query)
-                    .param("chatId", linkData.chatId())
-                    .param("linkId", linkData.linkId())
-                    .update(keyHolder);
-            linkData.id(keyHolder.getKeyAs(Long.class));
+            linkData.id(createInternal(linkData));
         }
 
         return CompletableFuture.completedFuture(null);
+    }
+
+    private Long createInternal(LinkData linkData) {
+        String query = "insert into links_data (chat_id, link_id) values (:chatId, :linkId) returning id";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcClient
+            .sql(query)
+            .param("chatId", linkData.chatId())
+            .param("linkId", linkData.linkId())
+            .update(keyHolder);
+        return keyHolder.getKeyAs(Long.class);
+    }
+
+    private Optional<LinkData> getByChatIdLinkIdWithDeleted(long chatId, long linkId) {
+        String getQuery = "select * from links_data where chat_id = :chatId and link_id = :linkId";
+
+        return jdbcClient
+            .sql(getQuery)
+            .param("chatId", chatId)
+            .param("linkId", linkId)
+            .query(LinkData.class)
+            .optional();
+    }
+
+    private void restoreLinkData(long id) {
+        String restoreQuery = "update links_data set deleted = false where id = :id";
+
+        jdbcClient.sql(restoreQuery).param("id", id).update();
     }
 
     @Override
