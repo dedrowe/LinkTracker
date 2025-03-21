@@ -14,7 +14,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest
-public class JdbcAutowireTest {
+public class JdbcAutowireTest extends ScrapperContainers {
 
     private final FiltersRepository filtersRepository;
 

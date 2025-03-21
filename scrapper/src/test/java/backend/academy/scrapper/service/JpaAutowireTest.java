@@ -14,7 +14,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest
-public class JpaAutowireTest {
+public class JpaAutowireTest extends ScrapperContainers {
 
     private final FiltersRepository filtersRepository;
 
