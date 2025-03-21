@@ -85,15 +85,15 @@ public interface JpaLinkRepository extends LinkRepository, CrudRepository<Link, 
     @Query(value = "select * from links where deleted = false offset :skip limit :limit", nativeQuery = true)
     List<Link> getAllSync(@Param("skip") long skip, @Param("limit") long limit);
 
+    default List<Link> getAllNotCheckedSync(long skip, long limit, LocalDateTime curTime, long checkInterval) {
+        return getAllNotCheckedSync(skip, limit, curTime.minusSeconds(checkInterval));
+    }
+
     @Query(
-            value =
-                    "select * from links where deleted = false and extract(epoch from(:curTime - last_update)) > :checkInterval offset :skip limit :limit",
+            value = "select * from links where deleted = false and :curTime > last_update offset :skip limit :limit",
             nativeQuery = true)
     List<Link> getAllNotCheckedSync(
-            @Param("skip") long skip,
-            @Param("limit") long limit,
-            @Param("curTime") LocalDateTime curTime,
-            @Param("checkInterval") long checkInterval);
+            @Param("skip") long skip, @Param("limit") long limit, @Param("curTime") LocalDateTime curTime);
 
     @Query(value = "select l from Link l where l.id = :id and l.deleted = false")
     Optional<Link> getByIdSync(@Param("id") long id);

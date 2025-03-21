@@ -90,8 +90,9 @@ public class JdbcTagsRepository implements TagsRepository {
 
     private List<Tag> getAllTagsByDataId(long dataId) {
         return jdbcClient
-                .sql("select tags.id, tags.tag from tags join links_data_to_tags on links_data_to_tags.tag_id = tags.id "
-                        + "where links_data_to_tags.data_id = :dataId")
+                .sql(
+                        "select tags.id, tags.tag from tags join links_data_to_tags on links_data_to_tags.tag_id = tags.id "
+                                + "where links_data_to_tags.data_id = :dataId")
                 .param("dataId", dataId)
                 .query(Tag.class)
                 .list();
@@ -127,7 +128,11 @@ public class JdbcTagsRepository implements TagsRepository {
         System.out.println(dataId);
         System.out.println(tagId);
 
-        int res = jdbcClient.sql(query).param("dataId", dataId).param("tagId", tagId).update();
+        int res = jdbcClient
+                .sql(query)
+                .param("dataId", dataId)
+                .param("tagId", tagId)
+                .update();
         System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + res);
     }
 }

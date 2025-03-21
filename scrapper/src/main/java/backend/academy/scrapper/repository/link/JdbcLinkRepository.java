@@ -54,15 +54,13 @@ public class JdbcLinkRepository implements LinkRepository {
     @Override
     public CompletableFuture<List<Link>> getAllNotChecked(
             long skip, long limit, LocalDateTime curTime, long checkInterval) {
-        String query =
-                "SELECT * FROM links WHERE deleted = false and extract(epoch from(:curTime - last_update)) > :checkInterval OFFSET :skip LIMIT :limit";
+        String query = "SELECT * FROM links WHERE deleted = false and :curTime > last_update OFFSET :skip LIMIT :limit";
 
         List<Link> links = jdbcClient
                 .sql(query)
                 .param("skip", skip)
                 .param("limit", limit)
-                .param("curTime", curTime)
-                .param("checkInterval", checkInterval)
+                .param("curTime", curTime.minusSeconds(checkInterval))
                 .query(Link.class)
                 .list();
 
