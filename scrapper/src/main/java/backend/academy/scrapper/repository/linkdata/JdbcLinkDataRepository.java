@@ -25,7 +25,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<List<LinkData>> getAll() {
-        String query = "SELECT * FROM links_data WHERE deleted = false";
+        String query = "select * from links_data where deleted = false";
 
         List<LinkData> linksData = jdbcClient.sql(query).query(LinkData.class).list();
 
@@ -35,7 +35,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<Optional<LinkData>> getById(long id) {
-        String query = "SELECT * FROM links_data WHERE id = :id and deleted = false";
+        String query = "select * from links_data where id = :id and deleted = false";
 
         Optional<LinkData> linkData =
                 jdbcClient.sql(query).param("id", id).query(LinkData.class).optional();
@@ -46,7 +46,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<List<LinkData>> getByChatId(long chatId) {
-        String query = "SELECT * FROM links_data WHERE chat_id = :chatId and deleted = false";
+        String query = "select * from links_data where chat_id = :chatId and deleted = false";
 
         List<LinkData> linksData = jdbcClient
                 .sql(query)
@@ -60,7 +60,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<List<LinkData>> getByLinkId(long linkId) {
-        String query = "SELECT * FROM links_data WHERE link_id = :linkId and deleted = false";
+        String query = "select * from links_data where link_id = :linkId and deleted = false";
 
         List<LinkData> linksData = jdbcClient
                 .sql(query)
@@ -74,7 +74,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     public CompletableFuture<List<LinkData>> getByLinkId(long linkId, long skip, long limit) {
         String query =
-                "SELECT * FROM links_data WHERE link_id = :linkId and deleted = false OFFSET :skip LIMIT :limit FOR UPDATE";
+                "select * from links_data where link_id = :linkId and deleted = false offset :skip limit :limit for update";
 
         List<LinkData> linksData = jdbcClient
                 .sql(query)
@@ -90,7 +90,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId) {
-        String query = "SELECT * FROM links_data WHERE chat_id = :chatId AND link_id = :linkId and deleted = false";
+        String query = "select * from links_data where chat_id = :chatId AND link_id = :linkId and deleted = false";
 
         Optional<LinkData> linkData = jdbcClient
                 .sql(query)
@@ -123,7 +123,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<Void> create(LinkData linkData) {
-        String getQuery = "SELECT * FROM links_data WHERE chat_id = :chatId and link_id = :linkId";
+        String getQuery = "select * from links_data where chat_id = :chatId and link_id = :linkId";
 
         Optional<LinkData> data = jdbcClient
                 .sql(getQuery)
@@ -140,12 +140,12 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
                         String.valueOf(linkData.chatId()));
             }
 
-            String restoreQuery = "UPDATE links_data SET deleted = false WHERE id = :id";
+            String restoreQuery = "update links_data set deleted = false where id = :id";
 
             jdbcClient.sql(restoreQuery).param("id", data.orElseThrow().id()).update();
             linkData.id(data.orElseThrow().id());
         } else {
-            String query = "INSERT INTO links_data (chat_id, link_id) VALUES (:chatId, :linkId) RETURNING id";
+            String query = "insert into links_data (chat_id, link_id) values (:chatId, :linkId) returning id";
 
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcClient
@@ -162,7 +162,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<Void> deleteById(long id) {
-        String query = "UPDATE links_data SET deleted = true WHERE id = :id";
+        String query = "update links_data set deleted = true where id = :id";
 
         jdbcClient.sql(query).param("id", id).update();
 
@@ -172,7 +172,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<Void> deleteLinkData(LinkData link) {
-        String query = "UPDATE links_data SET deleted = true WHERE link_id = :linkId and chat_id = :chatId";
+        String query = "update links_data set deleted = true where link_id = :linkId and chat_id = :chatId";
 
         jdbcClient
                 .sql(query)
@@ -185,7 +185,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
 
     @Override
     public CompletableFuture<Void> deleteByChatId(long chatId) {
-        String query = "UPDATE links_data SET deleted = true WHERE chat_id = :chatId";
+        String query = "update links_data set deleted = true where chat_id = :chatId";
 
         jdbcClient.sql(query).param("chatId", chatId).update();
 

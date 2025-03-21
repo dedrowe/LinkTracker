@@ -52,9 +52,7 @@ public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long>
         return CompletableFuture.completedFuture(getAllByTagsSetSync(tags));
     }
 
-    @Query(
-            value = "select t from Tag t " + "join LinkDataToTag ldt on ldt.tagId = t.id "
-                    + "where ldt.dataId = :dataId")
+    @Query(value = "select t from Tag t join LinkDataToTag ldt on ldt.tagId = t.id " + "where ldt.dataId = :dataId")
     List<Tag> getAllByDataIdSync(@Param("dataId") long dataId);
 
     @Query(value = "select t from Tag t where t.tag in (:tags)")

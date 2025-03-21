@@ -51,26 +51,26 @@ public class JdbcFiltersRepository implements FiltersRepository {
     @Async
     public CompletableFuture<Void> deleteAllByDataId(long dataId) {
         jdbcClient
-                .sql("DELETE FROM filters WHERE data_id = :dataId")
+                .sql("delete from filters where data_id = :dataId")
                 .param("dataId", dataId)
                 .update();
         return CompletableFuture.completedFuture(null);
     }
 
     private List<Filter> getByDataIdInternal(long dataId) {
-        String query = "SELECT * FROM filters WHERE data_id = :dataId";
+        String query = "select * from filters where data_id = :dataId";
 
         return jdbcClient.sql(query).param("dataId", dataId).query(Filter.class).list();
     }
 
     private void createFilter(long dataId, String filter) {
-        String query = "INSERT INTO filters (data_id, filter) VALUES (:dataId, :filter)";
+        String query = "insert into filters (data_id, filter) values (:dataId, :filter)";
 
         jdbcClient.sql(query).param("dataId", dataId).param("filter", filter).update();
     }
 
     private void deleteById(long id) {
-        String query = "DELETE FROM filters WHERE id = :id";
+        String query = "delete from filters where id = :id";
 
         jdbcClient.sql(query).param("id", id).update();
     }
