@@ -90,7 +90,7 @@ public class JdbcTagsRepository implements TagsRepository {
 
     private List<Tag> getAllTagsByDataId(long dataId) {
         return jdbcClient
-                .sql("select * from tags join links_data_to_tags on links_data_to_tags.tag_id = tags.id "
+                .sql("select tags.id, tags.tag from tags join links_data_to_tags on links_data_to_tags.tag_id = tags.id "
                         + "where links_data_to_tags.data_id = :dataId")
                 .param("dataId", dataId)
                 .query(Tag.class)
@@ -124,7 +124,10 @@ public class JdbcTagsRepository implements TagsRepository {
 
     private void deleteRelation(long dataId, long tagId) {
         String query = "delete from links_data_to_tags where data_id = :dataId and tag_id = :tagId";
+        System.out.println(dataId);
+        System.out.println(tagId);
 
-        jdbcClient.sql(query).param("dataId", dataId).param("tagId", tagId).update();
+        int res = jdbcClient.sql(query).param("dataId", dataId).param("tagId", tagId).update();
+        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + res);
     }
 }
