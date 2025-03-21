@@ -8,6 +8,7 @@ import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.repository.tags.JdbcTagsRepository;
 import backend.academy.shared.dto.TagLinkCount;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +76,18 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
         TagLinkCount tag2 = new TagLinkCount("tag2", 1);
 
         List<TagLinkCount> actualResult = unwrap(repository.getTagLinksCountByChatId(1));
+
+        assertThat(actualResult).containsExactly(tag1, tag2);
+    }
+
+    @Test
+    public void getAllByTagsSetTest() {
+        Tag tag1 = new Tag(1L, "tag1");
+        Tag tag2 = new Tag(2L, "tag2");
+
+        Set<String> tags = Set.of(tag1.tag(), tag2.tag(), "tag4");
+
+        List<Tag> actualResult = unwrap(repository.getAllByTagsSet(tags));
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }

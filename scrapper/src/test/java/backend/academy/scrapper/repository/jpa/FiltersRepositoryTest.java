@@ -29,18 +29,18 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
         this.repository = repository;
     }
 
-    TgChat tgChat = new TgChat(1);
+    private TgChat tgChat = new TgChat(1);
 
-    Link link1 = new Link(null, "https://example.com", testTimestamp);
-    Link link2 = new Link(null, "https://example2.com", testTimestamp);
+    private Link link1 = new Link(null, "https://example.com", testTimestamp);
+    private Link link2 = new Link(null, "https://example2.com", testTimestamp);
 
-    LinkData data1 = new LinkData(link1, tgChat);
-    LinkData data2 = new LinkData(link2, tgChat);
+    private LinkData data1 = new LinkData(link1, tgChat);
+    private LinkData data2 = new LinkData(link2, tgChat);
 
-    Filter filter1 = new Filter(data1, "key:value");
-    Filter filter2 = new Filter(data1, "key2:value2");
-    Filter filter3 = new Filter(data2, "key:value");
-    Filter filter4 = new Filter(data2, "key2:value2");
+    private Filter filter1 = new Filter(data1, "key:value");
+    private Filter filter2 = new Filter(data1, "key2:value2");
+    private Filter filter3 = new Filter(data2, "key:value");
+    private Filter filter4 = new Filter(data2, "key2:value2");
 
     @BeforeEach
     public void setUp() {

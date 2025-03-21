@@ -24,6 +24,7 @@ import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.RemoveLinkRequest;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -91,26 +92,22 @@ public class OrmLinkDataServiceTest {
 
     @Test
     public void trackLinkTest() {
-        when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new LinkData(1L, 1L, 1L));
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
         when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
         when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsRepository.createAll(any(), anyLong())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersRepository.createAll(any(), anyLong())).thenReturn(CompletableFuture.completedFuture(null));
+        when(tagsRepository.getAllByTagsSet(any())).thenReturn(CompletableFuture.completedFuture(List.of()));
         when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(
-                        new LinkData(1L, 1L, 1L, false, new Link("string"), new TgChat(1L), List.of(), List.of()))));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(
+                        1L, 1L, 1L, false, new Link("string"), new TgChat(1L), new ArrayList<>(), new ArrayList<>()))));
 
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
         verify(tgChatService, times(1)).getByChatId(anyLong());
-        verify(linkRepository, times(1)).create(any());
+        verify(tagsRepository, times(1)).getAllByTagsSet(any());
         verify(linkMapper, times(1)).createLink(anyString());
-        verify(linkDataRepository, times(1)).create(any());
-        verify(linkMapper, times(1)).createLinkData(any(TgChat.class), any(Link.class));
-        verify(tagsRepository, times(1)).createAll(any(), anyLong());
-        verify(filtersRepository, times(1)).createAll(any(), anyLong());
+        verify(linkRepository, times(1)).create(any());
         verify(linkDataRepository, times(1)).getByChatIdLinkId(anyLong(), anyLong());
+        verify(linkDataRepository, times(1)).create(any());
         verify(linkMapper, times(1)).createLinkResponse(any(), anyString(), any(), any());
     }
 
@@ -131,8 +128,6 @@ public class OrmLinkDataServiceTest {
         verify(linkRepository, times(1)).getByLink(Mockito.anyString());
         verify(linkDataRepository, times(1)).getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong());
         verify(linkMapper, times(1)).createLinkResponse(any(), anyString(), any(), any());
-        verify(tagsRepository, times(1)).deleteAllByDataId(anyLong());
-        verify(filtersRepository, times(1)).deleteAllByDataId(anyLong());
         verify(linkDataRepository, times(1)).deleteLinkData(Mockito.any());
     }
 

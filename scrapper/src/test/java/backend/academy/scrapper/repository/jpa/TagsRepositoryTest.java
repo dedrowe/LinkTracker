@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +111,15 @@ public class TagsRepositoryTest extends AbstractJpaTest {
         TagLinkCount tag2 = new TagLinkCount("tag2", 1);
 
         List<TagLinkCount> actualResult = repository.getTagLinksCountByChatIdSync(linkData1.id());
+
+        assertThat(actualResult).containsExactly(tag1, tag2);
+    }
+
+    @Test
+    public void getAllByTagsSetTest() {
+        Set<String> tags = Set.of(tag1.tag(), tag2.tag(), "tag4");
+
+        List<Tag> actualResult = repository.getAllByTagsSetSync(tags);
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }
