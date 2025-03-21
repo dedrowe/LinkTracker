@@ -57,10 +57,7 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     @Transactional
     default CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId) {
         Optional<LinkData> linkData = getByChatIdLinkIdSync(chatId, linkId);
-        if (linkData.isPresent()) {
-            Hibernate.initialize(linkData.orElseThrow().tags());
-            Hibernate.initialize(linkData.orElseThrow().filters());
-        }
+        linkData.ifPresent(this::fetchProperties);
         return CompletableFuture.completedFuture(linkData);
     }
 
@@ -69,10 +66,7 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     @Transactional
     default CompletableFuture<List<LinkData>> getByTagAndChatId(String tag, long chatId) {
         List<LinkData> linksData = getByTagAndChatIdSync(tag, chatId);
-        linksData.forEach(linkData -> {
-            Hibernate.initialize(linkData.tags());
-            Hibernate.initialize(linkData.filters());
-        });
+        linksData.forEach(this::fetchProperties);
         return CompletableFuture.completedFuture(linksData);
     }
 
@@ -160,4 +154,10 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     @Transactional
     @Query(value = "update LinkData ld set ld.deleted = true where ld.chatId = :chatId")
     void deleteByChatIdSync(@Param("chatId") long chatId);
+
+    @Transactional
+    default void fetchProperties(LinkData linkData) {
+        Hibernate.initialize(linkData.tags());
+        Hibernate.initialize(linkData.filters());
+    }
 }

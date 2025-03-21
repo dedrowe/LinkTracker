@@ -30,6 +30,12 @@ public class JdbcTagsRepository implements TagsRepository {
 
     @Async
     @Override
+    public CompletableFuture<List<Tag>> getAllByTagsSet(Set<String> tags) {
+        return CompletableFuture.completedFuture(getAllTagsByTagsSet(tags));
+    }
+
+    @Async
+    @Override
     public CompletableFuture<List<TagLinkCount>> getTagLinksCountByChatId(long chatId) {
         String query = "select tags.tag, count(*) as links_count " + "from links_data_to_tags "
                 + "join tags on links_data_to_tags.tag_id = tags.id "

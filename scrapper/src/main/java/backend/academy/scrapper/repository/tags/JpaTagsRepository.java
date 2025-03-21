@@ -46,6 +46,12 @@ public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long>
         return CompletableFuture.completedFuture(getTagLinksCountByChatIdSync(chatId));
     }
 
+    @Override
+    @Async
+    default CompletableFuture<List<Tag>> getAllByTagsSet(Set<String> tags) {
+        return CompletableFuture.completedFuture(getAllByTagsSetSync(tags));
+    }
+
     @Query(
             value = "select t from Tag t " + "join LinkDataToTag ldt on ldt.tagId = t.id "
                     + "where ldt.dataId = :dataId")

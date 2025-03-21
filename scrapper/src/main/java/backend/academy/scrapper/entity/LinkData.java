@@ -1,5 +1,6 @@
 package backend.academy.scrapper.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -50,10 +51,13 @@ public class LinkData {
     @JoinColumn(name = "chat_id", nullable = false, referencedColumnName = "id")
     private TgChat tgChat;
 
-    @OneToMany(mappedBy = "linkData")
+    @OneToMany(
+            mappedBy = "linkData",
+            cascade = {CascadeType.ALL},
+            orphanRemoval = true)
     private List<Filter> filters;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "links_data_to_tags",
             joinColumns = @JoinColumn(name = "data_id"),

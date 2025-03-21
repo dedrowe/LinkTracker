@@ -2,8 +2,10 @@ package backend.academy.scrapper.service.orm;
 
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 
+import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.filters.FiltersRepository;
@@ -17,7 +19,10 @@ import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import backend.academy.shared.dto.RemoveLinkRequest;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,18 +65,30 @@ public class OrmLinkDataService extends LinkDataService {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         updatesCheckerService.checkResource(request.link());
 
+        Set<String> newTags = new HashSet<>(request.tags());
+        CompletableFuture<List<Tag>> tagsFuture = tagsRepository.getAllByTagsSet(newTags);
         Link link = linkMapper.createLink(request.link());
         unwrap(linkRepository.create(link));
-        LinkData linkData = linkMapper.createLinkData(tgChat, link);
+        Optional<LinkData> optionalData = unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()));
+        LinkData linkData;
+        if (optionalData.isPresent()) {
+            linkData = optionalData.orElseThrow();
+        } else {
+            linkData = linkMapper.createLinkData(tgChat, link);
+            unwrap(linkDataRepository.create(linkData));
+        }
+
+        linkData.filters().clear();
+        linkData.tags().clear();
+        request.filters().forEach(f -> linkData.filters().add(new Filter(linkData, f)));
+        unwrap(tagsFuture).forEach(tag -> {
+            if (newTags.contains(tag.tag())) {
+                linkData.tags().add(tag);
+                newTags.remove(tag.tag());
+            }
+        });
+        newTags.forEach(t -> linkData.tags().add(new Tag(t)));
         unwrap(linkDataRepository.create(linkData));
-
-        CompletableFuture<Void> tags = tagsRepository.createAll(request.tags(), linkData.id());
-        CompletableFuture<Void> filters = filtersRepository.createAll(request.filters(), linkData.id());
-        unwrap(tags);
-        unwrap(filters);
-
-        linkData = unwrap(linkDataRepository.getByChatIdLinkId(linkData.chatId(), linkData.linkId()))
-                .orElseThrow();
         return linkMapper.createLinkResponse(linkData, linkData.link().link(), linkData.tags(), linkData.filters());
     }
 
@@ -83,10 +100,7 @@ public class OrmLinkDataService extends LinkDataService {
         LinkResponse response =
                 linkMapper.createLinkResponse(linkData, link.link(), linkData.tags(), linkData.filters());
 
-        unwrap(CompletableFuture.allOf(
-                tagsRepository.deleteAllByDataId(linkData.id()),
-                filtersRepository.deleteAllByDataId(linkData.id()),
-                linkDataRepository.deleteLinkData(linkData)));
+        unwrap(linkDataRepository.deleteLinkData(linkData));
 
         return response;
     }
