@@ -151,13 +151,7 @@
     <build>
         <testResources>
             <testResource>
-                <directory>${project.basedir}../../</directory>
-                <includes>
-                    <include>migrations/**</include>
-                </includes>
-            </testResource>
-            <testResource>
-                <directory>${project.basedir}</directory>
+                <directory>${project.basedir}/../</directory>
                 <includes>
                     <include>migrations/**</include>
                 </includes>
