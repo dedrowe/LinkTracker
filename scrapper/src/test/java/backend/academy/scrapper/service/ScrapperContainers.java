@@ -1,5 +1,8 @@
 package backend.academy.scrapper.service;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
@@ -9,9 +12,6 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 @Testcontainers
 public class ScrapperContainers {
@@ -23,9 +23,9 @@ public class ScrapperContainers {
         postgres = new PostgreSQLContainer<>("postgres:15");
         postgres.start();
         try (Connection connection =
-                 DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {
+                DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {
             Database database =
-                DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
+                    DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
             Liquibase liquibase = new Liquibase("/migrations/master.xml", new ClassLoaderResourceAccessor(), database);
             liquibase.dropAll();
             liquibase.update();

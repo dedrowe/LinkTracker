@@ -147,10 +147,10 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient
-            .sql(query)
-            .param("chatId", linkData.chatId())
-            .param("linkId", linkData.linkId())
-            .update(keyHolder);
+                .sql(query)
+                .param("chatId", linkData.chatId())
+                .param("linkId", linkData.linkId())
+                .update(keyHolder);
         return keyHolder.getKeyAs(Long.class);
     }
 
@@ -158,11 +158,11 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
         String getQuery = "select * from links_data where chat_id = :chatId and link_id = :linkId";
 
         return jdbcClient
-            .sql(getQuery)
-            .param("chatId", chatId)
-            .param("linkId", linkId)
-            .query(LinkData.class)
-            .optional();
+                .sql(getQuery)
+                .param("chatId", chatId)
+                .param("linkId", linkId)
+                .query(LinkData.class)
+                .optional();
     }
 
     private void restoreLinkData(long id) {

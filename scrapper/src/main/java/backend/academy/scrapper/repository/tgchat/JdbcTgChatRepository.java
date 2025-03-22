@@ -68,10 +68,10 @@ public class JdbcTgChatRepository implements TgChatRepository {
         String getQuery = "select * from tg_chats where chat_id = :chatId";
 
         return jdbcClient
-            .sql(getQuery)
-            .param("chatId", chatId)
-            .query(TgChat.class)
-            .optional();
+                .sql(getQuery)
+                .param("chatId", chatId)
+                .query(TgChat.class)
+                .optional();
     }
 
     private void restoreTgChat(long chatId) {

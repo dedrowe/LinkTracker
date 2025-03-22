@@ -111,11 +111,7 @@ public class JdbcLinkRepository implements LinkRepository {
     private Optional<Link> getByLinkWithDeleted(String link) {
         String getQuery = "select * from links where link = :link";
 
-        return jdbcClient
-            .sql(getQuery)
-            .param("link", link)
-            .query(Link.class)
-            .optional();
+        return jdbcClient.sql(getQuery).param("link", link).query(Link.class).optional();
     }
 
     private void restoreLink(String link) {
@@ -129,10 +125,10 @@ public class JdbcLinkRepository implements LinkRepository {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient
-            .sql(query)
-            .param("link", link.link())
-            .param("last_update", link.lastUpdate())
-            .update(keyHolder);
+                .sql(query)
+                .param("link", link.link())
+                .param("last_update", link.lastUpdate())
+                .update(keyHolder);
         return keyHolder.getKeyAs(Long.class);
     }
 
