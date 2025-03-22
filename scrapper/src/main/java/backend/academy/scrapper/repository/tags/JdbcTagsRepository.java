@@ -41,7 +41,7 @@ public class JdbcTagsRepository implements TagsRepository {
                 + "join tags on links_data_to_tags.tag_id = tags.id "
                 + "join links_data on links_data_to_tags.data_id = links_data.id "
                 + "join tg_chats on links_data.chat_id = tg_chats.id "
-                + "where tg_chats.chat_id = :chatId "
+                + "where tg_chats.chat_id = :chatId and links_data.deleted = false "
                 + "group by tags.tag";
 
         return CompletableFuture.completedFuture(jdbcClient

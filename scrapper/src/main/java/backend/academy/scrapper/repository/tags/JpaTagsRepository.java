@@ -107,7 +107,7 @@ public interface JpaTagsRepository extends TagsRepository, Repository<Tag, Long>
                             + "join Tag t on ldt.tagId = t.id "
                             + "join LinkData ld on ldt.dataId = ld.id "
                             + "join TgChat tc on ld.chatId = tc.id "
-                            + "where tc.chatId = :chatId "
+                            + "where tc.chatId = :chatId and ld.deleted = false "
                             + "group by t.tag")
     List<TagLinkCount> getTagLinksCountByChatIdSync(@Param("chatId") long chatId);
 
