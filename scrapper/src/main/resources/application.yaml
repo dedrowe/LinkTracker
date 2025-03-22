@@ -9,7 +9,10 @@ app:
     access-token: ${SO_ACCESS_TOKEN}
     so-base-url: ${SO_URL:https://api.stackexchange.com/2.3}
   access-type: ${ACCESS_TYPE:SQL}
-  links-check-interval-seconds: ${CHECK_INTERVAL:0}
+  updates-checker:
+    batch-size: ${BATCH_SIZE:200}
+    threads-count: ${THREADS_COUNT:4}
+    check-interval-seconds: ${CHECK_INTERVAL:0}
 
 spring:
   application:

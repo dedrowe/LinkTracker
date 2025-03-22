@@ -82,9 +82,9 @@ public class SqlUpdatesCheckerService {
         this.linkMapper = linkMapper;
         this.tgBotClient = tgBotClient;
         this.tgChatRepository = tgChatRepository;
-        this.batchSize = DEFAULT_BATCH_SIZE;
-        this.threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
-        linksCheckInterval = Duration.ofSeconds(config.linksCheckIntervalSeconds());
+        this.batchSize = config.updatesChecker().batchSize();
+        this.threadPoolSize = config.updatesChecker().threadsCount();
+        linksCheckInterval = Duration.ofSeconds(config.updatesChecker().checkIntervalSeconds());
     }
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
