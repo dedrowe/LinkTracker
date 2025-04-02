@@ -21,7 +21,12 @@ public class StackOverflowClient extends ApiClient {
 
     private final String accessToken;
 
-    // Фильтр в апи, который позволяет получать нужные поля
+    /**
+     * Апи stackoverflow предоставляет возможность настраивать фильтры,
+     * чтобы добавлять и удалять поля из возвращаемый сущностей.
+     * Это позволяет уменьшить передаваемый трафик и упростить обработку полученного результата.
+     * Подробнее можно почитать по <a href="https://api.stackexchange.com/docs/filters">ссылке</a>.
+     */
     private static final String REQUEST_FILTER = "!LbeNt-eYI5wF9dcYOL_10T";
 
     @Autowired
