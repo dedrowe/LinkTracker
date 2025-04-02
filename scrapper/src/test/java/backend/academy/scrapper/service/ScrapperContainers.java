@@ -20,7 +20,7 @@ public class ScrapperContainers {
     protected static final PostgreSQLContainer<?> postgres;
 
     static {
-        postgres = new PostgreSQLContainer<>("postgres:15");
+        postgres = new PostgreSQLContainer<>("postgres:17-alpine");
         postgres.start();
         try (Connection connection =
                 DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {

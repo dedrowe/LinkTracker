@@ -84,7 +84,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
                 .update();
 
         List<Link> actualResult =
-                unwrap(repository.getAllNotChecked(0L, 10L, testTimestamp, linksCheckInterval.getSeconds()));
+                unwrap(repository.getAllNotChecked(10L, testTimestamp, linksCheckInterval.getSeconds()));
 
         assertThat(actualResult).containsExactly(expectedResult);
     }

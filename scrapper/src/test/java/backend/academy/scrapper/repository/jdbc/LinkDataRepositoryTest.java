@@ -129,7 +129,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getByLinkIdWithSkipLimitTest() {
-        long skip = 1L;
+        long minId = 3L;
         long limit = 2L;
         client.sql("INSERT INTO tg_chats (chat_id, deleted) VALUES (4, false)").update();
         client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (2, 1, false)")
@@ -141,7 +141,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
         LinkData linkData1 = new LinkData(4L, 2L, 3L);
         LinkData linkData2 = new LinkData(5L, 2L, 4L);
 
-        List<LinkData> actualResult = unwrap(repository.getByLinkId(2L, skip, limit));
+        List<LinkData> actualResult = unwrap(repository.getByLinkId(2L, minId, limit));
 
         assertThat(actualResult).containsExactly(linkData1, linkData2);
     }

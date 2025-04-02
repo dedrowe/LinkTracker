@@ -19,7 +19,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
 
     private final JpaLinkRepository repository;
 
-    private LocalDateTime testTimestamp =
+    private final LocalDateTime testTimestamp =
             Instant.ofEpochSecond(1741886605).atZone(ZoneOffset.UTC).toLocalDateTime();
 
     private final Duration linksCheckInterval = Duration.ofSeconds(60);
@@ -76,8 +76,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
                 new Link(null, "https://example3.com", testTimestamp.minus(linksCheckInterval.plusSeconds(30)));
         entityManager.persistAndFlush(expectedResult);
 
-        List<Link> actualResult =
-                repository.getAllNotCheckedSync(0L, 10L, testTimestamp, linksCheckInterval.getSeconds());
+        List<Link> actualResult = repository.getAllNotCheckedSync(10L, testTimestamp, linksCheckInterval.getSeconds());
 
         assertThat(actualResult).containsExactly(expectedResult);
     }

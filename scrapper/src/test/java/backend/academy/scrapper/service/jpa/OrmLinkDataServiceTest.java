@@ -19,7 +19,7 @@ import backend.academy.scrapper.repository.tags.JdbcTagsRepository;
 import backend.academy.scrapper.service.LinkDataService;
 import backend.academy.scrapper.service.TgChatService;
 import backend.academy.scrapper.service.orm.OrmLinkDataService;
-import backend.academy.scrapper.service.sql.SqlUpdatesCheckerService;
+import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.RemoveLinkRequest;
@@ -49,7 +49,7 @@ public class OrmLinkDataServiceTest {
 
     private final LinkMapper linkMapper = mock(LinkMapper.class);
 
-    private final SqlUpdatesCheckerService updatesCheckerService = mock(SqlUpdatesCheckerService.class);
+    private final SqlLinksCheckerService updatesCheckerService = mock(SqlLinksCheckerService.class);
 
     private final LinkDataService linkDataService = new OrmLinkDataService(
             linkDataRepository,

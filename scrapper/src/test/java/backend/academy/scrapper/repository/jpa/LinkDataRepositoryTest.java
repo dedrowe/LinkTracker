@@ -163,7 +163,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getByLinkIdWithSkipLimitTest() {
-        long skip = 1L;
+        long skip = 3L;
         long limit = 2L;
         TgChat tgChat4 = new TgChat(4);
 
@@ -275,7 +275,11 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
         repository.deleteByIdSync(id);
         entityManager.clear();
-        LinkData actualResult = entityManager.find(LinkData.class, id);
+        LinkData actualResult = (LinkData) entityManager
+                .getEntityManager()
+                .createNativeQuery("select * from links_data where id = :id", LinkData.class)
+                .setParameter("id", id)
+                .getSingleResult();
 
         assertThat(actualResult.deleted()).isTrue();
     }
@@ -285,8 +289,11 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         long id = 2L;
 
         repository.deleteByIdSync(id);
-        entityManager.clear();
-        LinkData actualResult = entityManager.find(LinkData.class, id);
+        LinkData actualResult = (LinkData) entityManager
+                .getEntityManager()
+                .createNativeQuery("select * from links_data where id = :id", LinkData.class)
+                .setParameter("id", id)
+                .getSingleResult();
 
         assertThat(actualResult.deleted()).isTrue();
     }
@@ -297,7 +304,11 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
         repository.deleteSync(linkData.chatId(), linkData.linkId());
         entityManager.clear();
-        LinkData actualResult = entityManager.find(LinkData.class, linkData.id());
+        LinkData actualResult = (LinkData) entityManager
+                .getEntityManager()
+                .createNativeQuery("select * from links_data where id = :id", LinkData.class)
+                .setParameter("id", linkData.id())
+                .getSingleResult();
 
         assertThat(actualResult.deleted()).isTrue();
     }
@@ -308,7 +319,11 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
         repository.deleteSync(linkData.chatId(), linkData.linkId());
         entityManager.clear();
-        LinkData actualResult = entityManager.find(LinkData.class, linkData.id());
+        LinkData actualResult = (LinkData) entityManager
+                .getEntityManager()
+                .createNativeQuery("select * from links_data where id = :id", LinkData.class)
+                .setParameter("id", linkData.id())
+                .getSingleResult();
 
         assertThat(actualResult.deleted()).isTrue();
     }

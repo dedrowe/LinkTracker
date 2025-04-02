@@ -5,7 +5,7 @@ import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tags.TagsRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
-import backend.academy.scrapper.service.sql.SqlUpdatesCheckerService;
+import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +28,7 @@ public class JdbcAutowireTest extends ScrapperContainers {
 
     private final LinkDataService linkDataService;
 
-    private final SqlUpdatesCheckerService sqlUpdatesCheckerService;
+    private final SqlLinksCheckerService sqlUpdatesCheckerService;
 
     @Autowired
     public JdbcAutowireTest(
@@ -38,7 +38,7 @@ public class JdbcAutowireTest extends ScrapperContainers {
             @Qualifier("jdbcTagsRepository") TagsRepository tagsRepository,
             @Qualifier("jdbcTgChatRepository") TgChatRepository tgChatRepository,
             @Qualifier("sqlLinkDataService") LinkDataService linkDataService,
-            @Qualifier("sqlUpdatesCheckerService") SqlUpdatesCheckerService sqlUpdatesCheckerService) {
+            @Qualifier("sqlLinksCheckerService") SqlLinksCheckerService sqlUpdatesCheckerService) {
         this.filtersRepository = filtersRepository;
         this.linkDataRepository = linkDataRepository;
         this.linkRepository = linkRepository;

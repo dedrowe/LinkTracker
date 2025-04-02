@@ -5,7 +5,7 @@ import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tags.TagsRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
-import backend.academy.scrapper.service.sql.SqlUpdatesCheckerService;
+import backend.academy.scrapper.service.orm.OrmLinksCheckerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +28,7 @@ public class JpaAutowireTest extends ScrapperContainers {
 
     private final LinkDataService linkDataService;
 
-    private final SqlUpdatesCheckerService sqlUpdatesCheckerService;
+    private final OrmLinksCheckerService updatesCheckerService;
 
     @Autowired
     public JpaAutowireTest(
@@ -38,14 +38,14 @@ public class JpaAutowireTest extends ScrapperContainers {
             @Qualifier("jpaTagsRepository") TagsRepository tagsRepository,
             @Qualifier("jpaTgChatRepository") TgChatRepository tgChatRepository,
             @Qualifier("ormLinkDataService") LinkDataService linkDataService,
-            @Qualifier("ormUpdatesCheckerService") SqlUpdatesCheckerService sqlUpdatesCheckerService) {
+            @Qualifier("ormLinksCheckerService") OrmLinksCheckerService updatesCheckerService) {
         this.filtersRepository = filtersRepository;
         this.linkDataRepository = linkDataRepository;
         this.linkRepository = linkRepository;
         this.tagsRepository = tagsRepository;
         this.tgChatRepository = tgChatRepository;
         this.linkDataService = linkDataService;
-        this.sqlUpdatesCheckerService = sqlUpdatesCheckerService;
+        this.updatesCheckerService = updatesCheckerService;
     }
 
     @DynamicPropertySource
