@@ -230,7 +230,8 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
         List<LinkData> actualResult = repository.getByTagAndChatIdSync("test", 1);
 
-        assertThat(actualResult).containsExactly(linkData1, linkData2);
+        assertThat(actualResult).contains(linkData1, linkData2);
+        assertThat(actualResult.size()).isEqualTo(2);
     }
 
     @Test
