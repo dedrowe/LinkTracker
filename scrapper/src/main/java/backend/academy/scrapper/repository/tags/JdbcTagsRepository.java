@@ -125,14 +125,7 @@ public class JdbcTagsRepository implements TagsRepository {
 
     private void deleteRelation(long dataId, long tagId) {
         String query = "delete from links_data_to_tags where data_id = :dataId and tag_id = :tagId";
-        System.out.println(dataId);
-        System.out.println(tagId);
 
-        int res = jdbcClient
-                .sql(query)
-                .param("dataId", dataId)
-                .param("tagId", tagId)
-                .update();
-        System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + res);
+        jdbcClient.sql(query).param("dataId", dataId).param("tagId", tagId).update();
     }
 }
