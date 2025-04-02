@@ -15,7 +15,7 @@ public interface LinkDataRepository {
 
     CompletableFuture<List<LinkData>> getByLinkId(long linkId);
 
-    CompletableFuture<List<LinkData>> getByLinkId(long linkId, long skip, long limit);
+    CompletableFuture<List<LinkData>> getByLinkId(long linkId, long minId, long limit);
 
     CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId);
 

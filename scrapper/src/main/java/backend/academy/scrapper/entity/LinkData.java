@@ -19,6 +19,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Setter
@@ -27,6 +28,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 @Entity
 @Table(name = "links_data")
+@SQLRestriction("deleted = false")
 public class LinkData {
 
     @Id

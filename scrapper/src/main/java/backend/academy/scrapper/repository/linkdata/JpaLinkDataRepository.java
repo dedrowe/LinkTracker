@@ -33,10 +33,7 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     @Transactional
     default CompletableFuture<List<LinkData>> getByChatId(long chatId) {
         List<LinkData> linksData = getByChatIdSync(chatId);
-        linksData.forEach(linkData -> {
-            Hibernate.initialize(linkData.tags());
-            Hibernate.initialize(linkData.filters());
-        });
+        linksData.forEach(this::fetchProperties);
         return CompletableFuture.completedFuture(linksData);
     }
 
@@ -48,8 +45,8 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
 
     @Override
     @Async
-    default CompletableFuture<List<LinkData>> getByLinkId(long linkId, long skip, long limit) {
-        return CompletableFuture.completedFuture(getByLinkIdSync(linkId, skip, limit));
+    default CompletableFuture<List<LinkData>> getByLinkId(long linkId, long minId, long limit) {
+        return CompletableFuture.completedFuture(getByLinkIdSync(linkId, minId, limit));
     }
 
     @Override
@@ -115,10 +112,10 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     List<LinkData> getByLinkIdSync(@Param("linkId") long linkId);
 
     @Query(
-            value =
-                    "select * from links_data where link_id = :linkId and deleted = false offset :skip limit :limit for update",
+            value = "select * from links_data where link_id = :linkId and deleted = false and id > :minId limit :limit",
             nativeQuery = true)
-    List<LinkData> getByLinkIdSync(@Param("linkId") long linkId, @Param("skip") long skip, @Param("limit") long limit);
+    List<LinkData> getByLinkIdSync(
+            @Param("linkId") long linkId, @Param("minId") long minId, @Param("limit") long limit);
 
     @Query(value = "select l from LinkData l where l.chatId = :chatId and l.linkId = :linkId and l.deleted = false")
     Optional<LinkData> getByChatIdLinkIdSync(@Param("chatId") long chatId, @Param("linkId") long linkId);

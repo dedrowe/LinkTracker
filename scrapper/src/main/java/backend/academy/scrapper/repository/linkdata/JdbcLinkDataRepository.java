@@ -72,14 +72,14 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     }
 
     @Override
-    public CompletableFuture<List<LinkData>> getByLinkId(long linkId, long skip, long limit) {
+    public CompletableFuture<List<LinkData>> getByLinkId(long linkId, long minId, long limit) {
         String query =
-                "select * from links_data where link_id = :linkId and deleted = false offset :skip limit :limit for update";
+                "select * from links_data where link_id = :linkId and deleted = false and id > :minId limit :limit";
 
         List<LinkData> linksData = jdbcClient
                 .sql(query)
                 .param("linkId", linkId)
-                .param("skip", skip)
+                .param("minId", minId)
                 .param("limit", limit)
                 .query(LinkData.class)
                 .list();

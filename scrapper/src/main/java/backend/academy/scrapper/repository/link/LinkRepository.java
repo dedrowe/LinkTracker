@@ -12,7 +12,7 @@ public interface LinkRepository {
 
     CompletableFuture<List<Link>> getAll(long skip, long limit);
 
-    CompletableFuture<List<Link>> getAllNotChecked(long skip, long limit, LocalDateTime curTime, long checkInterval);
+    CompletableFuture<List<Link>> getAllNotChecked(long limit, LocalDateTime curTime, long checkInterval);
 
     CompletableFuture<Optional<Link>> getById(long id);
 

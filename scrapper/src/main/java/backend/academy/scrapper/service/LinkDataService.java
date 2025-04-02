@@ -11,7 +11,6 @@ import backend.academy.scrapper.repository.filters.FiltersRepository;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tags.TagsRepository;
-import backend.academy.scrapper.service.sql.SqlUpdatesCheckerService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
@@ -33,7 +32,7 @@ public abstract class LinkDataService {
 
     protected final LinkMapper linkMapper;
 
-    protected final SqlUpdatesCheckerService updatesCheckerService;
+    protected final LinksCheckerService updatesCheckerService;
 
     public abstract ListLinkResponse getByChatId(long chatId);
 

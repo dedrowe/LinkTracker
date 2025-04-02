@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import org.hibernate.Hibernate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -30,9 +31,9 @@ public interface JpaLinkRepository extends LinkRepository, CrudRepository<Link, 
 
     @Override
     @Async
-    default CompletableFuture<List<Link>> getAllNotChecked(
-            long skip, long limit, LocalDateTime curTime, long checkInterval) {
-        return CompletableFuture.completedFuture(getAllNotCheckedSync(skip, limit, curTime, checkInterval));
+    @Transactional
+    default CompletableFuture<List<Link>> getAllNotChecked(long limit, LocalDateTime curTime, long checkInterval) {
+        return CompletableFuture.completedFuture(getAllNotCheckedSync(limit, curTime, checkInterval));
     }
 
     @Override
@@ -85,15 +86,19 @@ public interface JpaLinkRepository extends LinkRepository, CrudRepository<Link, 
     @Query(value = "select * from links where deleted = false offset :skip limit :limit", nativeQuery = true)
     List<Link> getAllSync(@Param("skip") long skip, @Param("limit") long limit);
 
-    default List<Link> getAllNotCheckedSync(long skip, long limit, LocalDateTime curTime, long checkInterval) {
-        return getAllNotCheckedSync(skip, limit, curTime.minusSeconds(checkInterval));
+    @Transactional
+    default List<Link> getAllNotCheckedSync(long limit, LocalDateTime curTime, long checkInterval) {
+        List<Link> links = getAllNotCheckedSync(limit, curTime.minusSeconds(checkInterval));
+        for (Link link : links) {
+            Hibernate.initialize(link.linksData());
+        }
+        return links;
     }
 
     @Query(
-            value = "select * from links where deleted = false and :curTime > last_update offset :skip limit :limit",
+            value = "select * from links where deleted = false and :curTime > last_update limit :limit",
             nativeQuery = true)
-    List<Link> getAllNotCheckedSync(
-            @Param("skip") long skip, @Param("limit") long limit, @Param("curTime") LocalDateTime curTime);
+    List<Link> getAllNotCheckedSync(@Param("limit") long limit, @Param("curTime") LocalDateTime curTime);
 
     @Query(value = "select l from Link l where l.id = :id and l.deleted = false")
     Optional<Link> getByIdSync(@Param("id") long id);

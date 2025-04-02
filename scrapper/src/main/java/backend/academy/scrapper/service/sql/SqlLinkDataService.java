@@ -14,6 +14,7 @@ import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tags.TagsRepository;
 import backend.academy.scrapper.service.LinkDataService;
+import backend.academy.scrapper.service.LinksCheckerService;
 import backend.academy.scrapper.service.TgChatService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
@@ -41,7 +42,7 @@ public class SqlLinkDataService extends LinkDataService {
             TagsRepository tagsRepository,
             TgChatService tgChatService,
             LinkMapper linkMapper,
-            SqlUpdatesCheckerService updatesCheckerService) {
+            LinksCheckerService updatesCheckerService) {
         super(
                 linkDataRepository,
                 linkRepository,

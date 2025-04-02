@@ -20,7 +20,7 @@ create table links_data (
     deleted boolean default false
 );
 
-create index idx_links_data_link_id_deleted_btree on links_data using btree (link_id, deleted);
+create index idx_links_data_id_link_id_deleted_btree on links_data using btree (link_id, deleted, id);
 
 create table tags (
     id bigserial primary key,
