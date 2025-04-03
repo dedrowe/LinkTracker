@@ -9,12 +9,12 @@ import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import backend.academy.scrapper.mapper.LinkMapper;
-import backend.academy.scrapper.repository.filters.FiltersRepository;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
-import backend.academy.scrapper.repository.tags.TagsRepository;
+import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDataService;
 import backend.academy.scrapper.service.LinksCheckerService;
+import backend.academy.scrapper.service.TagsService;
 import backend.academy.scrapper.service.TgChatService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -38,16 +39,16 @@ public class SqlLinkDataService extends LinkDataService {
     public SqlLinkDataService(
             LinkDataRepository linkDataRepository,
             LinkRepository linkRepository,
-            FiltersRepository filtersRepository,
-            TagsRepository tagsRepository,
+            FiltersService filtersService,
+            TagsService tagsService,
             TgChatService tgChatService,
             LinkMapper linkMapper,
             LinksCheckerService updatesCheckerService) {
         super(
                 linkDataRepository,
                 linkRepository,
-                filtersRepository,
-                tagsRepository,
+                filtersService,
+                tagsService,
                 tgChatService,
                 linkMapper,
                 updatesCheckerService);
@@ -61,6 +62,7 @@ public class SqlLinkDataService extends LinkDataService {
     }
 
     @Override
+    @Transactional
     public LinkResponse trackLink(long chatId, AddLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         updatesCheckerService.checkResource(request.link());
@@ -80,30 +82,31 @@ public class SqlLinkDataService extends LinkDataService {
         } else {
             linkData = optionalLinkData.orElseThrow();
         }
-        CompletableFuture<Void> tags = tagsRepository.createAll(request.tags(), linkData.id());
-        CompletableFuture<Void> filters = filtersRepository.createAll(request.filters(), linkData.id());
+        CompletableFuture<Void> tags = tagsService.createAll(request.tags(), linkData.id());
+        CompletableFuture<Void> filters = filtersService.createAll(request.filters(), linkData.id());
         unwrap(tags);
         unwrap(filters);
 
-        CompletableFuture<List<Tag>> tagsList = tagsRepository.getAllByDataId(linkData.id());
-        CompletableFuture<List<Filter>> filtersList = filtersRepository.getAllByDataId(linkData.id());
+        CompletableFuture<List<Tag>> tagsList = tagsService.getAllByDataId(linkData.id());
+        CompletableFuture<List<Filter>> filtersList = filtersService.getAllByDataId(linkData.id());
         return linkMapper.createLinkResponse(linkData, link.link(), unwrap(tagsList), unwrap(filtersList));
     }
 
     @Override
+    @Transactional
     public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         Link link = getLink(request.link());
         LinkData linkData = getLinkData(tgChat.id(), link.id());
 
-        CompletableFuture<List<Tag>> tagsList = tagsRepository.getAllByDataId(linkData.id());
-        CompletableFuture<List<Filter>> filtersList = filtersRepository.getAllByDataId(linkData.id());
+        CompletableFuture<List<Tag>> tagsList = tagsService.getAllByDataId(linkData.id());
+        CompletableFuture<List<Filter>> filtersList = filtersService.getAllByDataId(linkData.id());
         LinkResponse response =
                 linkMapper.createLinkResponse(linkData, link.link(), unwrap(tagsList), unwrap(filtersList));
 
         unwrap(CompletableFuture.allOf(
-                tagsRepository.deleteAllByDataId(linkData.id()),
-                filtersRepository.deleteAllByDataId(linkData.id()),
+                tagsService.deleteAllByDataId(linkData.id()),
+                filtersService.deleteAllByDataId(linkData.id()),
                 linkDataRepository.deleteLinkData(linkData)));
         return response;
     }
@@ -126,9 +129,9 @@ public class SqlLinkDataService extends LinkDataService {
                             String.valueOf(links.get(finalI).linkId()),
                             String.valueOf(chatId)));
             CompletableFuture<List<Tag>> tags =
-                    tagsRepository.getAllByDataId(links.get(i).id());
+                    tagsService.getAllByDataId(links.get(i).id());
             CompletableFuture<List<Filter>> filters =
-                    filtersRepository.getAllByDataId(links.get(i).id());
+                    filtersService.getAllByDataId(links.get(i).id());
             responses.add(linkMapper.createLinkResponse(links.get(finalI), link.link(), unwrap(tags), unwrap(filters)));
         }
         return new ListLinkResponse(responses, responses.size());

@@ -8,7 +8,9 @@ public interface FiltersRepository {
 
     CompletableFuture<List<Filter>> getAllByDataId(long dataId);
 
-    CompletableFuture<Void> createAll(List<String> filters, long linkDataId);
+    CompletableFuture<Void> create(Filter filter);
+
+    CompletableFuture<Void> deleteById(long id);
 
     CompletableFuture<Void> deleteAllByDataId(long dataId);
 }

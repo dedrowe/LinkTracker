@@ -1,13 +1,13 @@
 package backend.academy.scrapper.repository.filters;
 
 import backend.academy.scrapper.entity.Filter;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
@@ -21,28 +21,37 @@ public class JdbcFiltersRepository implements FiltersRepository {
     @Override
     @Async
     public CompletableFuture<List<Filter>> getAllByDataId(long dataId) {
-        return CompletableFuture.completedFuture(getByDataIdInternal(dataId));
+        String query = "select * from filters where data_id = :dataId";
+
+        return CompletableFuture.completedFuture(jdbcClient
+                .sql(query)
+                .param("dataId", dataId)
+                .query(Filter.class)
+                .list());
     }
 
     @Override
     @Async
-    public CompletableFuture<Void> createAll(List<String> filters, long linkDataId) {
-        List<Filter> curFilters = getByDataIdInternal(linkDataId);
-        Set<String> filtersSet = new HashSet<>(filters);
-        Set<Filter> curFiltersSet = new HashSet<>(curFilters);
+    public CompletableFuture<Void> create(Filter filter) {
+        String query = "insert into filters (data_id, filter) values (:dataId, :filter) returning id";
 
-        for (Filter filter : Set.copyOf(curFiltersSet)) {
-            if (filtersSet.contains(filter.filter())) {
-                curFiltersSet.remove(filter);
-                filtersSet.remove(filter.filter());
-            }
-        }
-        for (Filter filter : curFiltersSet) {
-            deleteById(filter.id());
-        }
-        for (String filter : filtersSet) {
-            createFilter(linkDataId, filter);
-        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcClient
+                .sql(query)
+                .param("dataId", filter.dataId())
+                .param("filter", filter.filter())
+                .update(keyHolder);
+        filter.id(keyHolder.getKeyAs(Long.class));
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> deleteById(long id) {
+        String query = "delete from filters where id = :id";
+
+        jdbcClient.sql(query).param("id", id).update();
 
         return CompletableFuture.completedFuture(null);
     }
@@ -50,28 +59,10 @@ public class JdbcFiltersRepository implements FiltersRepository {
     @Override
     @Async
     public CompletableFuture<Void> deleteAllByDataId(long dataId) {
-        jdbcClient
-                .sql("delete from filters where data_id = :dataId")
-                .param("dataId", dataId)
-                .update();
+        String query = "delete from filters where data_id = :dataId";
+
+        jdbcClient.sql(query).param("dataId", dataId).update();
+
         return CompletableFuture.completedFuture(null);
-    }
-
-    private List<Filter> getByDataIdInternal(long dataId) {
-        String query = "select * from filters where data_id = :dataId";
-
-        return jdbcClient.sql(query).param("dataId", dataId).query(Filter.class).list();
-    }
-
-    private void createFilter(long dataId, String filter) {
-        String query = "insert into filters (data_id, filter) values (:dataId, :filter)";
-
-        jdbcClient.sql(query).param("dataId", dataId).param("filter", filter).update();
-    }
-
-    private void deleteById(long id) {
-        String query = "delete from filters where id = :id";
-
-        jdbcClient.sql(query).param("id", id).update();
     }
 }

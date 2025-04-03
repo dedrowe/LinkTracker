@@ -8,8 +8,6 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.scheduling.annotation.Async;
 
 public interface TagsRepository {
-    @Async
-    CompletableFuture<Void> createAll(List<String> tags, long dataId);
 
     @Async
     CompletableFuture<List<Tag>> getAllByDataId(long dataId);
@@ -18,8 +16,17 @@ public interface TagsRepository {
     CompletableFuture<List<Tag>> getAllByTagsSet(Set<String> tags);
 
     @Async
-    CompletableFuture<Void> deleteAllByDataId(long dataId);
+    CompletableFuture<List<TagLinkCount>> getTagLinksCountByChatId(long chatId);
 
     @Async
-    CompletableFuture<List<TagLinkCount>> getTagLinksCountByChatId(long chatId);
+    CompletableFuture<Void> createTag(Tag tag);
+
+    @Async
+    CompletableFuture<Void> createRelation(long dataId, long tagId);
+
+    @Async
+    CompletableFuture<Void> deleteRelation(long dataId, long tagId);
+
+    @Async
+    CompletableFuture<Void> deleteAllByDataId(long dataId);
 }

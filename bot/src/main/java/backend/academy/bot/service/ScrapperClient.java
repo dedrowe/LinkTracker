@@ -103,7 +103,7 @@ public class ScrapperClient {
     public ListTagLinkCount getTagLinksCount(long chatId) {
         return retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
-                                .path("/tag/links/count")
+                                .path("/links/tags")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .retrieve()))
@@ -114,7 +114,7 @@ public class ScrapperClient {
     public ListLinkResponse getLinksByTag(long chatId, String tag) {
         return retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
-                                .path("/tag/links")
+                                .path("/links")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .queryParam("tag", tag)
                                 .build())

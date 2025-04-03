@@ -1,9 +1,11 @@
 package backend.academy.scrapper.controller;
 
 import backend.academy.scrapper.service.LinkDataService;
+import backend.academy.scrapper.service.TagsService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
+import backend.academy.shared.dto.ListTagLinkCount;
 import backend.academy.shared.dto.RemoveLinkRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,9 +25,21 @@ public class LinkDataController {
 
     private final LinkDataService linkDataService;
 
+    private final TagsService tagsService;
+
     @GetMapping
-    public ListLinkResponse getByChatId(@RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId) {
+    public ListLinkResponse getByChatId(
+            @RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId,
+            @RequestParam(value = "tag", required = false) String tag) {
+        if (tag != null) {
+            return linkDataService.getLinksByTagAndChatId(tag, chatId);
+        }
         return linkDataService.getByChatId(chatId);
+    }
+
+    @GetMapping("/tags")
+    public ListTagLinkCount getTagsLinksCount(@RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId) {
+        return tagsService.getTagLinksCountByChatIdSync(chatId);
     }
 
     @PostMapping

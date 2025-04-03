@@ -8,12 +8,12 @@ import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.mapper.LinkMapper;
-import backend.academy.scrapper.repository.filters.FiltersRepository;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
-import backend.academy.scrapper.repository.tags.TagsRepository;
+import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDataService;
 import backend.academy.scrapper.service.LinksCheckerService;
+import backend.academy.scrapper.service.TagsService;
 import backend.academy.scrapper.service.TgChatService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -38,16 +39,16 @@ public class OrmLinkDataService extends LinkDataService {
     public OrmLinkDataService(
             LinkDataRepository linkDataRepository,
             LinkRepository linkRepository,
-            FiltersRepository filtersRepository,
-            TagsRepository tagsRepository,
+            FiltersService filtersService,
+            TagsService tagsService,
             TgChatService tgChatService,
             LinkMapper linkMapper,
             LinksCheckerService updatesCheckerService) {
         super(
                 linkDataRepository,
                 linkRepository,
-                filtersRepository,
-                tagsRepository,
+                filtersService,
+                tagsService,
                 tgChatService,
                 linkMapper,
                 updatesCheckerService);
@@ -61,12 +62,13 @@ public class OrmLinkDataService extends LinkDataService {
     }
 
     @Override
+    @Transactional
     public LinkResponse trackLink(long chatId, AddLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         updatesCheckerService.checkResource(request.link());
 
         Set<String> newTags = new HashSet<>(request.tags());
-        CompletableFuture<List<Tag>> tagsFuture = tagsRepository.getAllByTagsSet(newTags);
+        CompletableFuture<List<Tag>> tagsFuture = tagsService.getAllByTagsSet(newTags);
         Link link = linkMapper.createLink(request.link());
         unwrap(linkRepository.create(link));
         Optional<LinkData> optionalData = unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()));
@@ -93,6 +95,7 @@ public class OrmLinkDataService extends LinkDataService {
     }
 
     @Override
+    @Transactional
     public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
         Link link = getLink(request.link());

@@ -7,10 +7,8 @@ import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
 import backend.academy.scrapper.mapper.LinkMapper;
-import backend.academy.scrapper.repository.filters.FiltersRepository;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
-import backend.academy.scrapper.repository.tags.TagsRepository;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
@@ -24,9 +22,9 @@ public abstract class LinkDataService {
 
     protected final LinkRepository linkRepository;
 
-    protected final FiltersRepository filtersRepository;
+    protected final FiltersService filtersService;
 
-    protected final TagsRepository tagsRepository;
+    protected final TagsService tagsService;
 
     protected final TgChatService tgChatService;
 
