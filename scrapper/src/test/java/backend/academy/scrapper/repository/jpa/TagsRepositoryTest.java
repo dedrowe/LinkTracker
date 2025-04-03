@@ -125,27 +125,42 @@ public class TagsRepositoryTest extends AbstractJpaTest {
     }
 
     @Test
-    public void createAllTest() {
-        Tag newTag = new Tag(4L, "tag4", List.of(new LinkData()));
-        LinkDataToTag data1 = new LinkDataToTag(1L, 1L, 1L);
-        LinkDataToTag data3 = new LinkDataToTag(4L, 1L, 3L);
-        LinkDataToTag data4 = new LinkDataToTag(5L, 1L, 4L);
+    public void createTagTest() {
+        long newId = 4L;
+        Tag tag = new Tag("tag4");
 
-        repository.createAllSync(List.of("tag1", "tag3", newTag.tag()), linkData1.id());
+        repository.createTagSync(tag);
 
-        List<LinkDataToTag> actualResult = entityManager
-                .getEntityManager()
-                .createQuery("select l from LinkDataToTag l where l.dataId = 1", LinkDataToTag.class)
-                .getResultList();
-        Tag actualNewTag = entityManager
-                .getEntityManager()
-                .createQuery("select t from Tag t where t.tag = 'tag4'", Tag.class)
-                .getSingleResult();
+        assertThat(tag.id()).isEqualTo(newId);
+    }
 
-        assertThat(actualResult).containsExactly(data1, data3, data4);
-        assertThat(actualNewTag.id()).isEqualTo(newTag.id());
-        assertThat(actualNewTag.tag()).isEqualTo(newTag.tag());
-        assertThat(actualNewTag.linksData().size()).isEqualTo(1);
+    @Test
+    public void createRelationTest() {
+        assertThat(entityManager
+                        .getEntityManager()
+                        .createQuery("select l from LinkDataToTag l where l.dataId = 2 and l.tagId = 1")
+                        .getResultList())
+                .isEmpty();
+
+        repository.createRelationSync(2, 1);
+
+        assertThat(entityManager
+                        .getEntityManager()
+                        .createQuery("select l from LinkDataToTag l where l.dataId = 2 and l.tagId = 1")
+                        .getResultList()
+                        .size())
+                .isEqualTo(1);
+    }
+
+    @Test
+    public void deleteRelationTest() {
+        repository.deleteRelationSync(2, 3);
+
+        assertThat(entityManager
+                        .getEntityManager()
+                        .createQuery("select l from LinkDataToTag l where l.dataId = 2 and l.tagId = 3")
+                        .getResultList())
+                .isEmpty();
     }
 
     @Test

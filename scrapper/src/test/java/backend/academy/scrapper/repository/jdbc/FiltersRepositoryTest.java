@@ -65,18 +65,25 @@ public class FiltersRepositoryTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void createAllTest() {
-        String newFilter = "key3:value3";
-        long linkDataId = 1L;
-        Filter filter1 = new Filter(1L, linkDataId, "key:value");
-        Filter filter2 = new Filter(5L, linkDataId, "key3:value3");
+    public void createTest() {
+        long newId = 5L;
+        Filter filter = new Filter(null, 1L, "test:test");
 
-        unwrap(repository.createAll(List.of(filter1.filter(), newFilter), linkDataId));
+        unwrap(repository.create(filter));
 
-        assertThat(client.sql("SELECT * FROM filters WHERE data_id = 1")
+        assertThat(filter.id()).isEqualTo(newId);
+    }
+
+    @Test
+    public void deleteExistingByIdTest() {
+        Filter filter = new Filter(1L, 1L, "key:value");
+
+        unwrap(repository.deleteById(filter.id()));
+
+        assertThat(client.sql("SELECT * FROM filters WHERE data_id = 1 and filter = 'key:value'")
                         .query(Filter.class)
-                        .list())
-                .containsExactly(filter1, filter2);
+                        .optional())
+                .isEmpty();
     }
 
     @Test

@@ -12,11 +12,11 @@ import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.mapper.LinkMapper;
-import backend.academy.scrapper.repository.filters.JdbcFiltersRepository;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
-import backend.academy.scrapper.repository.tags.JdbcTagsRepository;
+import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDataService;
+import backend.academy.scrapper.service.TagsService;
 import backend.academy.scrapper.service.TgChatService;
 import backend.academy.scrapper.service.orm.OrmLinkDataService;
 import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
@@ -41,9 +41,9 @@ public class OrmLinkDataServiceTest {
 
     private final LinkRepository linkRepository = mock(LinkRepository.class);
 
-    private final JdbcFiltersRepository filtersRepository = mock(JdbcFiltersRepository.class);
+    private final FiltersService filtersService = mock(FiltersService.class);
 
-    private final JdbcTagsRepository tagsRepository = mock(JdbcTagsRepository.class);
+    private final TagsService tagsService = mock(TagsService.class);
 
     private final TgChatService tgChatService = mock(TgChatService.class);
 
@@ -54,8 +54,8 @@ public class OrmLinkDataServiceTest {
     private final LinkDataService linkDataService = new OrmLinkDataService(
             linkDataRepository,
             linkRepository,
-            filtersRepository,
-            tagsRepository,
+            filtersService,
+            tagsService,
             tgChatService,
             linkMapper,
             updatesCheckerService);
@@ -65,8 +65,8 @@ public class OrmLinkDataServiceTest {
         when(tgChatService.getByChatId(anyLong())).thenReturn(new TgChat(1L, 123));
         when(linkMapper.createLinkResponse(any(), anyString(), any(), any()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
-        when(tagsRepository.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
-        when(filtersRepository.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
+        when(tagsService.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
+        when(filtersService.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class OrmLinkDataServiceTest {
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
         when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
         when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsRepository.getAllByTagsSet(any())).thenReturn(CompletableFuture.completedFuture(List.of()));
+        when(tagsService.getAllByTagsSet(any())).thenReturn(CompletableFuture.completedFuture(List.of()));
         when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(
                         1L, 1L, 1L, false, new Link("string"), new TgChat(1L), new ArrayList<>(), new ArrayList<>()))));
@@ -103,7 +103,7 @@ public class OrmLinkDataServiceTest {
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
         verify(tgChatService, times(1)).getByChatId(anyLong());
-        verify(tagsRepository, times(1)).getAllByTagsSet(any());
+        verify(tagsService, times(1)).getAllByTagsSet(any());
         verify(linkMapper, times(1)).createLink(anyString());
         verify(linkRepository, times(1)).create(any());
         verify(linkDataRepository, times(1)).getByChatIdLinkId(anyLong(), anyLong());
@@ -119,8 +119,8 @@ public class OrmLinkDataServiceTest {
         when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(1L, 1L, 1L))));
         when(linkDataRepository.deleteLinkData(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsRepository.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersRepository.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
+        when(tagsService.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
+        when(filtersService.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.untrackLink(1, new RemoveLinkRequest("string"));
 

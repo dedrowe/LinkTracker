@@ -92,18 +92,27 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     }
 
     @Test
-    public void createAllTest() {
-        String newFilter = "key3:value3";
-        Filter filter1 = new Filter(1L, null, "key:value", data1);
-        Filter filter2 = new Filter(5L, 1L, "key3:value3", data1);
+    public void createTest() {
+        long newId = 5L;
+        Filter filter = new Filter(null, 1L, "test:test");
 
-        repository.createAllSync(List.of(filter1.filter(), newFilter), data1.id());
-        List<Filter> actualResult = entityManager
-                .getEntityManager()
-                .createNativeQuery("SELECT * FROM filters WHERE data_id = 1", Filter.class)
-                .getResultList();
+        repository.createSync(filter);
 
-        assertThat(actualResult).containsExactly(filter1, filter2);
+        assertThat(filter.id()).isEqualTo(newId);
+    }
+
+    @Test
+    public void deleteExistingByIdTest() {
+        Filter filter = new Filter(1L, 1L, "key:value");
+
+        repository.deleteByIdSync(filter.id());
+
+        assertThat(entityManager
+                        .getEntityManager()
+                        .createNativeQuery(
+                                "SELECT * FROM filters WHERE data_id = 1 and filter = 'key:value'", Filter.class)
+                        .getResultList())
+                .isEmpty();
     }
 
     @Test

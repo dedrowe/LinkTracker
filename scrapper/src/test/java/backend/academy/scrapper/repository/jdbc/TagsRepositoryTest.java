@@ -93,22 +93,38 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void createAllTest() {
-        Tag newTag = new Tag(4L, "tag4");
-        LinkDataToTag data1 = new LinkDataToTag(1L, 1L, 1L);
-        LinkDataToTag data3 = new LinkDataToTag(4L, 1L, 3L);
-        LinkDataToTag data4 = new LinkDataToTag(5L, 1L, 4L);
+    public void createTagTest() {
+        long newId = 4L;
+        Tag tag = new Tag("tag4");
 
-        unwrap(repository.createAll(List.of("tag1", "tag3", newTag.tag()), 1L));
-        List<LinkDataToTag> actualResult = client.sql("SELECT * FROM links_data_to_tags where data_id = 1")
-                .query(LinkDataToTag.class)
-                .list();
-        Tag actualNewTag = client.sql("SELECT * FROM tags where tag = 'tag4'")
-                .query(Tag.class)
-                .single();
+        unwrap(repository.createTag(tag));
 
-        assertThat(actualResult).containsExactly(data1, data3, data4);
-        assertThat(actualNewTag).isEqualTo(newTag);
+        assertThat(tag.id()).isEqualTo(newId);
+    }
+
+    @Test
+    public void createRelationTest() {
+        assertThat(client.sql("select * from links_data_to_tags where data_id = 2 and tag_id = 1")
+                        .query(LinkDataToTag.class)
+                        .optional())
+                .isEmpty();
+
+        unwrap(repository.createRelation(2, 1));
+
+        assertThat(client.sql("select * from links_data_to_tags where data_id = 2 and tag_id = 1")
+                        .query(LinkDataToTag.class)
+                        .optional())
+                .isPresent();
+    }
+
+    @Test
+    public void deleteRelationTest() {
+        unwrap(repository.deleteRelation(2, 3));
+
+        assertThat(client.sql("select * from links_data_to_tags where data_id = 2 and tag_id = 3")
+                        .query(LinkDataToTag.class)
+                        .optional())
+                .isEmpty();
     }
 
     @Test
