@@ -1,4 +1,4 @@
-package backend.academy.scrapper.service.jdbc;
+package backend.academy.scrapper.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -14,10 +14,6 @@ import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
-import backend.academy.scrapper.service.FiltersService;
-import backend.academy.scrapper.service.TagsService;
-import backend.academy.scrapper.service.TgChatService;
-import backend.academy.scrapper.service.sql.SqlLinkDataService;
 import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
@@ -29,11 +25,10 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class SqlLinkDataServiceTest {
+public class LinkDataServiceTest {
 
     private final LinkDataRepository linkDataRepository = mock(LinkDataRepository.class);
 
@@ -49,7 +44,7 @@ public class SqlLinkDataServiceTest {
 
     private final SqlLinksCheckerService updatesCheckerService = mock(SqlLinksCheckerService.class);
 
-    private final SqlLinkDataService linkDataService = new SqlLinkDataService(
+    private final LinkDataService linkDataService = new LinkDataService(
             linkDataRepository,
             linkRepository,
             filtersService,
@@ -60,8 +55,8 @@ public class SqlLinkDataServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(tgChatService.getByChatId(Mockito.anyLong())).thenReturn(new TgChat(1L, 123));
-        when(linkMapper.createLinkResponse(Mockito.any(), Mockito.anyString(), any(), any()))
+        when(tgChatService.getByChatId(anyLong())).thenReturn(new TgChat(1L, 123));
+        when(linkMapper.createLinkResponse(any(), anyString(), any(), any()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
         when(tagsService.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
         when(filtersService.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
@@ -69,124 +64,111 @@ public class SqlLinkDataServiceTest {
 
     @Test
     public void getByChatIdTest() {
-        when(linkDataRepository.getByChatId(Mockito.anyLong()))
+        when(linkDataRepository.getByChatId(anyLong()))
                 .thenReturn(
                         CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L), new LinkData(2L, 2L, 1L))));
-        when(linkRepository.getById(Mockito.anyLong()))
+        when(linkRepository.getById(anyLong()))
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))),
                         CompletableFuture.completedFuture(Optional.of(new Link(2L, "string2", LocalDateTime.now()))));
 
         linkDataService.getByChatId(1);
 
-        verify(tgChatService, times(1)).getByChatId(Mockito.anyLong());
-        verify(linkDataRepository, times(1)).getByChatId(Mockito.anyLong());
-        verify(linkRepository, times(2)).getById(Mockito.anyLong());
+        verify(tgChatService, times(1)).getByChatId(anyLong());
+        verify(linkDataRepository, times(1)).getByChatId(anyLong());
+        verify(linkRepository, times(2)).getById(anyLong());
         verify(tagsService, times(2)).getAllByDataId(anyLong());
         verify(filtersService, times(2)).getAllByDataId(anyLong());
-        verify(linkMapper, times(2)).createLinkResponse(Mockito.any(), Mockito.anyString(), any(), any());
+        verify(linkMapper, times(2)).createLinkResponse(any(), anyString(), any(), any());
     }
 
     @Test
     public void trackLinkTest() {
-        when(linkRepository.getByLink(Mockito.anyString()))
-                .thenReturn(
-                        CompletableFuture.completedFuture(Optional.empty()),
-                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
-        when(linkMapper.createLinkData(anyLong(), anyLong())).thenReturn(new LinkData(1L, 1L, 1L));
+        when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new LinkData(1L, 1L, 1L));
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
-        when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
+        when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
         when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
         when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsService.createAll(any(), anyLong())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersService.createAll(any(), anyLong())).thenReturn(CompletableFuture.completedFuture(null));
+        when(tagsService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
+        when(filtersService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
-        verify(tgChatService, times(1)).getByChatId(Mockito.anyLong());
+        verify(tgChatService, times(1)).getByChatId(anyLong());
+        verify(updatesCheckerService, times(1)).checkResource(any());
         verify(linkMapper, times(1)).createLink(anyString());
-        verify(linkRepository, times(1)).getByLink(Mockito.anyString());
-        verify(linkRepository, times(1)).create(Mockito.any());
-        verify(linkMapper, times(1)).createLinkData(Mockito.anyLong(), Mockito.anyLong());
-        verify(linkDataRepository, times(1)).getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong());
-        verify(linkDataRepository, times(1)).create(Mockito.any());
-        verify(tagsService, times(1)).createAll(any(), anyLong());
-        verify(filtersService, times(1)).createAll(any(), anyLong());
-        verify(tagsService, times(1)).getAllByDataId(anyLong());
-        verify(filtersService, times(1)).getAllByDataId(anyLong());
-        verify(linkMapper, times(1)).createLinkResponse(Mockito.any(), Mockito.anyString(), any(), any());
+        verify(linkRepository, times(1)).create(any());
+        verify(linkDataRepository, times(1)).getByChatIdLinkId(anyLong(), anyLong());
+        verify(linkMapper, times(1)).createLinkData(any(), any());
+        verify(linkDataRepository, times(1)).create(any());
+        verify(tagsService, times(1)).createAll(any(), any());
+        verify(filtersService, times(1)).createAll(any(), any());
+        verify(linkMapper, times(1)).createLinkResponse(any(), anyString(), any(), any());
     }
 
     @Test
     public void trackDuplicateLinkTest() {
-        when(linkRepository.getByLink(Mockito.anyString()))
+        when(linkRepository.getByLink(anyString()))
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
-        when(linkMapper.createLinkData(anyLong(), anyLong())).thenReturn(new LinkData(1L, 1L, 1L));
-        when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
+        when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new LinkData(1L, 1L, 1L));
+        when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(1L, 1L, 1L))));
         when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
         when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsService.createAll(any(), anyLong())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersService.createAll(any(), anyLong())).thenReturn(CompletableFuture.completedFuture(null));
+        when(tagsService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
+        when(filtersService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
-        verify(tgChatService, times(1)).getByChatId(Mockito.anyLong());
+        verify(tgChatService, times(1)).getByChatId(anyLong());
+        verify(updatesCheckerService, times(1)).checkResource(any());
         verify(linkMapper, times(1)).createLink(anyString());
-        verify(linkRepository, times(1)).getByLink(Mockito.anyString());
-        verify(linkMapper, times(1)).createLinkData(Mockito.anyLong(), Mockito.anyLong());
-        verify(linkDataRepository, times(1)).getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong());
-        verify(linkDataRepository, times(0)).create(Mockito.any());
-        verify(tagsService, times(1)).createAll(any(), anyLong());
-        verify(filtersService, times(1)).createAll(any(), anyLong());
-        verify(tagsService, times(1)).getAllByDataId(anyLong());
-        verify(filtersService, times(1)).getAllByDataId(anyLong());
-        verify(linkMapper, times(1)).createLinkResponse(Mockito.any(), Mockito.anyString(), any(), any());
+        verify(linkRepository, times(1)).create(any());
+        verify(linkDataRepository, times(1)).getByChatIdLinkId(anyLong(), anyLong());
+        verify(tagsService, times(1)).createAll(any(), any());
+        verify(filtersService, times(1)).createAll(any(), any());
+        verify(linkMapper, times(1)).createLinkResponse(any(), anyString(), any(), any());
     }
 
     @Test
     public void untrackLinkTest() {
-        when(linkRepository.getByLink(Mockito.anyString()))
+        when(linkRepository.getByLink(anyString()))
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
-        when(linkDataRepository.getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong()))
+        when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(1L, 1L, 1L))));
         when(linkDataRepository.deleteLinkData(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsService.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersService.deleteAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.untrackLink(1, new RemoveLinkRequest("string"));
 
-        verify(tgChatService, times(1)).getByChatId(Mockito.anyLong());
-        verify(linkRepository, times(1)).getByLink(Mockito.anyString());
-        verify(linkDataRepository, times(1)).getByChatIdLinkId(Mockito.anyLong(), Mockito.anyLong());
-        verify(linkDataRepository, times(1)).deleteLinkData(Mockito.any());
+        verify(tgChatService, times(1)).getByChatId(anyLong());
+        verify(linkRepository, times(1)).getByLink(anyString());
+        verify(linkDataRepository, times(1)).getByChatIdLinkId(anyLong(), anyLong());
         verify(tagsService, times(1)).getAllByDataId(anyLong());
         verify(filtersService, times(1)).getAllByDataId(anyLong());
-        verify(tagsService, times(1)).deleteAllByDataId(anyLong());
-        verify(filtersService, times(1)).deleteAllByDataId(anyLong());
-        verify(linkMapper, times(1)).createLinkResponse(Mockito.any(), Mockito.anyString(), any(), any());
+        verify(linkMapper, times(1)).createLinkResponse(any(), anyString(), any(), any());
+        verify(linkDataRepository, times(1)).deleteLinkData(any());
     }
 
     @Test
     public void getByTagAndChatIdTest() {
-        when(linkDataRepository.getByTagAndChatId(any(), Mockito.anyLong()))
+        when(linkDataRepository.getByTagAndChatId(any(), anyLong()))
                 .thenReturn(
                         CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L), new LinkData(2L, 2L, 1L))));
-        when(linkRepository.getById(Mockito.anyLong()))
+        when(linkRepository.getById(anyLong()))
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))),
                         CompletableFuture.completedFuture(Optional.of(new Link(2L, "string2", LocalDateTime.now()))));
 
         linkDataService.getLinksByTagAndChatId("test", 1L);
 
-        verify(linkDataRepository, times(1)).getByTagAndChatId(anyString(), Mockito.anyLong());
-        verify(linkRepository, times(2)).getById(Mockito.anyLong());
+        verify(linkDataRepository, times(1)).getByTagAndChatId(anyString(), anyLong());
+        verify(linkRepository, times(2)).getById(anyLong());
         verify(tagsService, times(2)).getAllByDataId(anyLong());
         verify(filtersService, times(2)).getAllByDataId(anyLong());
-        verify(linkMapper, times(2)).createLinkResponse(Mockito.any(), Mockito.anyString(), any(), any());
+        verify(linkMapper, times(2)).createLinkResponse(any(), anyString(), any(), any());
     }
 }

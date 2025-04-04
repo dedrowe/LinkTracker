@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.repository.tags.TagsRepository;
 import java.util.List;
@@ -32,7 +33,7 @@ public class TagsServiceTest {
         String tag3 = "tag3";
 
         List<String> newTags = List.of(tag2, tag3);
-        long dataId = 1L;
+        LinkData data = new LinkData(1L, 1L, 1L);
         when(tagsRepository.getAllByDataId(anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(List.of(new Tag(1L, tag1), new Tag(2L, tag2))));
         when(tagsRepository.getAllByTagsSet(any()))
@@ -45,7 +46,7 @@ public class TagsServiceTest {
             return CompletableFuture.completedFuture(null);
         });
 
-        tagsService.createAllSync(newTags, dataId);
+        tagsService.createAllSync(newTags, data);
 
         verify(tagsRepository).getAllByDataId(anyLong());
         verify(tagsRepository).getAllByTagsSet(any());

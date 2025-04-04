@@ -2,10 +2,8 @@ package backend.academy.scrapper.repository.jdbc;
 
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
 import backend.academy.scrapper.repository.link.JdbcLinkRepository;
 import java.time.Duration;
 import java.time.Instant;
@@ -166,9 +164,12 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void createExistingTest() {
+        long expectedId = 1L;
         Link expectedResult = new Link(1L, "https://example.com", testTimestamp);
 
-        assertThatThrownBy(() -> unwrap(repository.create(expectedResult))).isInstanceOf(LinkException.class);
+        unwrap(repository.create(expectedResult));
+
+        assertThat(expectedResult.id()).isEqualTo(expectedId);
     }
 
     @Test

@@ -94,7 +94,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     @Test
     public void createTest() {
         long newId = 5L;
-        Filter filter = new Filter(null, 1L, "test:test");
+        Filter filter = new Filter(null, data1, "test:test");
 
         repository.createSync(filter);
 
@@ -103,7 +103,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void deleteExistingByIdTest() {
-        Filter filter = new Filter(1L, 1L, "key:value");
+        Filter filter = new Filter(1L, data1, "key:value");
 
         repository.deleteByIdSync(filter.id());
 

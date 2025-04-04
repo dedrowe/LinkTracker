@@ -37,7 +37,7 @@ public class JdbcAutowireTest extends ScrapperContainers {
             @Qualifier("jdbcLinkRepository") LinkRepository linkRepository,
             @Qualifier("jdbcTagsRepository") TagsRepository tagsRepository,
             @Qualifier("jdbcTgChatRepository") TgChatRepository tgChatRepository,
-            @Qualifier("sqlLinkDataService") LinkDataService linkDataService,
+            @Qualifier("linkDataService") LinkDataService linkDataService,
             @Qualifier("sqlLinksCheckerService") SqlLinksCheckerService sqlUpdatesCheckerService) {
         this.filtersRepository = filtersRepository;
         this.linkDataRepository = linkDataRepository;

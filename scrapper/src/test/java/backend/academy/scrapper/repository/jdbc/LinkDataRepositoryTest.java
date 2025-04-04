@@ -57,7 +57,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getFirst().getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -69,7 +69,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
         LinkData actualResult = unwrap(repository.getById(id)).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -96,7 +96,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getFirst().getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -123,7 +123,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getFirst().getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -170,7 +170,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
                 unwrap(repository.getByChatIdLinkId(chatId, linkId)).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -221,7 +221,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
                 .single();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -239,7 +239,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
                 .single();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.entity.Filter;
+import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.repository.filters.FiltersRepository;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -32,14 +33,15 @@ public class FiltersServiceTest {
         String filter3 = "3:3";
 
         List<String> newFilters = List.of(filter2, filter3);
-        long dataId = 1L;
+        LinkData data = new LinkData(1L, 1L, 1L);
         when(filtersRepository.getAllByDataId(anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(
-                        List.of(new Filter(1L, 1L, filter1), new Filter(2L, 1L, filter2))));
+                .thenReturn(CompletableFuture.completedFuture(List.of(
+                        new Filter(1L, new LinkData(1L, 1L, 1L), filter1),
+                        new Filter(2L, new LinkData(1L, 1L, 1L), filter2))));
         when(filtersRepository.deleteById(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
         when(filtersRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
 
-        filtersService.createAllSync(newFilters, dataId);
+        filtersService.createAllSync(newFilters, data);
 
         verify(filtersRepository).getAllByDataId(anyLong());
         verify(filtersRepository, times(1)).create(any());

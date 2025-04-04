@@ -37,7 +37,7 @@ public class JpaAutowireTest extends ScrapperContainers {
             @Qualifier("jpaLinkRepository") LinkRepository linkRepository,
             @Qualifier("jpaTagsRepository") TagsRepository tagsRepository,
             @Qualifier("jpaTgChatRepository") TgChatRepository tgChatRepository,
-            @Qualifier("ormLinkDataService") LinkDataService linkDataService,
+            @Qualifier("linkDataService") LinkDataService linkDataService,
             @Qualifier("ormLinksCheckerService") OrmLinksCheckerService updatesCheckerService) {
         this.filtersRepository = filtersRepository;
         this.linkDataRepository = linkDataRepository;

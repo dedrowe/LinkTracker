@@ -77,7 +77,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().link().id()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getFirst().link().id()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.getFirst().tgChat().id()).isEqualTo(expectedResult.chatId());
     }
 
@@ -89,7 +89,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         LinkData actualResult = repository.getByIdSync(id).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.link().id()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.link().id()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.tgChat().id()).isEqualTo(expectedResult.chatId());
     }
 
@@ -116,7 +116,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().link().id()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getFirst().link().id()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.getFirst().tgChat().id()).isEqualTo(expectedResult.chatId());
     }
 
@@ -143,7 +143,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().link().id()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getFirst().link().id()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.getFirst().tgChat().id()).isEqualTo(expectedResult.chatId());
     }
 
@@ -191,7 +191,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         LinkData actualResult = repository.getByChatIdLinkIdSync(chatId, linkId).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.link().id()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.link().id()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.tgChat().id()).isEqualTo(expectedResult.chatId());
     }
 
@@ -242,7 +242,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         LinkData actualResult = entityManager.find(LinkData.class, expectedResult.id());
 
         assertThat(actualResult.id()).isEqualTo(expectedId);
-        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -256,7 +256,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         LinkData actualResult = entityManager.find(LinkData.class, expectedResult.id());
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
+        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -303,7 +303,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void deleteTest() {
         LinkData linkData = new LinkData(1L, 1L, 1L);
 
-        repository.deleteSync(linkData.chatId(), linkData.linkId());
+        repository.deleteSync(linkData.chatId(), linkData.getLinkId());
         entityManager.clear();
         LinkData actualResult = (LinkData) entityManager
                 .getEntityManager()
@@ -318,7 +318,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void deleteAlreadyDeletedTest() {
         LinkData linkData = new LinkData(2L, 2L, 2L);
 
-        repository.deleteSync(linkData.chatId(), linkData.linkId());
+        repository.deleteSync(linkData.chatId(), linkData.getLinkId());
         entityManager.clear();
         LinkData actualResult = (LinkData) entityManager
                 .getEntityManager()

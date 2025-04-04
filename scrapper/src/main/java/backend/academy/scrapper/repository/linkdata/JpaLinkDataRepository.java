@@ -54,7 +54,6 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     @Transactional
     default CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId) {
         Optional<LinkData> linkData = getByChatIdLinkIdSync(chatId, linkId);
-        linkData.ifPresent(this::fetchProperties);
         return CompletableFuture.completedFuture(linkData);
     }
 
@@ -63,7 +62,6 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     @Transactional
     default CompletableFuture<List<LinkData>> getByTagAndChatId(String tag, long chatId) {
         List<LinkData> linksData = getByTagAndChatIdSync(tag, chatId);
-        linksData.forEach(this::fetchProperties);
         return CompletableFuture.completedFuture(linksData);
     }
 
@@ -87,7 +85,7 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
     @Async
     @Transactional
     default CompletableFuture<Void> deleteLinkData(LinkData link) {
-        deleteSync(link.chatId(), link.linkId());
+        deleteSync(link.getChatId(), link.getLinkId());
         return CompletableFuture.completedFuture(null);
     }
 
@@ -127,12 +125,12 @@ public interface JpaLinkDataRepository extends LinkDataRepository, CrudRepositor
                     + "where t.tag = :tag and tc.chatId = :chatId and ld.deleted = false")
     List<LinkData> getByTagAndChatIdSync(@Param("tag") String tag, @Param("chatId") long chatId);
 
-    @Query(value = "select l from LinkData l where l.chatId = :chatId and l.linkId = :linkId")
+    @Query(value = "select * from links_data where chat_id = :chatId and link_id = :linkId", nativeQuery = true)
     Optional<LinkData> getByChatIdLinkIdWithDeletedSync(@Param("chatId") long chatId, @Param("linkId") long linkId);
 
     @Transactional
     default void createSync(LinkData linkData) {
-        Optional<LinkData> data = getByChatIdLinkIdWithDeletedSync(linkData.chatId(), linkData.linkId());
+        Optional<LinkData> data = getByChatIdLinkIdWithDeletedSync(linkData.getChatId(), linkData.getLinkId());
         data.ifPresent(l -> linkData.id(l.id()));
         save(linkData);
     }
