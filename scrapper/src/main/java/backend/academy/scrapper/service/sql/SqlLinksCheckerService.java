@@ -47,6 +47,7 @@ public class SqlLinksCheckerService extends LinksCheckerService {
 
     private final TgChatRepository tgChatRepository;
 
+    // Здесь не получится использовать lombok из-за наследуемого поля linkDispatcher
     public SqlLinksCheckerService(
             LinkDispatcher linkDispatcher,
             int batchSize,

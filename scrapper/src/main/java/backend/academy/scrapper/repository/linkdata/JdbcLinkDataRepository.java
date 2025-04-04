@@ -123,7 +123,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
     @Override
     @Async
     public CompletableFuture<Void> create(LinkData linkData) {
-        Optional<LinkData> data = getByChatIdLinkIdWithDeleted(linkData.chatId(), linkData.linkId());
+        Optional<LinkData> data = getByChatIdLinkIdWithDeleted(linkData.getChatId(), linkData.getLinkId());
 
         if (data.isPresent()) {
             if (!data.orElseThrow().deleted()) {

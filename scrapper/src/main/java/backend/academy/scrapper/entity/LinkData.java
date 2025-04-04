@@ -66,6 +66,20 @@ public class LinkData {
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> tags;
 
+    public Long getLinkId() {
+        if (link == null) {
+            return linkId;
+        }
+        return link.id();
+    }
+
+    public Long getChatId() {
+        if (tgChat == null) {
+            return chatId;
+        }
+        return tgChat.id();
+    }
+
     public LinkData(long linkId, long chatId) {
         this.linkId = linkId;
         this.chatId = chatId;
@@ -78,6 +92,12 @@ public class LinkData {
     }
 
     public LinkData(Link link, TgChat tgChat) {
+        this.link = link;
+        this.tgChat = tgChat;
+    }
+
+    public LinkData(Long id, Link link, TgChat tgChat) {
+        this.id = id;
         this.link = link;
         this.tgChat = tgChat;
     }

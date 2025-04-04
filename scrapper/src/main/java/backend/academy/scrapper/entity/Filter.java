@@ -39,6 +39,13 @@ public class Filter {
     @JoinColumn(name = "data_id", nullable = false, referencedColumnName = "id")
     private LinkData linkData;
 
+    public Long getLinkDataId() {
+        if (linkData == null) {
+            return dataId;
+        }
+        return linkData.id();
+    }
+
     public Filter(Long dataId, String filter) {
         this.dataId = dataId;
         this.filter = filter;

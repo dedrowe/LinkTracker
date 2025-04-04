@@ -2,6 +2,7 @@ package backend.academy.scrapper.service;
 
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 
+import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.repository.tags.TagsRepository;
 import backend.academy.shared.dto.ListTagLinkCount;
@@ -42,13 +43,13 @@ public class TagsService {
     }
 
     @Transactional
-    public void createAllSync(List<String> tags, long dataId) {
-        unwrap(createAll(tags, dataId));
+    public void createAllSync(List<String> tags, LinkData linkData) {
+        unwrap(createAll(tags, linkData));
     }
 
     @Transactional
-    public CompletableFuture<Void> createAll(List<String> tags, long dataId) {
-        List<Tag> curTags = unwrap(tagsRepository.getAllByDataId(dataId));
+    public CompletableFuture<Void> createAll(List<String> tags, LinkData linkData) {
+        List<Tag> curTags = unwrap(tagsRepository.getAllByDataId(linkData.id()));
         Set<String> tagSet = new HashSet<>(tags);
         Set<Tag> curTagsSet = new HashSet<>(curTags);
 
@@ -63,11 +64,11 @@ public class TagsService {
         existingTags.forEach(tag -> tagSet.remove(tag.tag()));
 
         CompletableFuture<Void> deleteTagsFuture = CompletableFuture.allOf(curTagsSet.stream()
-                .map(tag -> tagsRepository.deleteRelation(dataId, tag.id()))
+                .map(tag -> tagsRepository.deleteRelation(linkData.id(), tag.id()))
                 .toArray(CompletableFuture[]::new));
 
         CompletableFuture<Void> existingTagsFuture = CompletableFuture.allOf(existingTags.stream()
-                .map(tag -> tagsRepository.createRelation(dataId, tag.id()))
+                .map(tag -> tagsRepository.createRelation(linkData.id(), tag.id()))
                 .toArray(CompletableFuture[]::new));
 
         CompletableFuture<Void> newTagsFuture = CompletableFuture.allOf(tagSet.stream()
@@ -75,7 +76,7 @@ public class TagsService {
                     Tag newTag = new Tag(tag);
                     return tagsRepository
                             .createTag(newTag)
-                            .thenRunAsync(() -> tagsRepository.createRelation(dataId, newTag.id()));
+                            .thenRunAsync(() -> tagsRepository.createRelation(linkData.id(), newTag.id()));
                 })
                 .toArray(CompletableFuture[]::new));
 

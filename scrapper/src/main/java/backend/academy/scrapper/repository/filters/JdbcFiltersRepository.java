@@ -38,7 +38,7 @@ public class JdbcFiltersRepository implements FiltersRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient
                 .sql(query)
-                .param("dataId", filter.dataId())
+                .param("dataId", filter.getLinkDataId())
                 .param("filter", filter.filter())
                 .update(keyHolder);
         filter.id(keyHolder.getKeyAs(Long.class));

@@ -1,13 +1,12 @@
 package backend.academy.scrapper.repository.link;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -18,14 +17,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Slf4j
 @ConditionalOnProperty(havingValue = "SQL", prefix = "app", name = "access-type")
+@AllArgsConstructor
 public class JdbcLinkRepository implements LinkRepository {
 
     private final JdbcClient jdbcClient;
-
-    @Autowired
-    public JdbcLinkRepository(JdbcClient client) {
-        jdbcClient = client;
-    }
 
     @Override
     @Async
@@ -92,16 +87,14 @@ public class JdbcLinkRepository implements LinkRepository {
     public CompletableFuture<Void> create(Link link) {
         Optional<Link> data = getByLinkWithDeleted(link.link());
 
-        if (data.isPresent()) {
-            if (!data.orElseThrow().deleted()) {
-                throw new LinkException("Эта ссылка уже существует", link.link());
-            }
-
-            restoreLink(link.link());
-            link.id(data.orElseThrow().id());
-        } else {
-            link.id(createInternal(link));
-        }
+        data.ifPresentOrElse(
+                curLink -> {
+                    if (curLink.deleted()) {
+                        restoreLink(link.link());
+                    }
+                    link.id(curLink.id());
+                },
+                () -> link.id(createInternal(link)));
 
         return CompletableFuture.completedFuture(null);
     }

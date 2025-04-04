@@ -3,6 +3,7 @@ package backend.academy.scrapper.service;
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 
 import backend.academy.scrapper.entity.Filter;
+import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.repository.filters.FiltersRepository;
 import java.util.HashSet;
 import java.util.List;
@@ -27,13 +28,13 @@ public class FiltersService {
     }
 
     @Transactional
-    public void createAllSync(List<String> filters, long linkDataId) {
-        unwrap(createAll(filters, linkDataId));
+    public void createAllSync(List<String> filters, LinkData linkData) {
+        unwrap(createAll(filters, linkData));
     }
 
     @Transactional
-    public CompletableFuture<Void> createAll(List<String> filters, long linkDataId) {
-        List<Filter> curFilters = unwrap(filtersRepository.getAllByDataId(linkDataId));
+    public CompletableFuture<Void> createAll(List<String> filters, LinkData linkData) {
+        List<Filter> curFilters = unwrap(filtersRepository.getAllByDataId(linkData.id()));
         Set<String> filtersSet = new HashSet<>(filters);
         Set<Filter> curFiltersSet = new HashSet<>(curFilters);
 
@@ -49,7 +50,7 @@ public class FiltersService {
                 .toArray(CompletableFuture[]::new));
 
         CompletableFuture<Void> createFiltersFuture = CompletableFuture.allOf(filtersSet.stream()
-                .map(filter -> filtersRepository.create(new Filter(linkDataId, filter)))
+                .map(filter -> filtersRepository.create(new Filter(linkData, filter)))
                 .toArray(CompletableFuture[]::new));
 
         unwrap(CompletableFuture.allOf(createFiltersFuture, deleteFiltersFuture));
