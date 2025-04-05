@@ -7,6 +7,18 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.14.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <include relativeToChangelogFile="true" file="00-initial-schema.sql"/>
+    <changeSet id="00-initial-schema" author="you">
+        <sqlFile path="00-initial-schema.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sql>
+                DROP TABLE IF EXISTS filters;
+                DROP TABLE IF EXISTS links_data_to_tags;
+                DROP TABLE IF EXISTS tags;
+                DROP TABLE IF EXISTS links_data;
+                DROP TABLE IF EXISTS links;
+                DROP TABLE IF EXISTS tg_chats;
+            </sql>
+        </rollback>
+    </changeSet>
 
 </databaseChangeLog>
