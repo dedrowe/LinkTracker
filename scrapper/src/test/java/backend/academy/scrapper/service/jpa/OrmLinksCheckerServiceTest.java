@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
+import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.service.LinkDispatcher;
@@ -36,8 +36,8 @@ public class OrmLinksCheckerServiceTest {
 
     private final ApiClientWrapper clientWrapper = mock(ApiClientWrapper.class);
 
-    private final LinkData linkData =
-            new LinkData(1L, 1L, 1L, false, new Link("string"), new TgChat(1L), List.of(), List.of());
+    private final JpaLinkData linkData =
+            new JpaLinkData(1L, 1L, 1L, false, new Link("string"), new TgChat(1L), List.of(), List.of());
 
     private final OrmLinksCheckerService updatesCheckerService =
             new OrmLinksCheckerService(linkDispatcher, linkMapper, tgBotClient, linkRepository);

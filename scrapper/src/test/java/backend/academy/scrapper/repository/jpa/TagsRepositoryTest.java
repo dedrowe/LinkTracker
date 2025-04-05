@@ -3,10 +3,10 @@ package backend.academy.scrapper.repository.jpa;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.LinkDataToTag;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
+import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.repository.tags.JpaTagsRepository;
 import backend.academy.shared.dto.TagLinkCount;
 import java.time.Instant;
@@ -38,8 +38,8 @@ public class TagsRepositoryTest extends AbstractJpaTest {
     private Link link1 = new Link(null, "https://example.com", testTimestamp);
     private Link link2 = new Link(null, "https://example2.com", testTimestamp);
 
-    private LinkData linkData1 = new LinkData(link1, tgChat1);
-    private LinkData linkData2 = new LinkData(link2, tgChat2);
+    private JpaLinkData linkData1 = new JpaLinkData(link1, tgChat1);
+    private JpaLinkData linkData2 = new JpaLinkData(link2, tgChat2);
 
     private Tag tag1 = new Tag("tag1");
     private Tag tag2 = new Tag("tag2");

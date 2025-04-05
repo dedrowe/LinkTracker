@@ -11,8 +11,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
+import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.WrongServiceException;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
@@ -70,7 +70,7 @@ public class SqlLinksCheckerServiceTest {
         when(linkDispatcher.dispatchLink(any())).thenReturn(clientWrapper);
         when(clientWrapper.getLastUpdate(any(), any())).thenReturn(Optional.of(""));
 
-        LinkData linkData = new LinkData(1L, 1L, 1L);
+        JdbcLinkData linkData = new JdbcLinkData(1L, 1L, 1L);
 
         when(linkDataRepository.getByLinkId(eq(1L), anyLong(), anyLong()))
                 .thenReturn(

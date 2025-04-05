@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
+import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
@@ -65,8 +65,8 @@ public class LinkDataServiceTest {
     @Test
     public void getByChatIdTest() {
         when(linkDataRepository.getByChatId(anyLong()))
-                .thenReturn(
-                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L), new LinkData(2L, 2L, 1L))));
+                .thenReturn(CompletableFuture.completedFuture(
+                        List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L))));
         when(linkRepository.getById(anyLong()))
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))),
@@ -84,7 +84,7 @@ public class LinkDataServiceTest {
 
     @Test
     public void trackLinkTest() {
-        when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new LinkData(1L, 1L, 1L));
+        when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new JdbcLinkData(1L, 1L, 1L));
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
         when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
@@ -113,9 +113,9 @@ public class LinkDataServiceTest {
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
-        when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new LinkData(1L, 1L, 1L));
+        when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new JdbcLinkData(1L, 1L, 1L));
         when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(1L, 1L, 1L))));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(new JdbcLinkData(1L, 1L, 1L))));
         when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
         when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
         when(tagsService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
@@ -139,7 +139,7 @@ public class LinkDataServiceTest {
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
         when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(new LinkData(1L, 1L, 1L))));
+                .thenReturn(CompletableFuture.completedFuture(Optional.of(new JdbcLinkData(1L, 1L, 1L))));
         when(linkDataRepository.deleteLinkData(any())).thenReturn(CompletableFuture.completedFuture(null));
 
         linkDataService.untrackLink(1, new RemoveLinkRequest("string"));
@@ -156,8 +156,8 @@ public class LinkDataServiceTest {
     @Test
     public void getByTagAndChatIdTest() {
         when(linkDataRepository.getByTagAndChatId(any(), anyLong()))
-                .thenReturn(
-                        CompletableFuture.completedFuture(List.of(new LinkData(1L, 1L, 1L), new LinkData(2L, 2L, 1L))));
+                .thenReturn(CompletableFuture.completedFuture(
+                        List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L))));
         when(linkRepository.getById(anyLong()))
                 .thenReturn(
                         CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))),

@@ -2,10 +2,10 @@ package backend.academy.scrapper.repository.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.TgChat;
+import backend.academy.scrapper.entity.jpa.JpaFilter;
+import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.repository.filters.JpaFiltersRepository;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -34,13 +34,13 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     private Link link1 = new Link(null, "https://example.com", testTimestamp);
     private Link link2 = new Link(null, "https://example2.com", testTimestamp);
 
-    private LinkData data1 = new LinkData(link1, tgChat);
-    private LinkData data2 = new LinkData(link2, tgChat);
+    private JpaLinkData data1 = new JpaLinkData(link1, tgChat);
+    private JpaLinkData data2 = new JpaLinkData(link2, tgChat);
 
-    private Filter filter1 = new Filter(data1, "key:value");
-    private Filter filter2 = new Filter(data1, "key2:value2");
-    private Filter filter3 = new Filter(data2, "key:value");
-    private Filter filter4 = new Filter(data2, "key2:value2");
+    private JpaFilter filter1 = new JpaFilter(data1, "key:value");
+    private JpaFilter filter2 = new JpaFilter(data1, "key2:value2");
+    private JpaFilter filter3 = new JpaFilter(data2, "key:value");
+    private JpaFilter filter4 = new JpaFilter(data2, "key2:value2");
 
     @BeforeEach
     public void setUp() {
@@ -75,10 +75,10 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getAllByDataIdTest() {
-        Filter filter1 = new Filter(1L, data1, "key:value");
-        Filter filter2 = new Filter(2L, data1, "key2:value2");
+        JpaFilter filter1 = new JpaFilter(1L, data1, "key:value");
+        JpaFilter filter2 = new JpaFilter(2L, data1, "key2:value2");
 
-        List<Filter> actualResult = repository.getAllByDataIdSync(1L);
+        List<JpaFilter> actualResult = repository.getAllByDataIdSync(1L);
 
         assertThat(actualResult).containsExactly(filter1, filter2);
     }
@@ -86,7 +86,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     @Test
     public void getAllByDataIdFailTest() {
 
-        List<Filter> filters = repository.getAllByDataIdSync(-1L);
+        List<JpaFilter> filters = repository.getAllByDataIdSync(-1L);
 
         assertThat(filters).isEmpty();
     }
@@ -94,7 +94,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     @Test
     public void createTest() {
         long newId = 5L;
-        Filter filter = new Filter(null, data1, "test:test");
+        JpaFilter filter = new JpaFilter(null, data1, "test:test");
 
         repository.createSync(filter);
 
@@ -103,14 +103,14 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void deleteExistingByIdTest() {
-        Filter filter = new Filter(1L, data1, "key:value");
+        JpaFilter filter = new JpaFilter(1L, data1, "key:value");
 
         repository.deleteByIdSync(filter.id());
 
         assertThat(entityManager
                         .getEntityManager()
                         .createNativeQuery(
-                                "SELECT * FROM filters WHERE data_id = 1 and filter = 'key:value'", Filter.class)
+                                "SELECT * FROM filters WHERE data_id = 1 and filter = 'key:value'", JpaFilter.class)
                         .getResultList())
                 .isEmpty();
     }
@@ -121,12 +121,12 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
 
         assertThat(entityManager
                         .getEntityManager()
-                        .createNativeQuery("SELECT * FROM filters WHERE data_id = 1", Filter.class)
+                        .createNativeQuery("SELECT * FROM filters WHERE data_id = 1", JpaFilter.class)
                         .getResultList())
                 .isEmpty();
         assertThat(entityManager
                         .getEntityManager()
-                        .createNativeQuery("SELECT * FROM filters WHERE data_id = 2", Filter.class)
+                        .createNativeQuery("SELECT * FROM filters WHERE data_id = 2", JpaFilter.class)
                         .getResultList()
                         .size())
                 .isEqualTo(2);

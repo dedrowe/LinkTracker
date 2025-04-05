@@ -4,7 +4,7 @@ import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import backend.academy.scrapper.repository.linkdata.JdbcLinkDataRepository;
 import java.util.List;
@@ -51,38 +51,38 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getAllTest() {
-        LinkData expectedResult = new LinkData(1L, 1L, 1L);
+        JdbcLinkData expectedResult = new JdbcLinkData(1L, 1L, 1L);
 
-        List<LinkData> actualResult = unwrap(repository.getAll());
+        List<JdbcLinkData> actualResult = unwrap(repository.getAll());
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().getLinkId()).isEqualTo(expectedResult.getLinkId());
+        assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
     }
 
     @Test
     public void getByIdTest() {
         long id = 1L;
-        LinkData expectedResult = new LinkData(id, 1L, 1L);
+        JdbcLinkData expectedResult = new JdbcLinkData(id, 1L, 1L);
 
-        LinkData actualResult = unwrap(repository.getById(id)).get();
+        JdbcLinkData actualResult = unwrap(repository.getById(id)).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
+        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
     @Test
     public void getDeletedByIdTest() {
-        Optional<LinkData> actualResult = unwrap(repository.getById(2));
+        Optional<JdbcLinkData> actualResult = unwrap(repository.getById(2));
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByIdFailTest() {
-        Optional<LinkData> actualResult = unwrap(repository.getById(-1));
+        Optional<JdbcLinkData> actualResult = unwrap(repository.getById(-1));
 
         assertThat(actualResult).isEmpty();
     }
@@ -90,26 +90,26 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
     @Test
     public void getByChatIdTest() {
         long id = 1L;
-        LinkData expectedResult = new LinkData(1L, 1L, id);
+        JdbcLinkData expectedResult = new JdbcLinkData(1L, 1L, id);
 
-        List<LinkData> actualResult = unwrap(repository.getByChatId(id));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByChatId(id));
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().getLinkId()).isEqualTo(expectedResult.getLinkId());
+        assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
     }
 
     @Test
     public void getDeletedByChatIdTest() {
-        List<LinkData> actualResult = unwrap(repository.getByChatId(2));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByChatId(2));
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByChatIdFailTest() {
-        List<LinkData> actualResult = unwrap(repository.getByChatId(-1));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByChatId(-1));
 
         assertThat(actualResult).isEmpty();
     }
@@ -117,13 +117,13 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
     @Test
     public void getByLinkIdTest() {
         long id = 1L;
-        LinkData expectedResult = new LinkData(1L, id, 1L);
+        JdbcLinkData expectedResult = new JdbcLinkData(1L, id, 1L);
 
-        List<LinkData> actualResult = unwrap(repository.getByLinkId(id));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByLinkId(id));
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getFirst().getLinkId()).isEqualTo(expectedResult.getLinkId());
+        assertThat(actualResult.getFirst().linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.getFirst().chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -138,24 +138,24 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
                 .update();
         client.sql("INSERT INTO links_data (link_id, chat_id, deleted) VALUES (2, 4, false)")
                 .update();
-        LinkData linkData1 = new LinkData(4L, 2L, 3L);
-        LinkData linkData2 = new LinkData(5L, 2L, 4L);
+        JdbcLinkData linkData1 = new JdbcLinkData(4L, 2L, 3L);
+        JdbcLinkData linkData2 = new JdbcLinkData(5L, 2L, 4L);
 
-        List<LinkData> actualResult = unwrap(repository.getByLinkId(2L, minId, limit));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByLinkId(2L, minId, limit));
 
         assertThat(actualResult).containsExactly(linkData1, linkData2);
     }
 
     @Test
     public void getDeletedByLinkIdTest() {
-        List<LinkData> actualResult = unwrap(repository.getByLinkId(2));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByLinkId(2));
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByLinkIdFailTest() {
-        List<LinkData> actualResult = unwrap(repository.getByLinkId(-1));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByLinkId(-1));
 
         assertThat(actualResult).isEmpty();
     }
@@ -164,26 +164,26 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
     public void getByChatIdLinkIdTest() {
         long linkId = 1L;
         long chatId = 1L;
-        LinkData expectedResult = new LinkData(1L, linkId, chatId);
+        JdbcLinkData expectedResult = new JdbcLinkData(1L, linkId, chatId);
 
-        LinkData actualResult =
+        JdbcLinkData actualResult =
                 unwrap(repository.getByChatIdLinkId(chatId, linkId)).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
+        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
     @Test
     public void getDeletedByChatIdLinkIdTest() {
-        Optional<LinkData> actualResult = unwrap(repository.getByChatIdLinkId(2L, 2L));
+        Optional<JdbcLinkData> actualResult = unwrap(repository.getByChatIdLinkId(2L, 2L));
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByChatIdLinkIdFailTest() {
-        Optional<LinkData> actualResult = unwrap(repository.getByChatIdLinkId(-1L, -1L));
+        Optional<JdbcLinkData> actualResult = unwrap(repository.getByChatIdLinkId(-1L, -1L));
 
         assertThat(actualResult).isEmpty();
     }
@@ -199,10 +199,10 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
                 .update();
         client.sql("INSERT INTO links_data_to_tags (data_id, tag_id) VALUES (3, 1)")
                 .update();
-        LinkData linkData1 = new LinkData(1L, 1L, 1L);
-        LinkData linkData2 = new LinkData(3L, 2L, 1L);
+        JdbcLinkData linkData1 = new JdbcLinkData(1L, 1L, 1L);
+        JdbcLinkData linkData2 = new JdbcLinkData(3L, 2L, 1L);
 
-        List<LinkData> actualResult = unwrap(repository.getByTagAndChatId("test", 1));
+        List<JdbcLinkData> actualResult = unwrap(repository.getByTagAndChatId("test", 1));
 
         assertThat(actualResult).containsExactly(linkData1, linkData2);
     }
@@ -211,17 +211,17 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
     public void createNewTest() {
         long chatId = 3L;
         long linkId = 3L;
-        LinkData expectedResult = new LinkData(3L, linkId, chatId);
+        JdbcLinkData expectedResult = new JdbcLinkData(3L, linkId, chatId);
 
         unwrap(repository.create(expectedResult));
-        LinkData actualResult = client.sql("SELECT * FROM links_data WHERE chat_id = :chatId and link_id = :linkId")
+        JdbcLinkData actualResult = client.sql("SELECT * FROM links_data WHERE chat_id = :chatId and link_id = :linkId")
                 .param("chatId", chatId)
                 .param("linkId", linkId)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .single();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
+        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
@@ -229,23 +229,23 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
     public void createDeletedTest() {
         long chatId = 2L;
         long linkId = 2L;
-        LinkData expectedResult = new LinkData(2L, linkId, chatId);
+        JdbcLinkData expectedResult = new JdbcLinkData(2L, linkId, chatId);
 
         unwrap(repository.create(expectedResult));
-        LinkData actualResult = client.sql("SELECT * FROM links_data WHERE chat_id = :chatId and link_id = :linkId")
+        JdbcLinkData actualResult = client.sql("SELECT * FROM links_data WHERE chat_id = :chatId and link_id = :linkId")
                 .param("chatId", chatId)
                 .param("linkId", linkId)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .single();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
-        assertThat(actualResult.getLinkId()).isEqualTo(expectedResult.getLinkId());
+        assertThat(actualResult.linkId()).isEqualTo(expectedResult.linkId());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
     }
 
     @Test
     public void createExistingTest() {
-        LinkData expectedResult = new LinkData(1L, 1L, 1L);
+        JdbcLinkData expectedResult = new JdbcLinkData(1L, 1L, 1L);
 
         assertThatThrownBy(() -> unwrap(repository.create(expectedResult))).isInstanceOf(LinkDataException.class);
     }
@@ -278,7 +278,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteTest() {
-        LinkData linkData = new LinkData(1L, 1L, 1L);
+        JdbcLinkData linkData = new JdbcLinkData(1L, 1L, 1L);
 
         unwrap(repository.deleteLinkData(linkData));
 
@@ -291,7 +291,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteAlreadyDeletedTest() {
-        LinkData linkData = new LinkData(2L, 2L, 2L);
+        JdbcLinkData linkData = new JdbcLinkData(2L, 2L, 2L);
 
         unwrap(repository.deleteLinkData(linkData));
 

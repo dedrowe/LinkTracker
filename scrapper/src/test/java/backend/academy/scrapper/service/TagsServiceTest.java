@@ -6,8 +6,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.entity.Tag;
+import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
 import backend.academy.scrapper.repository.tags.TagsRepository;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -33,7 +33,7 @@ public class TagsServiceTest {
         String tag3 = "tag3";
 
         List<String> newTags = List.of(tag2, tag3);
-        LinkData data = new LinkData(1L, 1L, 1L);
+        JdbcLinkData data = new JdbcLinkData(1L, 1L, 1L);
         when(tagsRepository.getAllByDataId(anyLong()))
                 .thenReturn(CompletableFuture.completedFuture(List.of(new Tag(1L, tag1), new Tag(2L, tag2))));
         when(tagsRepository.getAllByTagsSet(any()))

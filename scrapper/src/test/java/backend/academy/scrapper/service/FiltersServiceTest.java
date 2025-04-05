@@ -2,13 +2,16 @@ package backend.academy.scrapper.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import backend.academy.scrapper.entity.Filter;
-import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.jdbc.JdbcFilter;
+import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
+import backend.academy.scrapper.entity.jpa.JpaFilter;
 import backend.academy.scrapper.repository.filters.FiltersRepository;
+import backend.academy.scrapper.service.entityFactory.filter.FilterFactory;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
@@ -23,6 +26,9 @@ public class FiltersServiceTest {
     @Mock
     private FiltersRepository filtersRepository;
 
+    @Mock
+    private FilterFactory filterFactory;
+
     @InjectMocks
     private FiltersService filtersService;
 
@@ -33,11 +39,11 @@ public class FiltersServiceTest {
         String filter3 = "3:3";
 
         List<String> newFilters = List.of(filter2, filter3);
-        LinkData data = new LinkData(1L, 1L, 1L);
+        JdbcLinkData data = new JdbcLinkData(1L, 1L, 1L);
         when(filtersRepository.getAllByDataId(anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(List.of(
-                        new Filter(1L, new LinkData(1L, 1L, 1L), filter1),
-                        new Filter(2L, new LinkData(1L, 1L, 1L), filter2))));
+                .thenReturn(CompletableFuture.completedFuture(
+                        List.of(new JdbcFilter(1L, 1L, filter1), new JdbcFilter(2L, 1L, filter2))));
+        when(filterFactory.getFilter(any(), anyString())).thenReturn(new JpaFilter());
         when(filtersRepository.deleteById(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
         when(filtersRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
 
