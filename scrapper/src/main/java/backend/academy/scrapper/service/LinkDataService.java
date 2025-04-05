@@ -98,14 +98,14 @@ public class LinkDataService {
     private ListLinkResponse createListLinkResponse(List<LinkData> links, long chatId) {
         List<LinkResponse> responses = new ArrayList<>();
         CompletableFuture<Optional<Link>>[] futures = links.stream()
-                .map(link -> linkRepository.getById(link.getLinkId()))
+                .map(link -> linkRepository.getById(link.linkId()))
                 .toArray(CompletableFuture[]::new);
         for (int i = 0; i < futures.length; ++i) {
             int finalI = i;
             Link link = unwrap(futures[finalI])
                     .orElseThrow(() -> new LinkDataException(
                             "Произошла ошибка при получении зарегистрированных ссылок",
-                            String.valueOf(links.get(finalI).getLinkId()),
+                            String.valueOf(links.get(finalI).linkId()),
                             String.valueOf(chatId)));
             CompletableFuture<List<Tag>> tags =
                     tagsService.getAllByDataId(links.get(i).id());

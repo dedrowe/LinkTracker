@@ -1,6 +1,7 @@
 package backend.academy.scrapper.repository.filters;
 
 import backend.academy.scrapper.entity.Filter;
+import backend.academy.scrapper.entity.jdbc.JdbcFilter;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
@@ -20,13 +21,13 @@ public class JdbcFiltersRepository implements FiltersRepository {
 
     @Override
     @Async
-    public CompletableFuture<List<Filter>> getAllByDataId(long dataId) {
+    public CompletableFuture<List<JdbcFilter>> getAllByDataId(long dataId) {
         String query = "select * from filters where data_id = :dataId";
 
         return CompletableFuture.completedFuture(jdbcClient
                 .sql(query)
                 .param("dataId", dataId)
-                .query(Filter.class)
+                .query(JdbcFilter.class)
                 .list());
     }
 
@@ -38,7 +39,7 @@ public class JdbcFiltersRepository implements FiltersRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient
                 .sql(query)
-                .param("dataId", filter.getLinkDataId())
+                .param("dataId", filter.dataId())
                 .param("filter", filter.filter())
                 .update(keyHolder);
         filter.id(keyHolder.getKeyAs(Long.class));

@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface FiltersRepository {
 
-    CompletableFuture<List<Filter>> getAllByDataId(long dataId);
+    <T extends Filter> CompletableFuture<List<T>> getAllByDataId(long dataId);
 
     CompletableFuture<Void> create(Filter filter);
 

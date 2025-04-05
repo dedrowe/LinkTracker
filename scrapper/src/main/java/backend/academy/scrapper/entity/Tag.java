@@ -1,5 +1,6 @@
 package backend.academy.scrapper.entity;
 
+import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,7 +34,7 @@ public class Tag {
     private String tag;
 
     @ManyToMany(mappedBy = "tags")
-    private List<LinkData> linksData;
+    private List<JpaLinkData> linksData;
 
     public Tag(String tag) {
         this.tag = tag;

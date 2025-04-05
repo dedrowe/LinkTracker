@@ -1,6 +1,7 @@
 package backend.academy.scrapper.repository.linkdata;
 
 import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import java.util.List;
 import java.util.Optional;
@@ -24,34 +25,35 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public CompletableFuture<List<LinkData>> getAll() {
+    public CompletableFuture<List<JdbcLinkData>> getAll() {
         String query = "select * from links_data where deleted = false";
 
-        List<LinkData> linksData = jdbcClient.sql(query).query(LinkData.class).list();
+        List<JdbcLinkData> linksData =
+                jdbcClient.sql(query).query(JdbcLinkData.class).list();
 
         return CompletableFuture.completedFuture(linksData);
     }
 
     @Override
     @Async
-    public CompletableFuture<Optional<LinkData>> getById(long id) {
+    public CompletableFuture<Optional<JdbcLinkData>> getById(long id) {
         String query = "select * from links_data where id = :id and deleted = false";
 
-        Optional<LinkData> linkData =
-                jdbcClient.sql(query).param("id", id).query(LinkData.class).optional();
+        Optional<JdbcLinkData> linkData =
+                jdbcClient.sql(query).param("id", id).query(JdbcLinkData.class).optional();
 
         return CompletableFuture.completedFuture(linkData);
     }
 
     @Override
     @Async
-    public CompletableFuture<List<LinkData>> getByChatId(long chatId) {
+    public CompletableFuture<List<JdbcLinkData>> getByChatId(long chatId) {
         String query = "select * from links_data where chat_id = :chatId and deleted = false";
 
-        List<LinkData> linksData = jdbcClient
+        List<JdbcLinkData> linksData = jdbcClient
                 .sql(query)
                 .param("chatId", chatId)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .list();
 
         return CompletableFuture.completedFuture(linksData);
@@ -59,29 +61,29 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public CompletableFuture<List<LinkData>> getByLinkId(long linkId) {
+    public CompletableFuture<List<JdbcLinkData>> getByLinkId(long linkId) {
         String query = "select * from links_data where link_id = :linkId and deleted = false";
 
-        List<LinkData> linksData = jdbcClient
+        List<JdbcLinkData> linksData = jdbcClient
                 .sql(query)
                 .param("linkId", linkId)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .list();
 
         return CompletableFuture.completedFuture(linksData);
     }
 
     @Override
-    public CompletableFuture<List<LinkData>> getByLinkId(long linkId, long minId, long limit) {
+    public CompletableFuture<List<JdbcLinkData>> getByLinkId(long linkId, long minId, long limit) {
         String query =
                 "select * from links_data where link_id = :linkId and deleted = false and id > :minId limit :limit";
 
-        List<LinkData> linksData = jdbcClient
+        List<JdbcLinkData> linksData = jdbcClient
                 .sql(query)
                 .param("linkId", linkId)
                 .param("minId", minId)
                 .param("limit", limit)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .list();
 
         return CompletableFuture.completedFuture(linksData);
@@ -89,14 +91,14 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId) {
+    public CompletableFuture<Optional<JdbcLinkData>> getByChatIdLinkId(long chatId, long linkId) {
         String query = "select * from links_data where chat_id = :chatId AND link_id = :linkId and deleted = false";
 
-        Optional<LinkData> linkData = jdbcClient
+        Optional<JdbcLinkData> linkData = jdbcClient
                 .sql(query)
                 .param("chatId", chatId)
                 .param("linkId", linkId)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .optional();
 
         return CompletableFuture.completedFuture(linkData);
@@ -104,7 +106,7 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
 
     @Override
     @Async
-    public CompletableFuture<List<LinkData>> getByTagAndChatId(String tag, long chatId) {
+    public CompletableFuture<List<JdbcLinkData>> getByTagAndChatId(String tag, long chatId) {
         String query =
                 "select links_data.id, links_data.chat_id, links_data.link_id, links_data.deleted " + "from links_data "
                         + "join tg_chats on links_data.chat_id = tg_chats.id "
@@ -116,14 +118,14 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
                 .sql(query)
                 .param("tag", tag)
                 .param("chatId", chatId)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .list());
     }
 
     @Override
     @Async
     public CompletableFuture<Void> create(LinkData linkData) {
-        Optional<LinkData> data = getByChatIdLinkIdWithDeleted(linkData.getChatId(), linkData.getLinkId());
+        Optional<JdbcLinkData> data = getByChatIdLinkIdWithDeleted(linkData.chatId(), linkData.linkId());
 
         if (data.isPresent()) {
             if (!data.orElseThrow().deleted()) {
@@ -154,14 +156,14 @@ public class JdbcLinkDataRepository implements LinkDataRepository {
         return keyHolder.getKeyAs(Long.class);
     }
 
-    private Optional<LinkData> getByChatIdLinkIdWithDeleted(long chatId, long linkId) {
+    private Optional<JdbcLinkData> getByChatIdLinkIdWithDeleted(long chatId, long linkId) {
         String getQuery = "select * from links_data where chat_id = :chatId and link_id = :linkId";
 
         return jdbcClient
                 .sql(getQuery)
                 .param("chatId", chatId)
                 .param("linkId", linkId)
-                .query(LinkData.class)
+                .query(JdbcLinkData.class)
                 .optional();
     }
 

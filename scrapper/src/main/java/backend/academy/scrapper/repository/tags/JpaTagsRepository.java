@@ -74,7 +74,7 @@ public interface JpaTagsRepository extends TagsRepository, CrudRepository<Tag, L
             value =
                     "select new backend.academy.shared.dto.TagLinkCount(t.tag, count(*)) links_count from LinkDataToTag ldt "
                             + "join Tag t on ldt.tagId = t.id "
-                            + "join LinkData ld on ldt.dataId = ld.id "
+                            + "join JpaLinkData ld on ldt.dataId = ld.id "
                             + "join TgChat tc on ld.chatId = tc.id "
                             + "where tc.chatId = :chatId and ld.deleted = false "
                             + "group by t.tag")

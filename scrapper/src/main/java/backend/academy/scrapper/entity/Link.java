@@ -1,5 +1,6 @@
 package backend.academy.scrapper.entity;
 
+import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +45,7 @@ public class Link {
     private boolean deleted = false;
 
     @OneToMany(mappedBy = "link")
-    private List<LinkData> linksData;
+    private List<JpaLinkData> linksData;
 
     public Link(String link) {
         this.link = link;

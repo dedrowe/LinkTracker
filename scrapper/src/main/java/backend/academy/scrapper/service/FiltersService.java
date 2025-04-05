@@ -5,6 +5,7 @@ import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.repository.filters.FiltersRepository;
+import backend.academy.scrapper.service.entityFactory.filter.FilterFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class FiltersService {
 
     private final FiltersRepository filtersRepository;
+
+    private final FilterFactory filterFactory;
 
     public List<Filter> getAllByDataIdSync(long dataId) {
         return unwrap(filtersRepository.getAllByDataId(dataId));
@@ -50,7 +53,7 @@ public class FiltersService {
                 .toArray(CompletableFuture[]::new));
 
         CompletableFuture<Void> createFiltersFuture = CompletableFuture.allOf(filtersSet.stream()
-                .map(filter -> filtersRepository.create(new Filter(linkData, filter)))
+                .map(filter -> filtersRepository.create(filterFactory.getFilter(linkData, filter)))
                 .toArray(CompletableFuture[]::new));
 
         unwrap(CompletableFuture.allOf(createFiltersFuture, deleteFiltersFuture));

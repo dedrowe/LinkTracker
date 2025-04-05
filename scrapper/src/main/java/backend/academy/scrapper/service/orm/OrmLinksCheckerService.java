@@ -3,7 +3,7 @@ package backend.academy.scrapper.service.orm;
 import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 
 import backend.academy.scrapper.entity.Link;
-import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.service.LinkDispatcher;
@@ -59,7 +59,7 @@ public class OrmLinksCheckerService extends LinksCheckerService {
         unwrap(linkRepository.update(link));
     }
 
-    private void sendUpdatesForLink(long linkId, String link, String description, List<LinkData> linkDataList) {
+    private void sendUpdatesForLink(long linkId, String link, String description, List<JpaLinkData> linkDataList) {
         List<Long> chatIds = linkDataList.stream().map(l -> l.tgChat().chatId()).toList();
         if (chatIds.isEmpty()) {
             return;

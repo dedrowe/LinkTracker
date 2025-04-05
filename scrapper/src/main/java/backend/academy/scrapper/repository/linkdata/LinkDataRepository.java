@@ -7,19 +7,19 @@ import java.util.concurrent.CompletableFuture;
 
 public interface LinkDataRepository {
 
-    CompletableFuture<List<LinkData>> getAll();
+    <T extends LinkData> CompletableFuture<List<T>> getAll();
 
-    CompletableFuture<Optional<LinkData>> getById(long id);
+    <T extends LinkData> CompletableFuture<Optional<T>> getById(long id);
 
-    CompletableFuture<List<LinkData>> getByChatId(long chatId);
+    <T extends LinkData> CompletableFuture<List<T>> getByChatId(long chatId);
 
-    CompletableFuture<List<LinkData>> getByLinkId(long linkId);
+    <T extends LinkData> CompletableFuture<List<T>> getByLinkId(long linkId);
 
-    CompletableFuture<List<LinkData>> getByLinkId(long linkId, long minId, long limit);
+    <T extends LinkData> CompletableFuture<List<T>> getByLinkId(long linkId, long minId, long limit);
 
-    CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId);
+    <T extends LinkData> CompletableFuture<Optional<T>> getByChatIdLinkId(long chatId, long linkId);
 
-    CompletableFuture<List<LinkData>> getByTagAndChatId(String tag, long chatId);
+    <T extends LinkData> CompletableFuture<List<T>> getByTagAndChatId(String tag, long chatId);
 
     CompletableFuture<Void> create(LinkData linkData);
 
