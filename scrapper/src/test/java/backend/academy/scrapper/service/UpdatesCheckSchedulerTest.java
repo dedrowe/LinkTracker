@@ -12,7 +12,7 @@ import backend.academy.scrapper.repository.link.LinkRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
@@ -36,24 +36,33 @@ public class UpdatesCheckSchedulerTest {
 
     @Test
     public void checkUpdatesTest() {
-        when(linkRepository.getAllNotChecked(anyLong(), any(), anyLong()))
+        when(linkRepository.getNotChecked(anyLong(), any(), anyLong()))
                 .thenReturn(
-                        CompletableFuture.completedFuture(List.of(
+                        List.of(
                                 new Link(1L, "https://example.com", LocalDateTime.of(2025, 2, 21, 0, 0)),
                                 new Link(2L, "https://example2.com", LocalDateTime.of(2025, 2, 21, 0, 0)),
-                                new Link(3L, "https://example3.com", LocalDateTime.of(2025, 2, 21, 0, 0)))),
-                        CompletableFuture.completedFuture(
-                                List.of(new Link(4L, "https://example4.com", LocalDateTime.of(2025, 2, 21, 0, 0)))),
-                        CompletableFuture.completedFuture(List.of()));
+                                new Link(3L, "https://example3.com", LocalDateTime.of(2025, 2, 21, 0, 0))),
+                        List.of(new Link(4L, "https://example4.com", LocalDateTime.of(2025, 2, 21, 0, 0))),
+                        List.of());
+        when(checkerService.getLinkUpdate(any())).thenReturn(Optional.of(""));
         InOrder order = inOrder(linkRepository, checkerService);
 
         scheduler.checkUpdates();
 
-        order.verify(linkRepository).getAllNotChecked(anyLong(), any(), anyLong());
-        order.verify(checkerService, times(3)).checkUpdatesForLink(any());
-        order.verify(linkRepository).getAllNotChecked(anyLong(), any(), anyLong());
-        order.verify(checkerService, times(1)).checkUpdatesForLink(any());
-        order.verify(linkRepository).getAllNotChecked(anyLong(), any(), anyLong());
+        order.verify(linkRepository).getNotChecked(anyLong(), any(), anyLong());
+        checkIterate(order, 3);
+        order.verify(linkRepository, times(1)).update(any());
+        order.verify(linkRepository).getNotChecked(anyLong(), any(), anyLong());
+        checkIterate(order, 1);
+        order.verify(linkRepository, times(1)).update(any());
+        order.verify(linkRepository).getNotChecked(anyLong(), any(), anyLong());
         order.verifyNoMoreInteractions();
+    }
+
+    private void checkIterate(InOrder order, int count) {
+        for (int i = 0; i < count; i++) {
+            order.verify(checkerService, times(1)).getLinkUpdate(any());
+            order.verify(checkerService, times(1)).sendUpdatesForLink(any(), any());
+        }
     }
 }

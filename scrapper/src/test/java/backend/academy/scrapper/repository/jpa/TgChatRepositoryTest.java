@@ -1,11 +1,10 @@
 package backend.academy.scrapper.repository.jpa;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.tgchat.JpaTgChatRepository;
+import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,8 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     public void getByIdTest() {
         TgChat expectedResult = new TgChat(1L, 1L);
 
-        TgChat actualResult = repository.getByIdSync(expectedResult.id()).get();
+        TgChat actualResult =
+                ((TgChatRepository) repository).getById(expectedResult.id()).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
@@ -45,14 +45,14 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByIdTest() {
-        Optional<TgChat> actualResult = repository.getByIdSync(2);
+        Optional<TgChat> actualResult = repository.getById(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByIdFailTest() {
-        Optional<TgChat> actualResult = repository.getByIdSync(-1);
+        Optional<TgChat> actualResult = repository.getById(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -61,8 +61,7 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     public void getByChatIdTest() {
         TgChat expectedResult = new TgChat(1L, 1L);
 
-        TgChat actualResult =
-                repository.getByChatIdSync(expectedResult.chatId()).get();
+        TgChat actualResult = repository.getByChatId(expectedResult.chatId()).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
@@ -71,14 +70,14 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByChatIdTest() {
-        Optional<TgChat> actualResult = repository.getByChatIdSync(2);
+        Optional<TgChat> actualResult = repository.getByChatId(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByChatIdFailTest() {
-        Optional<TgChat> actualResult = repository.getByChatIdSync(-1);
+        Optional<TgChat> actualResult = repository.getByChatId(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -87,7 +86,7 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     public void createNewTest() {
         TgChat expectedResult = new TgChat(null, 3L);
 
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
         TgChat actualResult = entityManager.find(TgChat.class, expectedResult.id());
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
@@ -100,7 +99,7 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
         long expectedId = 2L;
         TgChat expectedResult = new TgChat(null, 2L);
 
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
         entityManager.clear();
         TgChat actualResult = entityManager.find(TgChat.class, expectedId);
 
@@ -113,15 +112,20 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     public void createExistingTest() {
         TgChat expectedResult = new TgChat(1L, 1L);
 
-        assertThatThrownBy(() -> repository.createSync(new TgChat(expectedResult.chatId())))
-                .isInstanceOf(TgChatException.class);
+        repository.create(expectedResult);
+        entityManager.clear();
+        TgChat actualResult = entityManager.find(TgChat.class, expectedResult.id());
+
+        assertThat(actualResult.id()).isEqualTo(expectedResult.id());
+        assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
+        assertThat(actualResult.deleted()).isEqualTo(expectedResult.deleted());
     }
 
     @Test
     public void deleteByIdTest() {
         long id = 1L;
 
-        repository.deleteByIdSync(id);
+        repository.deleteById(id);
         entityManager.clear();
         TgChat actualResult = entityManager.find(TgChat.class, id);
 
@@ -132,7 +136,7 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     public void deleteAlreadyByIdTest() {
         long id = 2L;
 
-        repository.deleteByIdSync(id);
+        repository.deleteById(id);
         TgChat actualResult = entityManager.find(TgChat.class, id);
 
         assertThat(actualResult.deleted()).isTrue();
@@ -142,7 +146,7 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     public void deleteTest() {
         TgChat chat = new TgChat(1L, 1L, true);
 
-        repository.deleteSync(chat.chatId());
+        repository.delete(chat.chatId());
         entityManager.clear();
         TgChat actualResult = entityManager.find(TgChat.class, chat.id());
 
@@ -153,7 +157,7 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     public void deleteAlreadyTest() {
         TgChat chat = new TgChat(2L, 2L, true);
 
-        repository.deleteSync(chat.chatId());
+        repository.delete(chat.chatId());
         entityManager.clear();
         TgChat actualResult = entityManager.find(TgChat.class, chat.id());
 

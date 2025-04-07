@@ -78,7 +78,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
         JpaFilter filter1 = new JpaFilter(1L, data1, "key:value");
         JpaFilter filter2 = new JpaFilter(2L, data1, "key2:value2");
 
-        List<JpaFilter> actualResult = repository.getAllByDataIdSync(1L);
+        List<JpaFilter> actualResult = repository.getAllByDataId(1L);
 
         assertThat(actualResult).containsExactly(filter1, filter2);
     }
@@ -86,7 +86,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     @Test
     public void getAllByDataIdFailTest() {
 
-        List<JpaFilter> filters = repository.getAllByDataIdSync(-1L);
+        List<JpaFilter> filters = repository.getAllByDataId(-1L);
 
         assertThat(filters).isEmpty();
     }
@@ -96,7 +96,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
         long newId = 5L;
         JpaFilter filter = new JpaFilter(null, data1, "test:test");
 
-        repository.createSync(filter);
+        repository.create(filter);
 
         assertThat(filter.id()).isEqualTo(newId);
     }
@@ -105,7 +105,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     public void deleteExistingByIdTest() {
         JpaFilter filter = new JpaFilter(1L, data1, "key:value");
 
-        repository.deleteByIdSync(filter.id());
+        repository.deleteById(filter.id());
 
         assertThat(entityManager
                         .getEntityManager()
@@ -117,7 +117,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void deleteAllByDataIdTest() {
-        repository.deleteAllByDataIdSync(1);
+        repository.deleteAllByDataId(1);
 
         assertThat(entityManager
                         .getEntityManager()

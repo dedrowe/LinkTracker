@@ -73,7 +73,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void getAllTest() {
         JpaLinkData expectedResult = new JpaLinkData(1L, link1, tgChat1);
 
-        List<JpaLinkData> actualResult = repository.getAllSync();
+        List<JpaLinkData> actualResult = repository.getAll();
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
@@ -86,7 +86,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         long id = 1L;
         JpaLinkData expectedResult = new JpaLinkData(id, link1, tgChat1);
 
-        JpaLinkData actualResult = repository.getByIdSync(id).get();
+        JpaLinkData actualResult = repository.getById(id).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.link().id()).isEqualTo(expectedResult.linkId());
@@ -95,14 +95,14 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByIdTest() {
-        Optional<JpaLinkData> actualResult = repository.getByIdSync(2);
+        Optional<JpaLinkData> actualResult = repository.getById(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByIdFailTest() {
-        Optional<JpaLinkData> actualResult = repository.getByIdSync(-1);
+        Optional<JpaLinkData> actualResult = repository.getById(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -112,7 +112,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         long id = tgChat1.id();
         JpaLinkData expectedResult = new JpaLinkData(1L, link1, tgChat1);
 
-        List<JpaLinkData> actualResult = repository.getByChatIdSync(id);
+        List<JpaLinkData> actualResult = repository.getByChatId(id);
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
@@ -122,14 +122,14 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByChatIdTest() {
-        List<JpaLinkData> actualResult = repository.getByChatIdSync(2);
+        List<JpaLinkData> actualResult = repository.getByChatId(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByChatIdFailTest() {
-        List<JpaLinkData> actualResult = repository.getByChatIdSync(-1);
+        List<JpaLinkData> actualResult = repository.getByChatId(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -139,7 +139,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         long id = link1.id();
         JpaLinkData expectedResult = new JpaLinkData(1L, link1, tgChat1);
 
-        List<JpaLinkData> actualResult = repository.getByLinkIdSync(id);
+        List<JpaLinkData> actualResult = repository.getByLinkId(id);
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
@@ -149,14 +149,14 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByLinkIdTest() {
-        List<JpaLinkData> actualResult = repository.getByLinkIdSync(2);
+        List<JpaLinkData> actualResult = repository.getByLinkId(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByLinkIdFailTest() {
-        List<JpaLinkData> actualResult = repository.getByLinkIdSync(-1);
+        List<JpaLinkData> actualResult = repository.getByLinkId(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -177,7 +177,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         entityManager.persist(linkData3);
         entityManager.flush();
 
-        List<JpaLinkData> actualResult = repository.getByLinkIdSync(2L, skip, limit);
+        List<JpaLinkData> actualResult = repository.getByLinkId(2L, skip, limit);
 
         assertThat(actualResult).containsExactly(linkData2, linkData3);
     }
@@ -188,8 +188,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         long chatId = tgChat1.id();
         JpaLinkData expectedResult = new JpaLinkData(1L, link1, tgChat1);
 
-        JpaLinkData actualResult =
-                repository.getByChatIdLinkIdSync(chatId, linkId).get();
+        JpaLinkData actualResult = repository.getByChatIdLinkId(chatId, linkId).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.link().id()).isEqualTo(expectedResult.linkId());
@@ -198,14 +197,14 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByChatIdLinkIdTest() {
-        Optional<JpaLinkData> actualResult = repository.getByChatIdLinkIdSync(2, 2);
+        Optional<JpaLinkData> actualResult = repository.getByChatIdLinkId(2, 2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByChatIdLinkIdFailTest() {
-        Optional<JpaLinkData> actualResult = repository.getByChatIdLinkIdSync(-1, -1);
+        Optional<JpaLinkData> actualResult = repository.getByChatIdLinkId(-1, -1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -229,7 +228,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         entityManager.persist(linkDataToTag2);
         entityManager.flush();
 
-        List<JpaLinkData> actualResult = repository.getByTagAndChatIdSync("test", 1);
+        List<JpaLinkData> actualResult = repository.getByTagAndChatId("test", 1);
 
         assertThat(actualResult).contains(linkData1, linkData2);
         assertThat(actualResult.size()).isEqualTo(2);
@@ -239,7 +238,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void createNewTest() {
         long expectedId = 3L;
         JpaLinkData expectedResult = new JpaLinkData(null, link3.id(), tgChat3.id(), false, link3, tgChat3, null, null);
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
         JpaLinkData actualResult = entityManager.find(JpaLinkData.class, expectedResult.id());
 
         assertThat(actualResult.id()).isEqualTo(expectedId);
@@ -253,7 +252,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         long linkId = link2.id();
         JpaLinkData expectedResult = new JpaLinkData(2L, link2, tgChat2);
 
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
         JpaLinkData actualResult = entityManager.find(JpaLinkData.class, expectedResult.id());
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
@@ -266,7 +265,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
         long expectedId = 1L;
         JpaLinkData expectedResult = new JpaLinkData(null, link1.id(), tgChat1.id(), false, link1, tgChat1, null, null);
 
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
 
         assertThat(expectedResult.id()).isEqualTo(expectedId);
     }
@@ -275,7 +274,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void deleteByIdTest() {
         long id = 1L;
 
-        repository.deleteByIdSync(id);
+        repository.deleteById(id);
         entityManager.clear();
         JpaLinkData actualResult = (JpaLinkData) entityManager
                 .getEntityManager()
@@ -290,7 +289,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void deleteAlreadyDeletedByIdTest() {
         long id = 2L;
 
-        repository.deleteByIdSync(id);
+        repository.deleteById(id);
         JpaLinkData actualResult = (JpaLinkData) entityManager
                 .getEntityManager()
                 .createNativeQuery("select * from links_data where id = :id", JpaLinkData.class)
@@ -304,7 +303,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void deleteTest() {
         JpaLinkData linkData = new JpaLinkData(1L, link1, tgChat1);
 
-        repository.deleteSync(linkData.chatId(), linkData.linkId());
+        repository.deleteInternal(linkData.chatId(), linkData.linkId());
         entityManager.clear();
         JpaLinkData actualResult = (JpaLinkData) entityManager
                 .getEntityManager()
@@ -319,7 +318,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
     public void deleteAlreadyDeletedTest() {
         JpaLinkData linkData = new JpaLinkData(2L, link2, tgChat2);
 
-        repository.deleteSync(linkData.chatId(), linkData.linkId());
+        repository.deleteInternal(linkData.chatId(), linkData.linkId());
         entityManager.clear();
         JpaLinkData actualResult = (JpaLinkData) entityManager
                 .getEntityManager()

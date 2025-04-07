@@ -13,7 +13,6 @@ import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -30,7 +29,6 @@ public class TgChatServiceTest {
 
     @Test
     public void registerTest() {
-        when(tgChatRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
 
         tgChatService.registerTgChat(123);
 
@@ -39,11 +37,7 @@ public class TgChatServiceTest {
 
     @Test
     public void deleteSuccessTest() {
-        when(tgChatRepository.getByChatId(Mockito.anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(new TgChat(1L, 123))));
-        when(linkDataRepository.deleteByChatId(Mockito.anyLong())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tgChatRepository.delete(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(linkDataRepository.deleteLinkData(any())).thenReturn(CompletableFuture.completedFuture(null));
+        when(tgChatRepository.getByChatId(Mockito.anyLong())).thenReturn(Optional.of(new TgChat(1L, 123)));
 
         tgChatService.deleteTgChat(123);
 
@@ -54,8 +48,7 @@ public class TgChatServiceTest {
 
     @Test
     public void deleteFailTest() {
-        when(tgChatRepository.getByChatId(Mockito.anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+        when(tgChatRepository.getByChatId(Mockito.anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tgChatService.deleteTgChat(123)).isInstanceOf(TgChatException.class);
         verify(tgChatRepository, times(1)).getByChatId(Mockito.anyLong());
@@ -64,8 +57,7 @@ public class TgChatServiceTest {
     @Test
     public void getByIdSuccessTest() {
         TgChat tgChat = new TgChat(1L, 123);
-        when(tgChatRepository.getById(Mockito.anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(tgChat)));
+        when(tgChatRepository.getById(Mockito.anyLong())).thenReturn(Optional.of(tgChat));
 
         TgChat actualChat = tgChatService.getById(123);
 
@@ -76,8 +68,7 @@ public class TgChatServiceTest {
 
     @Test
     public void getByIdFailTest() {
-        when(tgChatRepository.getById(Mockito.anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+        when(tgChatRepository.getById(Mockito.anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tgChatService.getById(123)).isInstanceOf(TgChatException.class);
         verify(tgChatRepository, times(1)).getById(Mockito.anyLong());
@@ -86,8 +77,7 @@ public class TgChatServiceTest {
     @Test
     public void getByChatIdSuccessTest() {
         TgChat tgChat = new TgChat(1L, 123);
-        when(tgChatRepository.getByChatId(Mockito.anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(tgChat)));
+        when(tgChatRepository.getByChatId(Mockito.anyLong())).thenReturn(Optional.of(tgChat));
 
         TgChat actualChat = tgChatService.getByChatId(123);
 
@@ -98,8 +88,7 @@ public class TgChatServiceTest {
 
     @Test
     public void getByChatIdFailTest() {
-        when(tgChatRepository.getByChatId(Mockito.anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+        when(tgChatRepository.getByChatId(Mockito.anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tgChatService.getByChatId(123)).isInstanceOf(TgChatException.class);
         verify(tgChatRepository, times(1)).getByChatId(Mockito.anyLong());

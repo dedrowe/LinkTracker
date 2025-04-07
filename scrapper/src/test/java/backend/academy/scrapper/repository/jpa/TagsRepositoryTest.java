@@ -93,14 +93,14 @@ public class TagsRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getAllByDataIdTest() {
-        List<Tag> actualResult = repository.getAllByDataIdSync(linkData1.id());
+        List<Tag> actualResult = repository.getAllByDataId(linkData1.id());
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }
 
     @Test
     public void getAllByDataIdFailTest() {
-        List<Tag> actualResult = repository.getAllByDataIdSync(-1);
+        List<Tag> actualResult = repository.getAllByDataId(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -110,7 +110,7 @@ public class TagsRepositoryTest extends AbstractJpaTest {
         TagLinkCount tag1 = new TagLinkCount("tag1", 1);
         TagLinkCount tag2 = new TagLinkCount("tag2", 1);
 
-        List<TagLinkCount> actualResult = repository.getTagLinksCountByChatIdSync(linkData1.id());
+        List<TagLinkCount> actualResult = repository.getTagLinksCountByChatId(linkData1.id());
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }
@@ -119,7 +119,7 @@ public class TagsRepositoryTest extends AbstractJpaTest {
     public void getAllByTagsSetTest() {
         Set<String> tags = Set.of(tag1.tag(), tag2.tag(), "tag4");
 
-        List<Tag> actualResult = repository.getAllByTagsSetSync(tags);
+        List<Tag> actualResult = repository.getAllByTagsSet(tags);
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }
@@ -129,7 +129,7 @@ public class TagsRepositoryTest extends AbstractJpaTest {
         long newId = 4L;
         Tag tag = new Tag("tag4");
 
-        repository.createTagSync(tag);
+        repository.createTag(tag);
 
         assertThat(tag.id()).isEqualTo(newId);
     }
@@ -142,7 +142,7 @@ public class TagsRepositoryTest extends AbstractJpaTest {
                         .getResultList())
                 .isEmpty();
 
-        repository.createRelationSync(2, 1);
+        repository.createRelation(2, 1);
 
         assertThat(entityManager
                         .getEntityManager()
@@ -154,7 +154,7 @@ public class TagsRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void deleteRelationTest() {
-        repository.deleteRelationSync(2, 3);
+        repository.deleteRelation(2, 3);
 
         assertThat(entityManager
                         .getEntityManager()
@@ -165,7 +165,7 @@ public class TagsRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void deleteAllByDataIdTest() {
-        repository.deleteAllByDataIdSync(linkData1.id());
+        repository.deleteAllByDataId(linkData1.id());
 
         assertThat(entityManager
                         .getEntityManager()

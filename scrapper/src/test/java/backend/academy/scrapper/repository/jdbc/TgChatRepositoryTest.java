@@ -1,11 +1,8 @@
 package backend.academy.scrapper.repository.jdbc;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.tgchat.JdbcTgChatRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +31,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void getByIdTest() {
         TgChat expectedResult = new TgChat(1L, 1L);
 
-        TgChat actualResult = unwrap(repository.getById(1)).get();
+        TgChat actualResult = repository.getById(1).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
@@ -43,14 +40,14 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getDeletedByIdTest() {
-        Optional<TgChat> actualResult = unwrap(repository.getById(2));
+        Optional<TgChat> actualResult = repository.getById(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByIdFailTest() {
-        Optional<TgChat> actualResult = unwrap(repository.getById(-1));
+        Optional<TgChat> actualResult = repository.getById(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -59,7 +56,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void getByChatIdTest() {
         TgChat expectedResult = new TgChat(1L, 1L);
 
-        TgChat actualResult = unwrap(repository.getByChatId(1)).get();
+        TgChat actualResult = repository.getByChatId(1).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
@@ -68,7 +65,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getDeletedByChatIdTest() {
-        Optional<TgChat> actualResult = unwrap(repository.getByChatId(2));
+        Optional<TgChat> actualResult = repository.getByChatId(2);
 
         assertThat(actualResult).isEmpty();
     }
@@ -77,7 +74,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void createNewChatTest() {
         TgChat expectedResult = new TgChat(3L, 3L);
 
-        unwrap(repository.create(new TgChat(expectedResult.chatId())));
+        repository.create(new TgChat(expectedResult.chatId()));
         TgChat actualResult = client.sql("SELECT * FROM tg_chats where id = ?")
                 .param(expectedResult.id())
                 .query(TgChat.class)
@@ -92,7 +89,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void createDeletedTest() {
         TgChat expectedResult = new TgChat(2L, 2L);
 
-        unwrap(repository.create(new TgChat(expectedResult.chatId())));
+        repository.create(new TgChat(expectedResult.chatId()));
         TgChat actualResult = client.sql("SELECT * FROM tg_chats where id = ?")
                 .param(expectedResult.id())
                 .query(TgChat.class)
@@ -107,15 +104,22 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void createExistingTest() {
         TgChat expectedResult = new TgChat(1L, 1L);
 
-        assertThatThrownBy(() -> unwrap(repository.create(new TgChat(expectedResult.chatId()))))
-                .isInstanceOf(TgChatException.class);
+        repository.create(new TgChat(expectedResult.chatId()));
+        TgChat actualResult = client.sql("SELECT * FROM tg_chats where id = ?")
+                .param(expectedResult.id())
+                .query(TgChat.class)
+                .single();
+
+        assertThat(actualResult.id()).isEqualTo(expectedResult.id());
+        assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
+        assertThat(actualResult.deleted()).isEqualTo(expectedResult.deleted());
     }
 
     @Test
     public void deleteByIdTest() {
         long id = 1L;
 
-        unwrap(repository.deleteById(id));
+        repository.deleteById(id);
 
         assertThat(client.sql("SELECT deleted FROM tg_chats WHERE id = ?")
                         .param(id)
@@ -128,7 +132,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void deleteAlreadyDeletedByIdTest() {
         long id = 2L;
 
-        unwrap(repository.deleteById(id));
+        repository.deleteById(id);
 
         assertThat(client.sql("SELECT deleted FROM tg_chats WHERE id = ?")
                         .param(id)
@@ -141,7 +145,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void deleteTest() {
         TgChat chat = new TgChat(1L, 1L, true);
 
-        unwrap(repository.delete(chat));
+        repository.delete(chat);
 
         assertThat(client.sql("SELECT deleted FROM tg_chats WHERE id = ?")
                         .param(chat.id())
@@ -154,7 +158,7 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
     public void deleteAlreadyDeletedTest() {
         TgChat chat = new TgChat(2L, 2L, true);
 
-        unwrap(repository.delete(chat));
+        repository.delete(chat);
 
         assertThat(client.sql("SELECT deleted FROM tg_chats WHERE chat_id = ?")
                         .param(chat.chatId())

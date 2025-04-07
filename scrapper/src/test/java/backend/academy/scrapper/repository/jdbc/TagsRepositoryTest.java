@@ -1,6 +1,5 @@
 package backend.academy.scrapper.repository.jdbc;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.LinkDataToTag;
@@ -58,14 +57,14 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
         Tag tag1 = new Tag(1L, "tag1");
         Tag tag2 = new Tag(2L, "tag2");
 
-        List<Tag> actualResult = unwrap(repository.getAllByDataId(1));
+        List<Tag> actualResult = repository.getAllByDataId(1);
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }
 
     @Test
     public void getAllByDataIdFailTest() {
-        List<Tag> actualResult = unwrap(repository.getAllByDataId(-1));
+        List<Tag> actualResult = repository.getAllByDataId(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -75,7 +74,7 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
         TagLinkCount tag1 = new TagLinkCount("tag1", 1);
         TagLinkCount tag2 = new TagLinkCount("tag2", 1);
 
-        List<TagLinkCount> actualResult = unwrap(repository.getTagLinksCountByChatId(1));
+        List<TagLinkCount> actualResult = repository.getTagLinksCountByChatId(1);
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }
@@ -87,7 +86,7 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
 
         Set<String> tags = Set.of(tag1.tag(), tag2.tag(), "tag4");
 
-        List<Tag> actualResult = unwrap(repository.getAllByTagsSet(tags));
+        List<Tag> actualResult = repository.getAllByTagsSet(tags);
 
         assertThat(actualResult).containsExactly(tag1, tag2);
     }
@@ -97,7 +96,7 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
         long newId = 4L;
         Tag tag = new Tag("tag4");
 
-        unwrap(repository.createTag(tag));
+        repository.createTag(tag);
 
         assertThat(tag.id()).isEqualTo(newId);
     }
@@ -109,7 +108,7 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
                         .optional())
                 .isEmpty();
 
-        unwrap(repository.createRelation(2, 1));
+        repository.createRelation(2, 1);
 
         assertThat(client.sql("select * from links_data_to_tags where data_id = 2 and tag_id = 1")
                         .query(LinkDataToTag.class)
@@ -119,7 +118,7 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void deleteRelationTest() {
-        unwrap(repository.deleteRelation(2, 3));
+        repository.deleteRelation(2, 3);
 
         assertThat(client.sql("select * from links_data_to_tags where data_id = 2 and tag_id = 3")
                         .query(LinkDataToTag.class)
@@ -130,7 +129,7 @@ public class TagsRepositoryTest extends AbstractJdbcTest {
     @Test
     public void deleteAllByDataIdTest() {
 
-        unwrap(repository.deleteAllByDataId(1));
+        repository.deleteAllByDataId(1);
 
         assertThat(client.sql("SELECT * FROM links_data_to_tags where data_id = 1")
                         .query(Tag.class)

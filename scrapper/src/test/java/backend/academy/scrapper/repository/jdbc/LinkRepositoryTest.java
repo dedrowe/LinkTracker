@@ -1,6 +1,5 @@
 package backend.academy.scrapper.repository.jdbc;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.Link;
@@ -46,7 +45,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void getAllTest() {
         Link expectedResult = new Link(1L, "https://example.com", testTimestamp);
 
-        List<Link> actualResult = unwrap(repository.getAll());
+        List<Link> actualResult = repository.getAll();
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
@@ -55,36 +54,20 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     }
 
     @Test
-    public void getAllWithSkipLimitTest() {
-        long skip = 1L;
-        long limit = 3L;
-        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example3.com', '2025-03-13 17:23:25')")
-                .update();
-        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example4.com', '2025-03-13 17:23:25')")
-                .update();
-        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example5.com', '2025-03-13 17:23:25')")
-                .update();
-        Link link1 = new Link(3L, "https://example3.com", testTimestamp);
-        Link link2 = new Link(4L, "https://example4.com", testTimestamp);
-        Link link3 = new Link(5L, "https://example5.com", testTimestamp);
-
-        List<Link> actualResult = unwrap(repository.getAll(skip, limit));
-
-        assertThat(actualResult).containsExactly(link1, link2, link3);
-    }
-
-    @Test
-    public void getAllNotCheckedTest() {
+    public void getNotCheckedTest() {
         Link expectedResult =
-                new Link(3L, "https://example3.com", testTimestamp.minus(linksCheckInterval.plusSeconds(30)));
-        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example3.com', :lastUpdate)")
+                new Link(3L, "https://example4.com", testTimestamp.minus(linksCheckInterval.plusSeconds(30)));
+        client.sql("INSERT INTO links (link, last_update, checking) VALUES ('https://example3.com', :lastUpdate, true)")
+                .param("lastUpdate", expectedResult.lastUpdate())
+                .update();
+        client.sql("INSERT INTO links (link, last_update) VALUES ('https://example4.com', :lastUpdate)")
                 .param("lastUpdate", expectedResult.lastUpdate())
                 .update();
 
-        List<Link> actualResult =
-                unwrap(repository.getAllNotChecked(10L, testTimestamp, linksCheckInterval.getSeconds()));
+        List<Link> actualResult = repository.getNotChecked(10L, testTimestamp, linksCheckInterval.getSeconds());
 
         assertThat(actualResult).containsExactly(expectedResult);
+        assertThat(actualResult.getFirst().checking()).isTrue();
     }
 
     @Test
@@ -92,7 +75,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
         long id = 1L;
         Link expectedResult = new Link(id, "https://example.com", testTimestamp);
 
-        Link actualResult = unwrap(repository.getById(id)).get();
+        Link actualResult = repository.getById(id).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.link()).isEqualTo(expectedResult.link());
@@ -101,14 +84,14 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getDeletedByIdTest() {
-        Optional<Link> actualResult = unwrap(repository.getById(2));
+        Optional<Link> actualResult = repository.getById(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByIdFailTest() {
-        Optional<Link> actualResult = unwrap(repository.getById(-1));
+        Optional<Link> actualResult = repository.getById(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -118,7 +101,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
         String link = "https://example.com";
         Link expectedResult = new Link(1L, "https://example.com", testTimestamp);
 
-        Link actualResult = unwrap(repository.getByLink(link)).get();
+        Link actualResult = repository.getByLink(link).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.link()).isEqualTo(expectedResult.link());
@@ -127,7 +110,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
 
     @Test
     public void getDeletedByLinkTest() {
-        Optional<Link> actualResult = unwrap(repository.getByLink("https://example2.com"));
+        Optional<Link> actualResult = repository.getByLink("https://example2.com");
 
         assertThat(actualResult).isEmpty();
     }
@@ -136,7 +119,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void createNewTest() {
         Link expectedResult = new Link(3L, "https://example3.com", testTimestamp);
 
-        unwrap(repository.create(expectedResult));
+        repository.create(expectedResult);
         Link actualResult = client.sql("SELECT * FROM links WHERE id = ?")
                 .param(expectedResult.id())
                 .query(Link.class)
@@ -151,7 +134,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void createDeletedTest() {
         Link expectedResult = new Link(2L, "https://example2.com", testTimestamp);
 
-        unwrap(repository.create(expectedResult));
+        repository.create(expectedResult);
         Link actualResult = client.sql("SELECT * FROM links WHERE id = ?")
                 .param(expectedResult.id())
                 .query(Link.class)
@@ -165,9 +148,9 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     @Test
     public void createExistingTest() {
         long expectedId = 1L;
-        Link expectedResult = new Link(1L, "https://example.com", testTimestamp);
+        Link expectedResult = new Link(null, "https://example.com", testTimestamp);
 
-        unwrap(repository.create(expectedResult));
+        repository.create(expectedResult);
 
         assertThat(expectedResult.id()).isEqualTo(expectedId);
     }
@@ -176,7 +159,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void updateTest() {
         Link expectedResult = new Link(1L, "https://example3.com", testTimestamp.plusDays(3));
 
-        unwrap(repository.update(expectedResult));
+        repository.update(expectedResult);
 
         Link actualResult = client.sql("SELECT * FROM links WHERE id = ?")
                 .param(1)
@@ -192,7 +175,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void deleteByIdTest() {
         long id = 1L;
 
-        unwrap(repository.deleteById(id));
+        repository.deleteById(id);
 
         assertThat(client.sql("SELECT deleted FROM links WHERE id = ?")
                         .param(id)
@@ -205,7 +188,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void deleteAlreadyDeletedByIdTest() {
         long id = 2L;
 
-        unwrap(repository.deleteById(id));
+        repository.deleteById(id);
 
         assertThat(client.sql("SELECT deleted FROM links WHERE id = ?")
                         .param(id)
@@ -218,7 +201,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void deleteTest() {
         Link link = new Link(1L, "https://example.com", testTimestamp);
 
-        unwrap(repository.deleteLink(link));
+        repository.deleteLink(link);
 
         assertThat(client.sql("SELECT deleted FROM links WHERE id = ?")
                         .param(link.id())
@@ -231,7 +214,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
     public void deleteAlreadyDeletedTest() {
         Link link = new Link(2L, "https://example2.com", testTimestamp);
 
-        unwrap(repository.deleteLink(link));
+        repository.deleteLink(link);
 
         assertThat(client.sql("SELECT deleted FROM links WHERE link = ?")
                         .param(link.link())

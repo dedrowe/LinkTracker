@@ -15,7 +15,6 @@ import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.WrongServiceException;
 import backend.academy.scrapper.mapper.LinkMapper;
-import backend.academy.scrapper.repository.link.LinkRepository;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.service.LinkDispatcher;
@@ -25,7 +24,6 @@ import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +37,6 @@ public class SqlLinksCheckerServiceTest {
 
     private final LinkDataRepository linkDataRepository = mock(LinkDataRepository.class);
 
-    private final LinkRepository linkRepository = mock(LinkRepository.class);
-
     private final LinkMapper linkMapper = mock(LinkMapper.class);
 
     private final TgBotClient tgBotClient = mock(TgBotClient.class);
@@ -52,45 +48,28 @@ public class SqlLinksCheckerServiceTest {
     private final int batchSize = 3;
 
     private final SqlLinksCheckerService updatesCheckerService = new SqlLinksCheckerService(
-            linkDispatcher, batchSize, linkDataRepository, linkRepository, linkMapper, tgBotClient, tgChatRepository);
+            linkDispatcher, batchSize, linkDataRepository, linkMapper, tgBotClient, tgChatRepository);
 
     @BeforeEach
     public void setUp() {}
 
     @Test
     public void notificationsCountTest() {
-        InOrder order = inOrder(
-                linkRepository,
-                linkDispatcher,
-                clientWrapper,
-                linkDataRepository,
-                tgChatRepository,
-                linkMapper,
-                tgBotClient);
+        InOrder order = inOrder(tgChatRepository, tgBotClient);
         when(linkDispatcher.dispatchLink(any())).thenReturn(clientWrapper);
         when(clientWrapper.getLastUpdate(any(), any())).thenReturn(Optional.of(""));
 
         JdbcLinkData linkData = new JdbcLinkData(1L, 1L, 1L);
 
         when(linkDataRepository.getByLinkId(eq(1L), anyLong(), anyLong()))
-                .thenReturn(
-                        CompletableFuture.completedFuture(List.of(linkData, linkData, linkData)),
-                        CompletableFuture.completedFuture(List.of(linkData)),
-                        CompletableFuture.completedFuture(List.of()));
-        when(tgChatRepository.getById(anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(new TgChat(1L, 123L))));
-        when(linkRepository.update(any())).thenReturn(CompletableFuture.completedFuture(null));
+                .thenReturn(List.of(linkData, linkData, linkData), List.of(linkData), List.of());
+        when(tgChatRepository.getById(anyLong())).thenReturn(Optional.of(new TgChat(1L, 123L)));
 
-        updatesCheckerService.checkUpdatesForLink(new Link(1L, "test", LocalDateTime.now()));
-
-        order.verify(linkDispatcher).dispatchLink(any());
-        order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
-        order.verify(clientWrapper).getLastUpdate(any(), any());
+        updatesCheckerService.sendUpdatesForLink(new Link(1L, "test", LocalDateTime.now()), "");
 
         checkOneLinkIteration(order, 3);
         checkOneLinkIteration(order, 1);
 
-        order.verify(linkRepository).update(any());
         order.verifyNoMoreInteractions();
     }
 

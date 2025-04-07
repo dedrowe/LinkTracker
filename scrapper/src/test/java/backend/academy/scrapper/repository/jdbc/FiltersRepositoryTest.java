@@ -1,6 +1,5 @@
 package backend.academy.scrapper.repository.jdbc;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.jdbc.JdbcFilter;
@@ -51,7 +50,7 @@ public class FiltersRepositoryTest extends AbstractJdbcTest {
         JdbcFilter filter1 = new JdbcFilter(1L, 1L, "key:value");
         JdbcFilter filter2 = new JdbcFilter(2L, 1L, "key2:value2");
 
-        List<JdbcFilter> filters = unwrap(repository.getAllByDataId(1));
+        List<JdbcFilter> filters = repository.getAllByDataId(1);
 
         assertThat(filters).containsExactly(filter1, filter2);
     }
@@ -59,7 +58,7 @@ public class FiltersRepositoryTest extends AbstractJdbcTest {
     @Test
     public void getAllByDataIdFailTest() {
 
-        List<JdbcFilter> filters = unwrap(repository.getAllByDataId(-1));
+        List<JdbcFilter> filters = repository.getAllByDataId(-1);
 
         assertThat(filters).isEmpty();
     }
@@ -69,7 +68,7 @@ public class FiltersRepositoryTest extends AbstractJdbcTest {
         long newId = 5L;
         JdbcFilter filter = new JdbcFilter(null, 1L, "test:test");
 
-        unwrap(repository.create(filter));
+        repository.create(filter);
 
         assertThat(filter.id()).isEqualTo(newId);
     }
@@ -78,7 +77,7 @@ public class FiltersRepositoryTest extends AbstractJdbcTest {
     public void deleteExistingByIdTest() {
         JdbcFilter filter = new JdbcFilter(1L, 1L, "key:value");
 
-        unwrap(repository.deleteById(filter.id()));
+        repository.deleteById(filter.id());
 
         assertThat(client.sql("SELECT * FROM filters WHERE data_id = 1 and filter = 'key:value'")
                         .query(JdbcFilter.class)
@@ -89,7 +88,7 @@ public class FiltersRepositoryTest extends AbstractJdbcTest {
     @Test
     public void deleteAllByDataIdTest() {
 
-        unwrap(repository.deleteAllByDataId(1L));
+        repository.deleteAllByDataId(1L);
 
         assertThat(client.sql("SELECT * FROM filters WHERE data_id = 1")
                         .query(JdbcFilter.class)

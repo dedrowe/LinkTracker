@@ -21,7 +21,6 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,19 +57,18 @@ public class LinkDataServiceTest {
         when(tgChatService.getByChatId(anyLong())).thenReturn(new TgChat(1L, 123));
         when(linkMapper.createLinkResponse(any(), anyString(), any(), any()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
-        when(tagsService.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
-        when(filtersService.getAllByDataId(anyLong())).thenReturn(CompletableFuture.completedFuture(List.of()));
+        when(tagsService.getAllByDataId(anyLong())).thenReturn(List.of());
+        when(filtersService.getAllByDataId(anyLong())).thenReturn(List.of());
     }
 
     @Test
     public void getByChatIdTest() {
         when(linkDataRepository.getByChatId(anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(
-                        List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L))));
+                .thenReturn(List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L)));
         when(linkRepository.getById(anyLong()))
                 .thenReturn(
-                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))),
-                        CompletableFuture.completedFuture(Optional.of(new Link(2L, "string2", LocalDateTime.now()))));
+                        Optional.of(new Link(1L, "string", LocalDateTime.now())),
+                        Optional.of(new Link(2L, "string2", LocalDateTime.now())));
 
         linkDataService.getByChatId(1);
 
@@ -86,12 +84,7 @@ public class LinkDataServiceTest {
     public void trackLinkTest() {
         when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new JdbcLinkData(1L, 1L, 1L));
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
-        when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
-        when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
+        when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
@@ -110,16 +103,11 @@ public class LinkDataServiceTest {
     @Test
     public void trackDuplicateLinkTest() {
         when(linkRepository.getByLink(anyString()))
-                .thenReturn(
-                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
+                .thenReturn(Optional.of(new Link(1L, "string", LocalDateTime.now())));
         when(linkMapper.createLink(anyString())).thenReturn(new Link(1L, "string", LocalDateTime.now()));
         when(linkMapper.createLinkData(any(TgChat.class), any(Link.class))).thenReturn(new JdbcLinkData(1L, 1L, 1L));
         when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(new JdbcLinkData(1L, 1L, 1L))));
-        when(linkRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(linkDataRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(tagsService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersService.createAll(any(), any())).thenReturn(CompletableFuture.completedFuture(null));
+                .thenReturn(Optional.of(new JdbcLinkData(1L, 1L, 1L)));
 
         linkDataService.trackLink(1, new AddLinkRequest("string", List.of(), List.of()));
 
@@ -136,11 +124,9 @@ public class LinkDataServiceTest {
     @Test
     public void untrackLinkTest() {
         when(linkRepository.getByLink(anyString()))
-                .thenReturn(
-                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))));
+                .thenReturn(Optional.of(new Link(1L, "string", LocalDateTime.now())));
         when(linkDataRepository.getByChatIdLinkId(anyLong(), anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(Optional.of(new JdbcLinkData(1L, 1L, 1L))));
-        when(linkDataRepository.deleteLinkData(any())).thenReturn(CompletableFuture.completedFuture(null));
+                .thenReturn(Optional.of(new JdbcLinkData(1L, 1L, 1L)));
 
         linkDataService.untrackLink(1, new RemoveLinkRequest("string"));
 
@@ -156,12 +142,11 @@ public class LinkDataServiceTest {
     @Test
     public void getByTagAndChatIdTest() {
         when(linkDataRepository.getByTagAndChatId(any(), anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(
-                        List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L))));
+                .thenReturn(List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L)));
         when(linkRepository.getById(anyLong()))
                 .thenReturn(
-                        CompletableFuture.completedFuture(Optional.of(new Link(1L, "string", LocalDateTime.now()))),
-                        CompletableFuture.completedFuture(Optional.of(new Link(2L, "string2", LocalDateTime.now()))));
+                        Optional.of(new Link(1L, "string", LocalDateTime.now())),
+                        Optional.of(new Link(2L, "string2", LocalDateTime.now())));
 
         linkDataService.getLinksByTagAndChatId("test", 1L);
 

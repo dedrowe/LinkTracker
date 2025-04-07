@@ -13,7 +13,6 @@ import backend.academy.scrapper.entity.jpa.JpaFilter;
 import backend.academy.scrapper.repository.filters.FiltersRepository;
 import backend.academy.scrapper.service.entityFactory.filter.FilterFactory;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,13 +40,10 @@ public class FiltersServiceTest {
         List<String> newFilters = List.of(filter2, filter3);
         JdbcLinkData data = new JdbcLinkData(1L, 1L, 1L);
         when(filtersRepository.getAllByDataId(anyLong()))
-                .thenReturn(CompletableFuture.completedFuture(
-                        List.of(new JdbcFilter(1L, 1L, filter1), new JdbcFilter(2L, 1L, filter2))));
+                .thenReturn(List.of(new JdbcFilter(1L, 1L, filter1), new JdbcFilter(2L, 1L, filter2)));
         when(filterFactory.getFilter(any(), anyString())).thenReturn(new JpaFilter());
-        when(filtersRepository.deleteById(anyLong())).thenReturn(CompletableFuture.completedFuture(null));
-        when(filtersRepository.create(any())).thenReturn(CompletableFuture.completedFuture(null));
 
-        filtersService.createAllSync(newFilters, data);
+        filtersService.createAll(newFilters, data);
 
         verify(filtersRepository).getAllByDataId(anyLong());
         verify(filtersRepository, times(1)).create(any());

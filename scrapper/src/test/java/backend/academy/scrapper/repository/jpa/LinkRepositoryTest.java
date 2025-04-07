@@ -45,7 +45,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     public void getAllTest() {
         Link expectedResult = new Link(1L, "https://example.com", testTimestamp);
 
-        List<Link> actualResult = repository.getAllSync();
+        List<Link> actualResult = repository.getAll();
 
         assertThat(actualResult.size()).isEqualTo(1);
         assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
@@ -54,31 +54,16 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     }
 
     @Test
-    public void getAllWithSkipLimitTest() {
-        long skip = 1L;
-        long limit = 3L;
-        Link link1 = new Link(null, "https://example3.com", testTimestamp);
-        Link link2 = new Link(null, "https://example4.com", testTimestamp);
-        Link link3 = new Link(null, "https://example5.com", testTimestamp);
-        entityManager.persist(link1);
-        entityManager.persist(link2);
-        entityManager.persist(link3);
-        entityManager.flush();
-
-        List<Link> actualResult = repository.getAllSync(skip, limit);
-
-        assertThat(actualResult).containsExactly(link1, link2, link3);
-    }
-
-    @Test
-    public void getAllNotCheckedTest() {
+    public void getNotCheckedTest() {
         Link expectedResult =
                 new Link(null, "https://example3.com", testTimestamp.minus(linksCheckInterval.plusSeconds(30)));
         entityManager.persistAndFlush(expectedResult);
 
-        List<Link> actualResult = repository.getAllNotCheckedSync(10L, testTimestamp, linksCheckInterval.getSeconds());
+        List<Link> actualResult = repository.getNotChecked(10L, testTimestamp, linksCheckInterval.getSeconds());
+        entityManager.refresh(actualResult.getFirst());
 
         assertThat(actualResult).containsExactly(expectedResult);
+        assertThat(actualResult.getFirst().checking()).isEqualTo(true);
     }
 
     @Test
@@ -86,7 +71,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
         long id = 1L;
         Link expectedResult = new Link(id, "https://example.com", testTimestamp);
 
-        Link actualResult = repository.getByIdSync(id).get();
+        Link actualResult = repository.getById(id).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.link()).isEqualTo(expectedResult.link());
@@ -95,14 +80,14 @@ public class LinkRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByIdTest() {
-        Optional<Link> actualResult = repository.getByIdSync(2);
+        Optional<Link> actualResult = repository.getById(2);
 
         assertThat(actualResult).isEmpty();
     }
 
     @Test
     public void getByIdFailTest() {
-        Optional<Link> actualResult = repository.getByIdSync(-1);
+        Optional<Link> actualResult = repository.getById(-1);
 
         assertThat(actualResult).isEmpty();
     }
@@ -112,7 +97,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
         String link = "https://example.com";
         Link expectedResult = new Link(1L, link, testTimestamp);
 
-        Link actualResult = repository.getByLinkSync(link).get();
+        Link actualResult = repository.getByLink(link).get();
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.link()).isEqualTo(expectedResult.link());
@@ -121,7 +106,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void getDeletedByLinkTest() {
-        Optional<Link> actualResult = repository.getByLinkSync("https://example2.com");
+        Optional<Link> actualResult = repository.getByLink("https://example2.com");
 
         assertThat(actualResult).isEmpty();
     }
@@ -130,7 +115,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     public void createNewTest() {
         Link expectedResult = new Link(null, "https://example3.com", testTimestamp);
 
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
         Link actualResult = entityManager.find(Link.class, expectedResult.id());
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
@@ -143,7 +128,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
         long expectedId = 2L;
         Link expectedResult = new Link(null, "https://example2.com", testTimestamp);
 
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
         Link actualResult = entityManager.find(Link.class, expectedId);
 
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
@@ -156,7 +141,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
         long expectedId = 1L;
         Link expectedResult = new Link(null, "https://example.com", testTimestamp);
 
-        repository.createSync(expectedResult);
+        repository.create(expectedResult);
 
         assertThat(expectedResult.id()).isEqualTo(expectedId);
     }
@@ -165,7 +150,8 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     public void updateTest() {
         Link expectedResult = new Link(1L, "https://example3.com", testTimestamp.plusDays(3));
 
-        repository.updateSync(expectedResult.link(), expectedResult.lastUpdate(), expectedResult.id());
+        repository.update(
+                expectedResult.link(), expectedResult.lastUpdate(), expectedResult.id(), expectedResult.checking());
         entityManager.clear();
         Link actualResult = entityManager.find(Link.class, expectedResult.id());
 
@@ -178,7 +164,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     public void deleteByIdTest() {
         long id = 1L;
 
-        repository.deleteByIdSync(id);
+        repository.deleteById(id);
         entityManager.clear();
         Link actualResult = entityManager.find(Link.class, id);
 
@@ -189,7 +175,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     public void deleteAlreadyDeletedByIdTest() {
         long id = 2L;
 
-        repository.deleteByIdSync(id);
+        repository.deleteById(id);
 
         Link actualResult = entityManager.find(Link.class, id);
 
@@ -200,7 +186,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     public void deleteTest() {
         Link link = new Link(1L, "https://example.com", testTimestamp);
 
-        repository.deleteSync(link.link());
+        repository.delete(link.link());
         entityManager.clear();
         Link actualResult = entityManager.find(Link.class, link.id());
 
@@ -211,7 +197,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     public void deleteAlreadyDeletedTest() {
         Link link = new Link(2L, "https://example2.com", testTimestamp);
 
-        repository.deleteSync(link.link());
+        repository.delete(link.link());
         Link actualResult = entityManager.find(Link.class, link.id());
 
         assertThat(actualResult.deleted()).isTrue();
