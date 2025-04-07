@@ -36,7 +36,9 @@ spring:
 logging:
   structured:
     format:
-      console: ecs
+      file: ecs
+  file:
+    name: scrapper-log.json
 
 server:
   port: 8081
