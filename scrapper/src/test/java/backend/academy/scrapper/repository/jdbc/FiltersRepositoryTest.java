@@ -64,6 +64,18 @@ public class FiltersRepositoryTest extends AbstractJdbcTest {
     }
 
     @Test
+    public void getAllByDataIds() {
+        JdbcFilter filter1 = new JdbcFilter(1L, 1L, "key:value");
+        JdbcFilter filter2 = new JdbcFilter(2L, 1L, "key2:value2");
+        JdbcFilter filter3 = new JdbcFilter(3L, 2L, "key:value");
+        JdbcFilter filter4 = new JdbcFilter(4L, 2L, "key2:value2");
+
+        List<JdbcFilter> actualResult = repository.getAllByDataIds(List.of(1L, 2L));
+
+        assertThat(actualResult).containsExactly(filter1, filter2, filter3, filter4);
+    }
+
+    @Test
     public void createTest() {
         long newId = 5L;
         JdbcFilter filter = new JdbcFilter(null, 1L, "test:test");

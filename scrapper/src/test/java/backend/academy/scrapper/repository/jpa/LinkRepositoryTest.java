@@ -54,6 +54,18 @@ public class LinkRepositoryTest extends AbstractJpaTest {
     }
 
     @Test
+    public void getAllByIdsTest() {
+        Link expectedResult = new Link(1L, "https://example.com", testTimestamp);
+
+        List<Link> actualResult = repository.getAllByIds(List.of(expectedResult.id(), 2L));
+
+        assertThat(actualResult.size()).isEqualTo(1);
+        assertThat(actualResult.getFirst().id()).isEqualTo(expectedResult.id());
+        assertThat(actualResult.getFirst().link()).isEqualTo(expectedResult.link());
+        assertThat(actualResult.getFirst().lastUpdate()).isEqualTo(expectedResult.lastUpdate());
+    }
+
+    @Test
     public void getNotCheckedTest() {
         Link expectedResult =
                 new Link(null, "https://example3.com", testTimestamp.minus(linksCheckInterval.plusSeconds(30)));

@@ -57,26 +57,25 @@ public class LinkDataServiceTest {
         when(tgChatService.getByChatId(anyLong())).thenReturn(new TgChat(1L, 123));
         when(linkMapper.createLinkResponse(any(), anyString(), any(), any()))
                 .thenReturn(new LinkResponse(1, "string", List.of(), List.of()));
-        when(tagsService.getAllByDataId(anyLong())).thenReturn(List.of());
-        when(filtersService.getAllByDataId(anyLong())).thenReturn(List.of());
+        when(tagsService.getAllByDataIds(any())).thenReturn(List.of());
+        when(filtersService.getAllByDataIds(any())).thenReturn(List.of());
     }
 
     @Test
     public void getByChatIdTest() {
         when(linkDataRepository.getByChatId(anyLong()))
                 .thenReturn(List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L)));
-        when(linkRepository.getById(anyLong()))
-                .thenReturn(
-                        Optional.of(new Link(1L, "string", LocalDateTime.now())),
-                        Optional.of(new Link(2L, "string2", LocalDateTime.now())));
+        when(linkRepository.getAllByIds(any()))
+                .thenReturn(List.of(
+                        new Link(1L, "string", LocalDateTime.now()), new Link(2L, "string2", LocalDateTime.now())));
 
         linkDataService.getByChatId(1);
 
         verify(tgChatService, times(1)).getByChatId(anyLong());
         verify(linkDataRepository, times(1)).getByChatId(anyLong());
-        verify(linkRepository, times(2)).getById(anyLong());
-        verify(tagsService, times(2)).getAllByDataId(anyLong());
-        verify(filtersService, times(2)).getAllByDataId(anyLong());
+        verify(linkRepository, times(1)).getAllByIds(any());
+        verify(tagsService, times(1)).getAllByDataIds(any());
+        verify(filtersService, times(1)).getAllByDataIds(any());
         verify(linkMapper, times(2)).createLinkResponse(any(), anyString(), any(), any());
     }
 
@@ -143,17 +142,16 @@ public class LinkDataServiceTest {
     public void getByTagAndChatIdTest() {
         when(linkDataRepository.getByTagAndChatId(any(), anyLong()))
                 .thenReturn(List.of(new JdbcLinkData(1L, 1L, 1L), new JdbcLinkData(2L, 2L, 1L)));
-        when(linkRepository.getById(anyLong()))
-                .thenReturn(
-                        Optional.of(new Link(1L, "string", LocalDateTime.now())),
-                        Optional.of(new Link(2L, "string2", LocalDateTime.now())));
+        when(linkRepository.getAllByIds(any()))
+                .thenReturn(List.of(
+                        new Link(1L, "string", LocalDateTime.now()), new Link(2L, "string2", LocalDateTime.now())));
 
         linkDataService.getLinksByTagAndChatId("test", 1L);
 
         verify(linkDataRepository, times(1)).getByTagAndChatId(anyString(), anyLong());
-        verify(linkRepository, times(2)).getById(anyLong());
-        verify(tagsService, times(2)).getAllByDataId(anyLong());
-        verify(filtersService, times(2)).getAllByDataId(anyLong());
+        verify(linkRepository, times(1)).getAllByIds(any());
+        verify(tagsService, times(1)).getAllByDataIds(any());
+        verify(filtersService, times(1)).getAllByDataIds(any());
         verify(linkMapper, times(2)).createLinkResponse(any(), anyString(), any(), any());
     }
 }

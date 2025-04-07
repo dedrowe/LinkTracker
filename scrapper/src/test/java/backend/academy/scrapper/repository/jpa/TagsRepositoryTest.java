@@ -3,6 +3,7 @@ package backend.academy.scrapper.repository.jpa;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.entity.LinkDataTagDto;
 import backend.academy.scrapper.entity.LinkDataToTag;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
@@ -96,6 +97,17 @@ public class TagsRepositoryTest extends AbstractJpaTest {
         List<Tag> actualResult = repository.getAllByDataId(linkData1.id());
 
         assertThat(actualResult).containsExactly(tag1, tag2);
+    }
+
+    @Test
+    public void getAllByDataIds() {
+        LinkDataTagDto tag1 = new LinkDataTagDto("tag1", 1L);
+        LinkDataTagDto tag2 = new LinkDataTagDto("tag2", 1L);
+        LinkDataTagDto tag3 = new LinkDataTagDto("tag3", 2L);
+
+        List<LinkDataTagDto> actualResult = repository.getAllByDataIds(List.of(1L, 2L));
+
+        assertThat(actualResult).containsExactly(tag1, tag2, tag3);
     }
 
     @Test

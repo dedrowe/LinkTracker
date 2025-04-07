@@ -84,6 +84,13 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
     }
 
     @Test
+    public void getAllByDataIds() {
+        List<JpaFilter> actualResult = repository.getAllByDataIds(List.of(1L, 2L));
+
+        assertThat(actualResult).containsExactly(filter1, filter2, filter3, filter4);
+    }
+
+    @Test
     public void getAllByDataIdFailTest() {
 
         List<JpaFilter> filters = repository.getAllByDataId(-1L);
