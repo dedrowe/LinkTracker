@@ -10,17 +10,17 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "tg_chats")
 public class TgChat {
@@ -30,6 +30,7 @@ public class TgChat {
     @SequenceGenerator(name = "tg_chats_id_gen", allocationSize = 1, sequenceName = "tg_chats_id_seq")
     private Long id;
 
+    @NaturalId
     @Column(name = "chat_id", nullable = false, unique = true)
     private long chatId;
 
@@ -52,5 +53,17 @@ public class TgChat {
         this.id = id;
         this.chatId = chatId;
         this.deleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        TgChat tgChat = (TgChat) o;
+        return chatId == tgChat.chatId && deleted == tgChat.deleted;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(chatId, deleted);
     }
 }

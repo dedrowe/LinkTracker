@@ -1,7 +1,5 @@
 package backend.academy.scrapper.service;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
-
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.LinkData;
 import backend.academy.scrapper.repository.filters.FiltersRepository;
@@ -9,7 +7,6 @@ import backend.academy.scrapper.service.entityFactory.filter.FilterFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,22 +19,13 @@ public class FiltersService {
 
     private final FilterFactory filterFactory;
 
-    public List<Filter> getAllByDataIdSync(long dataId) {
-        return unwrap(filtersRepository.getAllByDataId(dataId));
-    }
-
-    public CompletableFuture<List<Filter>> getAllByDataId(long dataId) {
+    public List<Filter> getAllByDataId(long dataId) {
         return filtersRepository.getAllByDataId(dataId);
     }
 
     @Transactional
-    public void createAllSync(List<String> filters, LinkData linkData) {
-        unwrap(createAll(filters, linkData));
-    }
-
-    @Transactional
-    public CompletableFuture<Void> createAll(List<String> filters, LinkData linkData) {
-        List<Filter> curFilters = unwrap(filtersRepository.getAllByDataId(linkData.id()));
+    public void createAll(List<String> filters, LinkData linkData) {
+        List<Filter> curFilters = filtersRepository.getAllByDataId(linkData.id());
         Set<String> filtersSet = new HashSet<>(filters);
         Set<Filter> curFiltersSet = new HashSet<>(curFilters);
 
@@ -48,31 +36,15 @@ public class FiltersService {
             }
         }
 
-        CompletableFuture<Void> deleteFiltersFuture = CompletableFuture.allOf(curFiltersSet.stream()
-                .map(filter -> filtersRepository.deleteById(filter.id()))
-                .toArray(CompletableFuture[]::new));
-
-        CompletableFuture<Void> createFiltersFuture = CompletableFuture.allOf(filtersSet.stream()
-                .map(filter -> filtersRepository.create(filterFactory.getFilter(linkData, filter)))
-                .toArray(CompletableFuture[]::new));
-
-        unwrap(CompletableFuture.allOf(createFiltersFuture, deleteFiltersFuture));
-        return CompletableFuture.completedFuture(null);
+        curFiltersSet.forEach(filter -> filtersRepository.deleteById(filter.id()));
+        filtersSet.forEach(filter -> filtersRepository.create(filterFactory.getFilter(linkData, filter)));
     }
 
-    public void deleteByIdSync(long id) {
-        unwrap(filtersRepository.deleteById(id));
+    public void deleteById(long id) {
+        filtersRepository.deleteById(id);
     }
 
-    public CompletableFuture<Void> deleteById(long id) {
-        return filtersRepository.deleteById(id);
-    }
-
-    public void deleteAllByDataIdSync(long dataId) {
-        unwrap(filtersRepository.deleteAllByDataId(dataId));
-    }
-
-    public CompletableFuture<Void> deleteAllByDataId(long dataId) {
-        return filtersRepository.deleteAllByDataId(dataId);
+    public void deleteAllByDataId(long dataId) {
+        filtersRepository.deleteAllByDataId(dataId);
     }
 }

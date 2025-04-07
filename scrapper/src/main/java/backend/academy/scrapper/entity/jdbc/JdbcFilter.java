@@ -1,13 +1,12 @@
 package backend.academy.scrapper.entity.jdbc;
 
 import backend.academy.scrapper.entity.Filter;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 public class JdbcFilter implements Filter {
 
     protected Long id;
@@ -44,5 +43,17 @@ public class JdbcFilter implements Filter {
     public JdbcFilter(Long dataId, String filter) {
         this.dataId = dataId;
         this.filter = filter;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        JdbcFilter that = (JdbcFilter) o;
+        return Objects.equals(dataId, that.dataId) && Objects.equals(filter, that.filter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dataId, filter);
     }
 }

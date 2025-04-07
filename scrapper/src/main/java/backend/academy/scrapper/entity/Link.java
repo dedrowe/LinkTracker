@@ -14,17 +14,17 @@ import jakarta.persistence.TemporalType;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "links")
 public class Link {
@@ -34,6 +34,7 @@ public class Link {
     @SequenceGenerator(name = "links_id_gen", allocationSize = 1, sequenceName = "links_id_seq")
     private Long id;
 
+    @NaturalId
     @Column(name = "link", nullable = false, unique = true)
     private String link;
 
@@ -43,6 +44,9 @@ public class Link {
 
     @Column(name = "deleted")
     private boolean deleted = false;
+
+    @Column(name = "checking")
+    private boolean checking = false;
 
     @OneToMany(mappedBy = "link")
     private List<JpaLinkData> linksData;
@@ -63,5 +67,17 @@ public class Link {
         this.link = link;
         this.lastUpdate = lastUpdate;
         this.deleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Link link1 = (Link) o;
+        return Objects.equals(link, link1.link) && deleted == link1.deleted;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(link, deleted);
     }
 }

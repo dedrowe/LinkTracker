@@ -1,98 +1,61 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 @ConditionalOnProperty(havingValue = "ORM", prefix = "app", name = "access-type")
-public interface JpaTgChatRepository extends TgChatRepository, Repository<TgChat, Long> {
+public interface JpaTgChatRepository extends TgChatRepository, JpaRepository<TgChat, Long> {
 
     @Override
-    @Async
-    default CompletableFuture<Optional<TgChat>> getById(long id) {
-        return CompletableFuture.completedFuture(getByIdSync(id));
-    }
-
-    @Override
-    @Async
-    default CompletableFuture<Optional<TgChat>> getByChatId(long chatId) {
-        return CompletableFuture.completedFuture(getByChatIdSync(chatId));
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<Void> create(TgChat tgChat) {
-        createSync(tgChat);
-        return null;
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<Void> deleteById(long id) {
-        deleteByIdSync(id);
-        return null;
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<Void> delete(TgChat tgChat) {
-        deleteSync(tgChat.chatId());
-        return null;
-    }
-
     @Query(value = "select t from TgChat t where t.id = :id and t.deleted = false")
-    Optional<TgChat> getByIdSync(@Param("id") long id);
+    Optional<TgChat> getById(@Param("id") long id);
 
+    @Override
     @Query(value = "select t from TgChat t where t.chatId = :chatId and t.deleted = false")
-    Optional<TgChat> getByChatIdSync(@Param("chatId") long chatId);
+    Optional<TgChat> getByChatId(long chatId);
+
+    @Override
+    @Transactional
+    default void create(TgChat tgChat) {
+        Optional<TgChat> data = getByChatIdWithDeleted(tgChat.chatId());
+        data.ifPresent(chat -> tgChat.id(chat.id()));
+        save(tgChat);
+        flush();
+    }
 
     @Query(value = "select t from TgChat t where t.chatId = :chatId")
-    Optional<TgChat> getByChatIdWithDeletedSync(@Param("chatId") long chatId);
-
-    @Transactional
-    default void createSync(TgChat tgChat) {
-        Optional<TgChat> data = getByChatIdWithDeletedSync(tgChat.chatId());
-
-        if (data.isPresent()) {
-            if (!data.orElseThrow().deleted()) {
-                throw new TgChatException("Чат с таким id уже зарегистрирован", String.valueOf(tgChat.chatId()));
-            }
-            restoreTgChatSync(tgChat.chatId());
-        } else {
-            insertTgChatSync(tgChat.chatId());
-        }
-        TgChat newChat = getByChatIdSync(tgChat.chatId()).orElseThrow();
-        tgChat.id(newChat.id());
-    }
+    Optional<TgChat> getByChatIdWithDeleted(@Param("chatId") long chatId);
 
     @Modifying
     @Transactional
     @Query(value = "update TgChat t set t.deleted = false where t.chatId = :chatId")
-    void restoreTgChatSync(@Param("chatId") long chatId);
+    void restoreTgChat(@Param("chatId") long chatId);
 
     @Modifying
     @Transactional
     @Query(value = "insert into TgChat (chatId) values (:chatId)")
-    void insertTgChatSync(@Param("chatId") long chatId);
+    void insertTgChat(@Param("chatId") long chatId);
 
+    @Override
     @Modifying
     @Transactional
     @Query(value = "update TgChat t set t.deleted = true where t.id = :id")
-    void deleteByIdSync(@Param("id") long id);
+    void deleteById(@Param("id") long id);
+
+    @Override
+    @Transactional
+    default void delete(TgChat tgChat) {
+        delete(tgChat.chatId());
+    }
 
     @Modifying
     @Transactional
     @Query(value = "update TgChat t set t.deleted = true where t.chatId = :chatId")
-    void deleteSync(@Param("chatId") long chatId);
+    void delete(@Param("chatId") long chatId);
 }

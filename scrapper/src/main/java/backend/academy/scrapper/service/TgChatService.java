@@ -1,13 +1,10 @@
 package backend.academy.scrapper.service;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
-
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,15 +20,13 @@ public class TgChatService {
 
     public void registerTgChat(long chatId) {
         TgChat tgChat = new TgChat(chatId);
-        unwrap(tgChatRepository.create(tgChat));
+        tgChatRepository.create(tgChat);
     }
 
     public void deleteTgChat(long chatId) {
-        TgChat tgChat = checkOptional(unwrap(tgChatRepository.getByChatId(chatId)), chatId);
-        CompletableFuture<Void> links = linkDataRepository.deleteByChatId(tgChat.id());
-        CompletableFuture<Void> chat = tgChatRepository.delete(tgChat);
-        unwrap(links);
-        unwrap(chat);
+        TgChat tgChat = checkOptional(tgChatRepository.getByChatId(chatId), chatId);
+        linkDataRepository.deleteByChatId(tgChat.id());
+        tgChatRepository.delete(tgChat);
     }
 
     /**
@@ -42,7 +37,7 @@ public class TgChatService {
      * @throws TgChatException если чат не найден
      */
     public TgChat getById(long id) {
-        return checkOptional(unwrap(tgChatRepository.getById(id)), id);
+        return checkOptional(tgChatRepository.getById(id), id);
     }
 
     /**
@@ -53,7 +48,7 @@ public class TgChatService {
      * @throws TgChatException если чат не найден
      */
     public TgChat getByChatId(long chatId) {
-        return checkOptional(unwrap(tgChatRepository.getByChatId(chatId)), chatId);
+        return checkOptional(tgChatRepository.getByChatId(chatId), chatId);
     }
 
     private TgChat checkOptional(Optional<TgChat> chat, long id) {

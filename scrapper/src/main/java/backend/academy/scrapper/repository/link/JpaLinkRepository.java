@@ -4,90 +4,24 @@ import backend.academy.scrapper.entity.Link;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import org.hibernate.Hibernate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
 @ConditionalOnProperty(havingValue = "ORM", prefix = "app", name = "access-type")
-public interface JpaLinkRepository extends LinkRepository, CrudRepository<Link, Long> {
+public interface JpaLinkRepository extends LinkRepository, JpaRepository<Link, Long> {
 
     @Override
-    @Async
-    default CompletableFuture<List<Link>> getAll() {
-        return CompletableFuture.completedFuture(getAllSync());
-    }
-
-    @Override
-    @Async
-    default CompletableFuture<List<Link>> getAll(long skip, long limit) {
-        return CompletableFuture.completedFuture(getAllSync(skip, limit));
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<List<Link>> getAllNotChecked(long limit, LocalDateTime curTime, long checkInterval) {
-        return CompletableFuture.completedFuture(getAllNotCheckedSync(limit, curTime, checkInterval));
-    }
-
-    @Override
-    @Async
-    default CompletableFuture<Optional<Link>> getById(long id) {
-        return CompletableFuture.completedFuture(getByIdSync(id));
-    }
-
-    @Override
-    @Async
-    default CompletableFuture<Optional<Link>> getByLink(String link) {
-        return CompletableFuture.completedFuture(getByLinkSync(link));
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<Void> create(Link link) {
-        createSync(link);
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<Void> update(Link link) {
-        updateSync(link.link(), link.lastUpdate(), link.id());
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<Void> deleteById(long id) {
-        deleteByIdSync(id);
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    @Async
-    @Transactional
-    default CompletableFuture<Void> deleteLink(Link link) {
-        deleteSync(link.link());
-        return CompletableFuture.completedFuture(null);
-    }
-
     @Query(value = "select l from Link l where l.deleted = false")
-    List<Link> getAllSync();
+    List<Link> getAll();
 
-    @Query(value = "select * from links where deleted = false offset :skip limit :limit", nativeQuery = true)
-    List<Link> getAllSync(@Param("skip") long skip, @Param("limit") long limit);
-
+    @Override
     @Transactional
-    default List<Link> getAllNotCheckedSync(long limit, LocalDateTime curTime, long checkInterval) {
+    default List<Link> getNotChecked(long limit, LocalDateTime curTime, long checkInterval) {
         List<Link> links = getAllNotCheckedSync(limit, curTime.minusSeconds(checkInterval));
         for (Link link : links) {
             Hibernate.initialize(link.linksData());
@@ -95,41 +29,73 @@ public interface JpaLinkRepository extends LinkRepository, CrudRepository<Link, 
         return links;
     }
 
-    @Query(
-            value = "select * from links where deleted = false and :curTime > last_update limit :limit",
-            nativeQuery = true)
-    List<Link> getAllNotCheckedSync(@Param("limit") long limit, @Param("curTime") LocalDateTime curTime);
-
+    @Override
     @Query(value = "select l from Link l where l.id = :id and l.deleted = false")
-    Optional<Link> getByIdSync(@Param("id") long id);
+    Optional<Link> getById(@Param("id") long id);
 
+    @Override
     @Query(value = "select l from Link l where l.link = :link and l.deleted = false")
-    Optional<Link> getByLinkSync(@Param("link") String link);
+    Optional<Link> getByLink(String link);
 
-    @Query(value = "select l from Link l where l.link = :link")
-    Optional<Link> getByLinkWithDeletedSync(@Param("link") String link);
-
+    @Override
     @Transactional
-    default void createSync(Link link) {
+    default void create(Link link) {
         Optional<Link> data = getByLinkWithDeletedSync(link.link());
         data.ifPresent(l -> link.id(l.id()));
         save(link);
+    }
+
+    @Override
+    @Transactional
+    default void update(Link link) {
+        update(link.link(), link.lastUpdate(), link.id(), link.checking());
+    }
+
+    @Override
+    @Modifying
+    @Transactional
+    @Query(value = "update Link l set l.deleted = true where l.id = :id")
+    void deleteById(@Param("id") long id);
+
+    @Override
+    @Transactional
+    default void deleteLink(Link link) {
+        delete(link.link());
     }
 
     @Modifying
     @Transactional
     @Query(
             value =
-                    "update Link l set l.link = :link, l.lastUpdate = :lastUpdate where l.id = :id and l.deleted = false")
-    void updateSync(@Param("link") String link, @Param("lastUpdate") LocalDateTime lastUpdate, @Param("id") long id);
+                    """
+            with limited as (
+                select id from links where deleted = false and last_update < :curTime and checking = false
+                limit :limit
+            )
+            update links
+            set checking = true
+            where id in (select id from limited)
+            returning *
+            """,
+            nativeQuery = true)
+    List<Link> getAllNotCheckedSync(@Param("limit") long limit, @Param("curTime") LocalDateTime curTime);
+
+    @Query(value = "select l from Link l where l.link = :link")
+    Optional<Link> getByLinkWithDeletedSync(@Param("link") String link);
 
     @Modifying
     @Transactional
-    @Query(value = "update Link l set l.deleted = true where l.id = :id")
-    void deleteByIdSync(@Param("id") long id);
+    @Query(
+            value =
+                    "update Link l set l.link = :link, l.lastUpdate = :lastUpdate, l.checking = :checking where l.id = :id and l.deleted = false")
+    void update(
+            @Param("link") String link,
+            @Param("lastUpdate") LocalDateTime lastUpdate,
+            @Param("id") long id,
+            @Param("checking") boolean checking);
 
     @Modifying
     @Transactional
     @Query(value = "update Link l set l.deleted = true where l.link = :link")
-    void deleteSync(@Param("link") String link);
+    void delete(@Param("link") String link);
 }

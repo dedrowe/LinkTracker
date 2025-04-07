@@ -2,15 +2,14 @@ package backend.academy.scrapper.repository.filters;
 
 import backend.academy.scrapper.entity.Filter;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface FiltersRepository {
 
-    <T extends Filter> CompletableFuture<List<T>> getAllByDataId(long dataId);
+    <T extends Filter> List<T> getAllByDataId(long dataId);
 
-    CompletableFuture<Void> create(Filter filter);
+    void create(Filter filter);
 
-    CompletableFuture<Void> deleteById(long id);
+    void deleteById(long id);
 
-    CompletableFuture<Void> deleteAllByDataId(long dataId);
+    void deleteAllByDataId(long dataId);
 }

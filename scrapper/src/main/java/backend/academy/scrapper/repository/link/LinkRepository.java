@@ -4,25 +4,22 @@ import backend.academy.scrapper.entity.Link;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public interface LinkRepository {
 
-    CompletableFuture<List<Link>> getAll();
+    List<Link> getAll();
 
-    CompletableFuture<List<Link>> getAll(long skip, long limit);
+    List<Link> getNotChecked(long limit, LocalDateTime curTime, long checkInterval);
 
-    CompletableFuture<List<Link>> getAllNotChecked(long limit, LocalDateTime curTime, long checkInterval);
+    Optional<Link> getById(long id);
 
-    CompletableFuture<Optional<Link>> getById(long id);
+    Optional<Link> getByLink(String link);
 
-    CompletableFuture<Optional<Link>> getByLink(String link);
+    void create(Link link);
 
-    CompletableFuture<Void> create(Link link);
+    void update(Link link);
 
-    CompletableFuture<Void> update(Link link);
+    void deleteById(long id);
 
-    CompletableFuture<Void> deleteById(long id);
-
-    CompletableFuture<Void> deleteLink(Link link);
+    void deleteLink(Link link);
 }

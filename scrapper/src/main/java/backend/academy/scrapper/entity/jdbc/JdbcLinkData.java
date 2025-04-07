@@ -1,8 +1,8 @@
 package backend.academy.scrapper.entity.jdbc;
 
 import backend.academy.scrapper.entity.LinkData;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 public class JdbcLinkData implements LinkData {
 
     private Long id;
@@ -67,5 +66,17 @@ public class JdbcLinkData implements LinkData {
         this.linkId = linkId;
         this.chatId = chatId;
         this.deleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        JdbcLinkData that = (JdbcLinkData) o;
+        return deleted == that.deleted && Objects.equals(linkId, that.linkId) && Objects.equals(chatId, that.chatId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(linkId, chatId, deleted);
     }
 }

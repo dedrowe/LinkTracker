@@ -8,16 +8,18 @@ create table links (
     id bigserial primary key,
     link varchar(512) unique not null,
     last_update timestamp not null,
-    deleted boolean default false
+    deleted boolean default false,
+    checking boolean default false
 );
 
-create index idx_links_last_update_deleted_btree on links using btree (last_update, deleted);
+create index idx_links_last_update_deleted_btree on links using btree (last_update) where deleted = false;
 
 create table links_data (
     id bigserial primary key,
     link_id bigserial references links (id) not null,
     chat_id bigserial references tg_chats (id) not null,
-    deleted boolean default false
+    deleted boolean default false,
+    unique (link_id, chat_id)
 );
 
 create index idx_links_data_id_link_id_deleted_btree on links_data using btree (link_id, deleted, id);

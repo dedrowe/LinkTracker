@@ -10,17 +10,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "filters")
 public class JpaFilter implements Filter {
@@ -30,9 +30,11 @@ public class JpaFilter implements Filter {
     @SequenceGenerator(name = "filters_id_gen", allocationSize = 1, sequenceName = "filters_id_seq")
     protected Long id;
 
+    @NaturalId
     @Column(name = "data_id", nullable = false, insertable = false, updatable = false)
     protected Long dataId;
 
+    @NaturalId
     @Column(name = "filter", nullable = false)
     protected String filter;
 
@@ -77,5 +79,17 @@ public class JpaFilter implements Filter {
         this.id = id;
         this.linkData = data;
         this.filter = filter;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        JpaFilter jpaFilter = (JpaFilter) o;
+        return Objects.equals(linkData, jpaFilter.linkData) && Objects.equals(filter, jpaFilter.filter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(linkData, filter);
     }
 }

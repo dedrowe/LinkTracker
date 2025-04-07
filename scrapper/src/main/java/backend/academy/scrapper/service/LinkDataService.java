@@ -1,7 +1,5 @@
 package backend.academy.scrapper.service;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
-
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
@@ -19,7 +17,6 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,7 +41,7 @@ public class LinkDataService {
 
     public ListLinkResponse getByChatId(long chatId) {
         TgChat tgChat = tgChatService.getByChatId(chatId);
-        List<LinkData> links = unwrap(linkDataRepository.getByChatId(tgChat.id()));
+        List<LinkData> links = linkDataRepository.getByChatId(tgChat.id());
         return createListLinkResponse(links, chatId);
     }
 
@@ -54,20 +51,18 @@ public class LinkDataService {
         updatesCheckerService.checkResource(request.link());
 
         Link link = linkMapper.createLink(request.link());
-        unwrap(linkRepository.create(link));
+        linkRepository.create(link);
 
-        Optional<LinkData> optionalData = unwrap(linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id()));
+        Optional<LinkData> optionalData = linkDataRepository.getByChatIdLinkId(tgChat.id(), link.id());
         LinkData linkData;
         if (optionalData.isPresent()) {
             linkData = optionalData.orElseThrow();
         } else {
             linkData = linkMapper.createLinkData(tgChat, link);
-            unwrap(linkDataRepository.create(linkData));
+            linkDataRepository.create(linkData);
         }
-        CompletableFuture<Void> tags = tagsService.createAll(request.tags(), linkData);
-        CompletableFuture<Void> filters = filtersService.createAll(request.filters(), linkData);
-        unwrap(tags);
-        unwrap(filters);
+        tagsService.createAll(request.tags(), linkData);
+        filtersService.createAll(request.filters(), linkData);
 
         return linkMapper.createLinkResponse(linkData, link.link(), request.tags(), request.filters());
     }
@@ -78,54 +73,58 @@ public class LinkDataService {
         Link link = getLink(request.link());
         LinkData linkData = getLinkData(tgChat.id(), link.id());
 
-        CompletableFuture<List<Tag>> tagsList = tagsService.getAllByDataId(linkData.id());
-        CompletableFuture<List<Filter>> filtersList = filtersService.getAllByDataId(linkData.id());
+        List<Tag> tagsList = tagsService.getAllByDataId(linkData.id());
+        List<Filter> filtersList = filtersService.getAllByDataId(linkData.id());
         LinkResponse response = linkMapper.createLinkResponse(
                 linkData,
                 link.link(),
-                unwrap(tagsList).stream().map(Tag::tag).toList(),
-                unwrap(filtersList).stream().map(Filter::filter).toList());
+                tagsList.stream().map(Tag::tag).toList(),
+                filtersList.stream().map(Filter::filter).toList());
 
-        unwrap(linkDataRepository.deleteLinkData(linkData));
+        linkDataRepository.deleteLinkData(linkData);
+        List<LinkData> data = linkDataRepository.getByLinkId(link.id());
+        if (data.isEmpty()) {
+            linkRepository.deleteById(link.id());
+        }
         return response;
     }
 
     public ListLinkResponse getLinksByTagAndChatId(String tag, long chatId) {
-        List<LinkData> links = unwrap(linkDataRepository.getByTagAndChatId(tag, chatId));
+        List<LinkData> links = linkDataRepository.getByTagAndChatId(tag, chatId);
         return createListLinkResponse(links, chatId);
     }
 
-    private ListLinkResponse createListLinkResponse(List<LinkData> links, long chatId) {
+    private ListLinkResponse createListLinkResponse(List<LinkData> linksData, long chatId) {
         List<LinkResponse> responses = new ArrayList<>();
-        CompletableFuture<Optional<Link>>[] futures = links.stream()
+        List<Optional<Link>> links = linksData.stream()
                 .map(link -> linkRepository.getById(link.linkId()))
-                .toArray(CompletableFuture[]::new);
-        for (int i = 0; i < futures.length; ++i) {
+                .toList();
+        for (int i = 0; i < links.size(); ++i) {
             int finalI = i;
-            Link link = unwrap(futures[finalI])
+            Link link = links.get(finalI)
                     .orElseThrow(() -> new LinkDataException(
                             "Произошла ошибка при получении зарегистрированных ссылок",
-                            String.valueOf(links.get(finalI).linkId()),
+                            String.valueOf(linksData.get(finalI).linkId()),
                             String.valueOf(chatId)));
-            CompletableFuture<List<Tag>> tags =
-                    tagsService.getAllByDataId(links.get(i).id());
-            CompletableFuture<List<Filter>> filters =
-                    filtersService.getAllByDataId(links.get(i).id());
+            List<Tag> tags = tagsService.getAllByDataId(linksData.get(i).id());
+            List<Filter> filters =
+                    filtersService.getAllByDataId(linksData.get(i).id());
             responses.add(linkMapper.createLinkResponse(
-                    links.get(finalI),
+                    linksData.get(finalI),
                     link.link(),
-                    unwrap(tags).stream().map(Tag::tag).toList(),
-                    unwrap(filters).stream().map(Filter::filter).toList()));
+                    tags.stream().map(Tag::tag).toList(),
+                    filters.stream().map(Filter::filter).toList()));
         }
         return new ListLinkResponse(responses, responses.size());
     }
 
     protected Link getLink(String link) {
-        return unwrap(linkRepository.getByLink(link)).orElseThrow(() -> new LinkException("Ссылка не найдена", link));
+        return linkRepository.getByLink(link).orElseThrow(() -> new LinkException("Ссылка не найдена", link));
     }
 
     protected LinkData getLinkData(long chatId, long linkId) {
-        return unwrap(linkDataRepository.getByChatIdLinkId(chatId, linkId))
+        return linkDataRepository
+                .getByChatIdLinkId(chatId, linkId)
                 .orElseThrow(() -> new LinkDataException(
                         "Данные о ссылке не найдены", String.valueOf(linkId), String.valueOf(chatId)));
     }

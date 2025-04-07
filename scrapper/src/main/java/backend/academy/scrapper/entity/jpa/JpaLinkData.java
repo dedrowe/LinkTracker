@@ -18,8 +18,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +29,6 @@ import org.hibernate.annotations.SQLRestriction;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "links_data")
 @SQLRestriction("deleted = false")
@@ -121,5 +120,17 @@ public class JpaLinkData implements LinkData {
         this.link = link;
         this.tgChat = tgChat;
         this.deleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        JpaLinkData that = (JpaLinkData) o;
+        return deleted == that.deleted && Objects.equals(link, that.link) && Objects.equals(tgChat, that.tgChat);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(link, tgChat, deleted);
     }
 }

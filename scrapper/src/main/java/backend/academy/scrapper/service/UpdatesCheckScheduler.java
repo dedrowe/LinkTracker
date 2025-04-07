@@ -1,14 +1,15 @@
 package backend.academy.scrapper.service;
 
-import static backend.academy.scrapper.utils.FutureUnwrapper.unwrap;
-
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.LinkRepository;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -27,10 +28,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class UpdatesCheckScheduler {
 
-    public static final int DEFAULT_BATCH_SIZE = 200;
-
-    public static final int DEFAULT_THREAD_POOL_SIZE = 4;
-
     protected final int batchSize;
 
     private final LinkRepository linkRepository;
@@ -46,7 +43,10 @@ public class UpdatesCheckScheduler {
         this.linkRepository = linkRepository;
         batchSize = config.updatesChecker().batchSize();
         linksCheckInterval = Duration.ofSeconds(config.updatesChecker().checkIntervalSeconds());
-        executorService = Executors.newFixedThreadPool(config.updatesChecker().threadsCount());
+        executorService = ExecutorServiceMetrics.monitor(
+                Metrics.globalRegistry,
+                Executors.newFixedThreadPool(config.updatesChecker().threadsCount()),
+                "linksCheckerExecutor");
         this.checker = checker;
     }
 
@@ -54,15 +54,24 @@ public class UpdatesCheckScheduler {
     public void checkUpdates() {
         while (true) {
             try {
-                List<Link> links = unwrap(linkRepository.getAllNotChecked(
-                        batchSize, LocalDateTime.now(ZoneOffset.UTC), linksCheckInterval.getSeconds()));
+                List<Link> links = linkRepository.getNotChecked(
+                        batchSize, LocalDateTime.now(ZoneOffset.UTC), linksCheckInterval.getSeconds());
                 if (links.isEmpty()) {
                     break;
                 }
 
                 List<Future<Void>> results = executorService.invokeAll(links.stream()
                         .map(link -> (Callable<Void>) () -> {
-                            checker.checkUpdatesForLink(link);
+                            try {
+                                Optional<String> description = checker.getLinkUpdate(link);
+                                if (description.isPresent()) {
+                                    checker.sendUpdatesForLink(link, description.orElseThrow());
+                                }
+                            } finally {
+                                link.lastUpdate(LocalDateTime.now(ZoneOffset.UTC));
+                                link.checking(false);
+                                linkRepository.update(link);
+                            }
                             return null;
                         })
                         .toList());

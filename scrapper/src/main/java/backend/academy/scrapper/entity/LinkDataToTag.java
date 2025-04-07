@@ -7,17 +7,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "links_data_to_tags")
 public class LinkDataToTag {
@@ -30,14 +30,28 @@ public class LinkDataToTag {
             sequenceName = "links_data_to_tags_id_seq")
     private Long id;
 
+    @NaturalId
     @Column(name = "data_id", nullable = false)
     private long dataId;
 
+    @NaturalId
     @Column(name = "tag_id", nullable = false)
     private long tagId;
 
     public LinkDataToTag(long dataId, long tagId) {
         this.dataId = dataId;
         this.tagId = tagId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        LinkDataToTag that = (LinkDataToTag) o;
+        return dataId == that.dataId && tagId == that.tagId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dataId, tagId);
     }
 }
