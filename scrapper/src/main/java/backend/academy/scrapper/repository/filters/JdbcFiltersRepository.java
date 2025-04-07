@@ -2,6 +2,7 @@ package backend.academy.scrapper.repository.filters;
 
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.jdbc.JdbcFilter;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,6 +27,17 @@ public class JdbcFiltersRepository implements FiltersRepository {
                 .param("dataId", dataId)
                 .query(JdbcFilter.class)
                 .list();
+    }
+
+    @Override
+    public List<JdbcFilter> getAllByDataIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String query = "select * from filters where filters.data_id in (:ids)";
+
+        return jdbcClient.sql(query).param("ids", ids).query(JdbcFilter.class).list();
     }
 
     @Override

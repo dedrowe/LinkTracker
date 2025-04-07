@@ -27,7 +27,6 @@ public interface JpaLinkDataRepository extends LinkDataRepository, JpaRepository
     @Transactional
     default List<JpaLinkData> getByChatId(long chatId) {
         List<JpaLinkData> linksData = getByChatIdInternal(chatId);
-        linksData.forEach(this::fetchProperties);
         return linksData;
     }
 

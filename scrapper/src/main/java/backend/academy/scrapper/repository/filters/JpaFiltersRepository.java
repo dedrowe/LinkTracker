@@ -20,6 +20,10 @@ public interface JpaFiltersRepository extends FiltersRepository, JpaRepository<J
     List<JpaFilter> getAllByDataId(@Param("dataId") long dataId);
 
     @Override
+    @Query(value = "select f from JpaFilter f where f.dataId in :ids")
+    List<JpaFilter> getAllByDataIds(@Param("ids") List<Long> ids);
+
+    @Override
     @Transactional
     default void create(Filter filter) {
         save((JpaFilter) filter);

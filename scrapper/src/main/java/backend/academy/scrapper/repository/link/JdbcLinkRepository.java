@@ -2,6 +2,7 @@ package backend.academy.scrapper.repository.link;
 
 import backend.academy.scrapper.entity.Link;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,17 @@ public class JdbcLinkRepository implements LinkRepository {
         String query = "select * from links where deleted = false";
 
         return jdbcClient.sql(query).query(Link.class).list();
+    }
+
+    @Override
+    public List<Link> getAllByIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String query = "select * from links where deleted = false and id in (:ids)";
+
+        return jdbcClient.sql(query).param("ids", ids).query(Link.class).list();
     }
 
     @Override

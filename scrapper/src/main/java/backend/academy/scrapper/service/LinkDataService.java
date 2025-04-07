@@ -3,6 +3,7 @@ package backend.academy.scrapper.service;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.LinkDataTagDto;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
@@ -14,9 +15,11 @@ import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import backend.academy.shared.dto.RemoveLinkRequest;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,26 +98,37 @@ public class LinkDataService {
     }
 
     private ListLinkResponse createListLinkResponse(List<LinkData> linksData, long chatId) {
-        List<LinkResponse> responses = new ArrayList<>();
-        List<Optional<Link>> links = linksData.stream()
-                .map(link -> linkRepository.getById(link.linkId()))
+        List<Long> ids = linksData.stream().map(LinkData::id).toList();
+
+        List<Link> links = linkRepository.getAllByIds(
+                linksData.stream().map(LinkData::linkId).toList());
+        Map<Long, Link> linksMap = links.stream().collect(Collectors.toMap(Link::id, Function.identity()));
+
+        List<Filter> filters = filtersService.getAllByDataIds(ids);
+        Map<Long, List<Filter>> filtersMap = filters.stream().collect(Collectors.groupingBy(Filter::dataId));
+
+        List<LinkDataTagDto> tags = tagsService.getAllByDataIds(ids);
+        Map<Long, List<LinkDataTagDto>> tagsMap = tags.stream().collect(Collectors.groupingBy(LinkDataTagDto::dataId));
+
+        List<LinkResponse> responses = linksData.stream()
+                .map(linkData -> {
+                    Link link = linksMap.get(linkData.linkId());
+                    if (link == null) {
+                        throw new LinkDataException(
+                                "Произошла ошибка при получении зарегистрированных ссылок",
+                                String.valueOf(linkData.linkId()),
+                                String.valueOf(chatId));
+                    }
+                    List<LinkDataTagDto> linkTags = tagsMap.getOrDefault(linkData.id(), List.of());
+                    List<Filter> linkFilters = filtersMap.getOrDefault(linkData.id(), List.of());
+                    return linkMapper.createLinkResponse(
+                            linkData,
+                            link.link(),
+                            linkTags.stream().map(LinkDataTagDto::tag).toList(),
+                            linkFilters.stream().map(Filter::filter).toList());
+                })
                 .toList();
-        for (int i = 0; i < links.size(); ++i) {
-            int finalI = i;
-            Link link = links.get(finalI)
-                    .orElseThrow(() -> new LinkDataException(
-                            "Произошла ошибка при получении зарегистрированных ссылок",
-                            String.valueOf(linksData.get(finalI).linkId()),
-                            String.valueOf(chatId)));
-            List<Tag> tags = tagsService.getAllByDataId(linksData.get(i).id());
-            List<Filter> filters =
-                    filtersService.getAllByDataId(linksData.get(i).id());
-            responses.add(linkMapper.createLinkResponse(
-                    linksData.get(finalI),
-                    link.link(),
-                    tags.stream().map(Tag::tag).toList(),
-                    filters.stream().map(Filter::filter).toList()));
-        }
+
         return new ListLinkResponse(responses, responses.size());
     }
 

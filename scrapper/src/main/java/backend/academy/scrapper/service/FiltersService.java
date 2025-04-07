@@ -23,6 +23,10 @@ public class FiltersService {
         return filtersRepository.getAllByDataId(dataId);
     }
 
+    public List<Filter> getAllByDataIds(List<Long> dataIds) {
+        return (List<Filter>) filtersRepository.getAllByDataIds(dataIds);
+    }
+
     @Transactional
     public void createAll(List<String> filters, LinkData linkData) {
         List<Filter> curFilters = filtersRepository.getAllByDataId(linkData.id());

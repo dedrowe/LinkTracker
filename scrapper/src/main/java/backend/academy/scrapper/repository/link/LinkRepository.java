@@ -9,6 +9,8 @@ public interface LinkRepository {
 
     List<Link> getAll();
 
+    List<Link> getAllByIds(List<Long> ids);
+
     List<Link> getNotChecked(long limit, LocalDateTime curTime, long checkInterval);
 
     Optional<Link> getById(long id);

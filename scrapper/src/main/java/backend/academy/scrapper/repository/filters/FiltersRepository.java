@@ -7,6 +7,8 @@ public interface FiltersRepository {
 
     <T extends Filter> List<T> getAllByDataId(long dataId);
 
+    List<? extends Filter> getAllByDataIds(List<Long> ids);
+
     void create(Filter filter);
 
     void deleteById(long id);

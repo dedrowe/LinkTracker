@@ -4,7 +4,6 @@ import backend.academy.scrapper.entity.Link;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.hibernate.Hibernate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,14 +19,19 @@ public interface JpaLinkRepository extends LinkRepository, JpaRepository<Link, L
     List<Link> getAll();
 
     @Override
+    @Query(value = "select l from Link l where l.deleted = false and l.id in :ids")
+    List<Link> getAllByIds(@Param("ids") List<Long> ids);
+
+    @Override
     @Transactional
     default List<Link> getNotChecked(long limit, LocalDateTime curTime, long checkInterval) {
         List<Link> links = getAllNotCheckedSync(limit, curTime.minusSeconds(checkInterval));
-        for (Link link : links) {
-            Hibernate.initialize(link.linksData());
-        }
+        fetchByIdList(links.stream().map(Link::id).toList());
         return links;
     }
+
+    @Query(value = "select l from Link l join fetch l.linksData where l.id in :ids")
+    void fetchByIdList(@Param("ids") List<Long> ids);
 
     @Override
     @Query(value = "select l from Link l where l.id = :id and l.deleted = false")

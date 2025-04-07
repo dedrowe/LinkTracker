@@ -1,5 +1,6 @@
 package backend.academy.scrapper.repository.tags;
 
+import backend.academy.scrapper.entity.LinkDataTagDto;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.shared.dto.TagLinkCount;
 import java.util.ArrayList;
@@ -26,6 +27,22 @@ public class JdbcTagsRepository implements TagsRepository {
                         + "where links_data_to_tags.data_id = :dataId";
 
         return jdbcClient.sql(query).param("dataId", dataId).query(Tag.class).list();
+    }
+
+    @Override
+    public List<LinkDataTagDto> getAllByDataIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String query =
+                "select * from tags t join links_data_to_tags ldt on t.id = ldt.tag_id where ldt.data_id in (:ids)";
+
+        return jdbcClient
+                .sql(query)
+                .param("ids", ids)
+                .query(LinkDataTagDto.class)
+                .list();
     }
 
     @Override

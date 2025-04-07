@@ -1,5 +1,6 @@
 package backend.academy.scrapper.repository.tags;
 
+import backend.academy.scrapper.entity.LinkDataTagDto;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.shared.dto.TagLinkCount;
 import java.util.List;
@@ -17,6 +18,12 @@ public interface JpaTagsRepository extends TagsRepository, JpaRepository<Tag, Lo
     @Override
     @Query(value = "select t from Tag t join LinkDataToTag ldt on ldt.tagId = t.id " + "where ldt.dataId = :dataId")
     List<Tag> getAllByDataId(@Param("dataId") long dataId);
+
+    @Override
+    @Query(
+            value =
+                    "select new backend.academy.scrapper.entity.LinkDataTagDto(t.tag, ldt.dataId) from LinkDataToTag ldt join Tag t on t.id = ldt.tagId where ldt.dataId in :ids")
+    List<LinkDataTagDto> getAllByDataIds(@Param("ids") List<Long> ids);
 
     @Override
     @Query(value = "select t from Tag t where t.tag in (:tags)")

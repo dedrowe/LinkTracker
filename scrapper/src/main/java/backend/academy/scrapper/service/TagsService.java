@@ -1,6 +1,7 @@
 package backend.academy.scrapper.service;
 
 import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.LinkDataTagDto;
 import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.repository.tags.TagsRepository;
 import backend.academy.shared.dto.ListTagLinkCount;
@@ -20,6 +21,10 @@ public class TagsService {
 
     public List<Tag> getAllByDataId(long dataId) {
         return tagsRepository.getAllByDataId(dataId);
+    }
+
+    public List<LinkDataTagDto> getAllByDataIds(List<Long> dataIds) {
+        return tagsRepository.getAllByDataIds(dataIds);
     }
 
     public List<Tag> getAllByTagsSet(Set<String> tags) {
