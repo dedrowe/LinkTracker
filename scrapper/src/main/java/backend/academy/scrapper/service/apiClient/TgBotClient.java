@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -31,6 +32,7 @@ public class TgBotClient {
         this.client = client;
     }
 
+    @Async
     public void sendUpdates(LinkUpdate updates) {
         retry(() -> client.post()
                 .uri("/updates")
