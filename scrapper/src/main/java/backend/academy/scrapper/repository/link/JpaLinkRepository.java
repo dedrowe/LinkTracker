@@ -31,7 +31,7 @@ public interface JpaLinkRepository extends LinkRepository, JpaRepository<Link, L
     }
 
     @Query(value = "select l from Link l join fetch l.linksData where l.id in :ids")
-    void fetchByIdList(@Param("ids") List<Long> ids);
+    List<Link> fetchByIdList(@Param("ids") List<Long> ids);
 
     @Override
     @Query(value = "select l from Link l where l.id = :id and l.deleted = false")
