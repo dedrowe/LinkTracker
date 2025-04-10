@@ -1,6 +1,7 @@
 package backend.academy.scrapper.service;
 
 import backend.academy.scrapper.ScrapperConfig;
+import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import io.micrometer.core.instrument.Metrics;
@@ -9,7 +10,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -63,9 +63,9 @@ public class UpdatesCheckScheduler {
                 List<Future<Void>> results = executorService.invokeAll(links.stream()
                         .map(link -> (Callable<Void>) () -> {
                             try {
-                                Optional<String> description = checker.getLinkUpdate(link);
-                                if (description.isPresent()) {
-                                    checker.sendUpdatesForLink(link, description.orElseThrow());
+                                List<Update> updates = checker.getLinkUpdate(link);
+                                if (!updates.isEmpty()) {
+                                    checker.sendUpdatesForLink(link, updates);
                                 }
                             } finally {
                                 link.lastUpdate(LocalDateTime.now(ZoneOffset.UTC));

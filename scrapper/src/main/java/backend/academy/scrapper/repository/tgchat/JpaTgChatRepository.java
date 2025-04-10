@@ -1,6 +1,7 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +20,10 @@ public interface JpaTgChatRepository extends TgChatRepository, JpaRepository<TgC
     @Override
     @Query(value = "select t from TgChat t where t.chatId = :chatId and t.deleted = false")
     Optional<TgChat> getByChatId(long chatId);
+
+    @Override
+    @Query(value = "select t from TgChat t where t.id in :ids")
+    List<TgChat> getAllByIds(@Param("ids") List<Long> ids);
 
     @Override
     @Transactional

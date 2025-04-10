@@ -1,6 +1,7 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,13 @@ public class JdbcTgChatRepository implements TgChatRepository {
         String query = "select * from tg_chats where chat_id = :chatId and deleted = false";
 
         return jdbcClient.sql(query).param("chatId", chatId).query(TgChat.class).optional();
+    }
+
+    @Override
+    public List<TgChat> getAllByIds(List<Long> ids) {
+        String query = "select * from tg_chats where id in (:ids)";
+
+        return jdbcClient.sql(query).param("ids", ids).query(TgChat.class).list();
     }
 
     @Override
