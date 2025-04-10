@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.dto.stackOverflow.Answer;
 import backend.academy.scrapper.dto.stackOverflow.Comment;
 import backend.academy.scrapper.dto.stackOverflow.Question;
@@ -18,7 +19,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,14 +52,16 @@ public class StackOverflowWrapperTest {
         Question question = new Question(user, lastUpdate, lastUpdate, expectedTitle, List.of(), List.of(answer));
         when(stackOverflowClient.getQuestionUpdate(any())).thenReturn(question);
         URI uri = URI.create("https://stackoverflow.com/questions/-1");
-        String expectedResult = "\nПоследний ответ:\n" + "Тема вопроса: " + expectedTitle + "\n"
-                + answer.getInfo(expectedBody.length());
+        Update expectedResult = new Update(
+                "\nПоследний ответ:\n" + "Тема вопроса: " + expectedTitle + "\n"
+                        + answer.getInfo(expectedBody.length()),
+                Map.of("user", user.displayName()));
 
-        Optional<String> actualResult = stackOverflowWrapper.getLastUpdate(
+        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
                 uri,
                 Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime());
 
-        assertThat(actualResult.get()).isEqualTo(expectedResult);
+        assertThat(actualResult).containsExactly(expectedResult);
     }
 
     @Test
@@ -66,14 +69,16 @@ public class StackOverflowWrapperTest {
         Question question = new Question(user, lastUpdate, lastUpdate, expectedTitle, List.of(comment), List.of());
         when(stackOverflowClient.getQuestionUpdate(any())).thenReturn(question);
         URI uri = URI.create("https://stackoverflow.com/questions/-1");
-        String expectedResult = "\nПоследний комментарий:\n" + "Тема вопроса: " + expectedTitle + "\n"
-                + comment.getInfo(expectedBody.length());
+        Update expectedResult = new Update(
+                "\nПоследний комментарий:\n" + "Тема вопроса: " + expectedTitle + "\n"
+                        + comment.getInfo(expectedBody.length()),
+                Map.of("user", user.displayName()));
 
-        Optional<String> actualResult = stackOverflowWrapper.getLastUpdate(
+        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
                 uri,
                 Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime());
 
-        assertThat(actualResult.get()).isEqualTo(expectedResult);
+        assertThat(actualResult).containsExactly(expectedResult);
     }
 
     @Test
@@ -87,16 +92,20 @@ public class StackOverflowWrapperTest {
                 new Question(user, lastUpdate, lastUpdate, expectedTitle, List.of(comment), List.of(answer));
         when(stackOverflowClient.getQuestionUpdate(any())).thenReturn(question);
         URI uri = URI.create("https://stackoverflow.com/questions/-1");
-        String expectedResult = "\nПоследний ответ:\n" + "Тема вопроса: "
-                + expectedTitle + "\n" + answer.getInfo(expectedAnswerBody.length())
-                + "\nПоследний комментарий:\n" + "Тема вопроса: "
-                + expectedTitle + "\n" + answerComment.getInfo(expectedCommentBody.length());
+        Update update1 = new Update(
+                "\nПоследний ответ:\n" + "Тема вопроса: " + expectedTitle + "\n"
+                        + answer.getInfo(expectedAnswerBody.length()),
+                Map.of("user", user.displayName()));
+        Update update2 = new Update(
+                "\nПоследний комментарий:\n" + "Тема вопроса: " + expectedTitle + "\n"
+                        + answerComment.getInfo(expectedCommentBody.length()),
+                Map.of("user", user.displayName()));
 
-        Optional<String> actualResult = stackOverflowWrapper.getLastUpdate(
+        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
                 uri,
                 Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime());
 
-        assertThat(actualResult.get()).isEqualTo(expectedResult);
+        assertThat(actualResult).containsExactly(update1, update2);
     }
 
     @ParameterizedTest

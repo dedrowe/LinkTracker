@@ -3,19 +3,23 @@ package backend.academy.scrapper.service.jpa;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.TgChat;
+import backend.academy.scrapper.entity.jpa.JpaFilter;
 import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.mapper.LinkMapper;
+import backend.academy.scrapper.repository.linkdata.JpaLinkDataRepository;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.scrapper.service.orm.OrmLinksCheckerService;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -32,22 +36,48 @@ public class OrmLinksCheckerServiceTest {
 
     private final ApiClientWrapper clientWrapper = mock(ApiClientWrapper.class);
 
-    private final JpaLinkData linkData =
-            new JpaLinkData(1L, 1L, 1L, false, new Link("string"), new TgChat(1L), List.of(), List.of());
+    private final JpaLinkDataRepository jpaLinkDataRepository = mock(JpaLinkDataRepository.class);
+
+    private final JpaLinkData linkData = new JpaLinkData(
+            1L,
+            1L,
+            1L,
+            false,
+            new Link("string"),
+            new TgChat(1L),
+            List.of(new JpaFilter(null, "user:test")),
+            List.of());
 
     private final OrmLinksCheckerService updatesCheckerService =
-            new OrmLinksCheckerService(linkDispatcher, linkMapper, tgBotClient);
+            new OrmLinksCheckerService(linkDispatcher, linkMapper, tgBotClient, jpaLinkDataRepository);
 
     @Test
     public void notificationsCountTest() {
-        InOrder order = inOrder(linkDispatcher, clientWrapper, linkMapper, tgBotClient);
+        InOrder order = inOrder(linkDispatcher, clientWrapper, linkMapper, tgBotClient, jpaLinkDataRepository);
         when(linkDispatcher.dispatchLink(any())).thenReturn(clientWrapper);
-        when(clientWrapper.getLastUpdate(any(), any())).thenReturn(Optional.of(""));
+        when(jpaLinkDataRepository.fetchFilters(any())).thenReturn(List.of(linkData));
 
         updatesCheckerService.sendUpdatesForLink(
-                new Link(1L, "link", LocalDateTime.now(), false, false, List.of(linkData)), "");
+                new Link(1L, "link", LocalDateTime.now(), false, false, List.of(linkData)),
+                List.of(new Update("test", Map.of()), new Update("test", Map.of())));
 
-        order.verify(tgBotClient).sendUpdates(any());
+        order.verify(jpaLinkDataRepository).fetchFilters(any());
+        order.verify(tgBotClient, times(2)).sendUpdates(any());
+        order.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void notificationsFilteredCountTest() {
+        InOrder order = inOrder(linkDispatcher, clientWrapper, linkMapper, tgBotClient, jpaLinkDataRepository);
+        when(linkDispatcher.dispatchLink(any())).thenReturn(clientWrapper);
+        when(jpaLinkDataRepository.fetchFilters(any())).thenReturn(List.of(linkData));
+
+        updatesCheckerService.sendUpdatesForLink(
+                new Link(1L, "link", LocalDateTime.now(), false, false, List.of(linkData)),
+                List.of(new Update("test", Map.of("user", "test")), new Update("test", Map.of("user", "test1"))));
+
+        order.verify(jpaLinkDataRepository).fetchFilters(any());
+        order.verify(tgBotClient, times(1)).sendUpdates(any());
         order.verifyNoMoreInteractions();
     }
 }
