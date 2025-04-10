@@ -8,6 +8,11 @@ app:
     key: ${SO_TOKEN_KEY}
     access-token: ${SO_ACCESS_TOKEN}
     so-base-url: ${SO_URL:https://api.stackexchange.com/2.3}
+  access-type: ${ACCESS_TYPE:SQL}
+  updates-checker:
+    batch-size: ${BATCH_SIZE:200}
+    threads-count: ${THREADS_COUNT:4}
+    check-interval-seconds: ${CHECK_INTERVAL:0}
 
 spring:
   application:
@@ -22,11 +27,18 @@ spring:
     import: optional:.env.properties
   mvc:
     log-resolved-exception: false
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
 logging:
   structured:
     format:
-      console: ecs
+      file: ecs
+  file:
+    name: scrapper-log.json
 
 server:
   port: 8081

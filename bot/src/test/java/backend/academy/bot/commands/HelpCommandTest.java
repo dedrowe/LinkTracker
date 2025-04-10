@@ -18,6 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             RegisterChatCommand.class,
             TrackLinkCommand.class,
             UntrackLinkCommand.class,
+            GetTagLinksCountCommand.class,
             ScrapperClient.class,
             TrackStateStorage.class,
             LinkMapper.class
@@ -42,10 +43,11 @@ public class HelpCommandTest {
                 """
             Этот бот предназначен для отслеживания обновлений со ссылок различных сервисов.
             Ниже приведет список доступных команд.
-            /list - Получение списка всех отслеживаемых ссылок
+            /list - Получение списка всех отслеживаемых ссылок, дополнительно можно указать тэг, чтобы получить все ссылки с этим тэгом
             /start - Регистрация чата (выполняется автоматически при создании чата с ботом)
             /track - Регистрация ссылки для отслеживания, синтаксис: /track <link>
             /untrack - Отмена отслеживания ссылки, синтаксис: /untrack <link>
+            /tags - Получение списка тэгов и количества отслеживаемых ссылок с этими тэгами
             """;
 
         Optional<String> actualResult = commandExecutor.execute(null);

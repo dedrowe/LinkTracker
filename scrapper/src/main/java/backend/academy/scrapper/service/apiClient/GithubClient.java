@@ -3,15 +3,17 @@ package backend.academy.scrapper.service.apiClient;
 import static backend.academy.shared.utils.client.RetryWrapper.retry;
 
 import backend.academy.scrapper.ScrapperConfig;
+import backend.academy.scrapper.dto.github.Comment;
 import backend.academy.scrapper.dto.github.GHRepository;
 import backend.academy.scrapper.dto.github.Issue;
+import backend.academy.scrapper.dto.github.PullRequest;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -34,19 +36,43 @@ public class GithubClient extends ApiClient {
         this.client = client;
     }
 
-    public LocalDateTime getIssueUpdate(URI uri) {
+    public Issue getIssue(URI uri) {
         Issue issue = retry(() -> getRequest(uri).body(Issue.class));
         if (issue == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
-        return ZonedDateTime.parse(issue.updatedAt()).toLocalDateTime();
+        return issue;
     }
 
-    public LocalDateTime getRepositoryUpdate(URI uri) {
+    public List<Issue> getIssues(URI uri) {
+        List<Issue> issues = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        if (issues == null) {
+            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+        }
+        return issues;
+    }
+
+    public List<Comment> getComments(URI uri) {
+        List<Comment> comments = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        if (comments == null) {
+            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+        }
+        return comments;
+    }
+
+    public GHRepository getRepository(URI uri) {
         GHRepository repository = retry(() -> getRequest(uri).body(GHRepository.class));
         if (repository == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
-        return ZonedDateTime.parse(repository.updatedAt()).toLocalDateTime();
+        return repository;
+    }
+
+    public List<PullRequest> getPullRequests(URI uri) {
+        List<PullRequest> pullRequests = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        if (pullRequests == null) {
+            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+        }
+        return pullRequests;
     }
 }

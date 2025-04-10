@@ -3,25 +3,28 @@ package backend.academy.scrapper.repository.linkdata;
 import backend.academy.scrapper.entity.LinkData;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public interface LinkDataRepository {
 
-    CompletableFuture<List<LinkData>> getAll();
+    <T extends LinkData> List<T> getAll();
 
-    CompletableFuture<Optional<LinkData>> getById(long id);
+    <T extends LinkData> Optional<T> getById(long id);
 
-    CompletableFuture<List<LinkData>> getByChatId(long chatId);
+    <T extends LinkData> List<T> getByChatId(long chatId);
 
-    CompletableFuture<List<LinkData>> getByLinkId(long linkId);
+    <T extends LinkData> List<T> getByLinkId(long linkId);
 
-    CompletableFuture<Optional<LinkData>> getByChatIdLinkId(long chatId, long linkId);
+    <T extends LinkData> List<T> getByLinkId(long linkId, long minId, long limit);
 
-    CompletableFuture<Void> create(LinkData linkData);
+    <T extends LinkData> Optional<T> getByChatIdLinkId(long chatId, long linkId);
 
-    CompletableFuture<Void> update(LinkData link);
+    <T extends LinkData> List<T> getByTagAndChatId(String tag, long chatId);
 
-    CompletableFuture<Void> deleteById(long id);
+    void create(LinkData linkData);
 
-    CompletableFuture<Void> delete(LinkData link);
+    void deleteById(long id);
+
+    void deleteLinkData(LinkData link);
+
+    void deleteByChatId(long chatId);
 }

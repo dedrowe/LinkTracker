@@ -18,4 +18,10 @@
 Для корректной работы приложений необходимо в модулях scrapper и bot в директории resources
 создать файлы .env.properties. Образцы заполнения есть в файлах .properties.example
 
+Для корректной работы необходимо поднять postgresql, для чего нужно открыть терминал в корне проекта и выполнить команду:
+
+```shell
+docker compose up -d
+```
+
 Запуск приложений производится из файлов ScrapperApplication и BotApplication

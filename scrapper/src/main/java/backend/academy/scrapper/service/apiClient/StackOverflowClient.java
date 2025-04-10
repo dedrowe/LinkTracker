@@ -3,13 +3,11 @@ package backend.academy.scrapper.service.apiClient;
 import static backend.academy.shared.utils.client.RetryWrapper.retry;
 
 import backend.academy.scrapper.ScrapperConfig;
+import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +20,13 @@ public class StackOverflowClient extends ApiClient {
     private final String key;
 
     private final String accessToken;
+
+    /**
+     * Апи stackoverflow предоставляет возможность настраивать фильтры, чтобы добавлять и удалять поля из возвращаемый
+     * сущностей. Это позволяет уменьшить передаваемый трафик и упростить обработку полученного результата. Подробнее
+     * можно почитать по <a href="https://api.stackexchange.com/docs/filters">ссылке</a>.
+     */
+    private static final String REQUEST_FILTER = "!LbeNt-eYI5wF9dcYOL_10T";
 
     @Autowired
     public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
@@ -39,13 +44,12 @@ public class StackOverflowClient extends ApiClient {
         this.accessToken = accessToken;
     }
 
-    public LocalDateTime getQuestionUpdate(URI uri) {
+    public Question getQuestionUpdate(URI uri) {
         SOResponse responseBody = retry(() -> getRequest(uri).body(SOResponse.class));
         if (responseBody == null || responseBody.items().isEmpty()) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
-        Instant instant = Instant.ofEpochSecond(responseBody.items().getFirst().lastActivityDate());
-        return instant.atZone(ZoneOffset.UTC).toLocalDateTime();
+        return responseBody.items().getFirst();
     }
 
     @Override
@@ -65,6 +69,7 @@ public class StackOverflowClient extends ApiClient {
                                 .queryParam("key", key)
                                 .queryParam("access_token", accessToken)
                                 .queryParam("site", "stackoverflow")
+                                .queryParam("filter", REQUEST_FILTER)
                                 .build())
                         .retrieve(),
                 uri);

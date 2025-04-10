@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress XmlUnusedNamespaceDeclaration -->
+<databaseChangeLog
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.14.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="00-initial-schema" author="you">
+        <sqlFile path="00-initial-schema.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sql>
+                DROP TABLE IF EXISTS filters;
+                DROP TABLE IF EXISTS links_data_to_tags;
+                DROP TABLE IF EXISTS tags;
+                DROP TABLE IF EXISTS links_data;
+                DROP TABLE IF EXISTS links;
+                DROP TABLE IF EXISTS tg_chats;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

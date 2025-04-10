@@ -1,24 +1,16 @@
 package backend.academy.scrapper.entity;
 
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public interface LinkData {
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class LinkData {
+    Long id();
 
-    private Long id;
+    void id(Long id);
 
-    private long linkId;
+    Long linkId();
 
-    private long chatId;
+    Long chatId();
 
-    private List<String> tags;
+    boolean deleted();
 
-    private List<String> filters;
+    void deleted(boolean deleted);
 }

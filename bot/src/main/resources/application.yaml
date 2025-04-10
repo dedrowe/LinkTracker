@@ -19,7 +19,9 @@ spring:
 logging:
   structured:
     format:
-      console: ecs
+      file: ecs
+  file:
+    name: tg-bot-log.json
 
 server:
   port: 8080

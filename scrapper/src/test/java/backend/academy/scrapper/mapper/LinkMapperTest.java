@@ -2,41 +2,42 @@ package backend.academy.scrapper.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
-import backend.academy.shared.dto.AddLinkRequest;
+import backend.academy.scrapper.entity.TgChat;
+import backend.academy.scrapper.entity.jpa.JpaLinkData;
+import backend.academy.scrapper.service.entityFactory.linkData.LinkDataFactory;
 import backend.academy.shared.dto.LinkResponse;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 public class LinkMapperTest {
 
-    private final LinkMapper linkMapper = new LinkMapper();
+    @Mock
+    private LinkDataFactory linkDataFactory;
+
+    @InjectMocks
+    private LinkMapper linkMapper;
 
     @Test
     public void createLinkResponseTest() {
-        LinkData linkData = new LinkData(1L, 1, 1, List.of("work"), List.of("user=user1"));
+        LinkData linkData = new JpaLinkData(1L, new Link(), new TgChat());
         String link = "string";
+        List<String> expectedTags = List.of("string");
+        List<String> expectedFilters = List.of("string");
 
-        LinkResponse actualResponse = linkMapper.createLinkResponse(linkData, link);
+        LinkResponse actualResponse = linkMapper.createLinkResponse(linkData, link, expectedTags, expectedFilters);
 
         assertThat(actualResponse.id()).isEqualTo(linkData.id());
         assertThat(actualResponse.url()).isEqualTo(link);
-        assertThat(actualResponse.tags().size()).isEqualTo(linkData.tags().size());
-        assertThat(actualResponse.filters().size()).isEqualTo(linkData.filters().size());
-    }
-
-    @Test
-    public void createLinkDataTest() {
-        AddLinkRequest request = new AddLinkRequest("string", List.of("work"), List.of("user=user1"));
-        int chatId = 1;
-        int linkId = 1;
-
-        LinkData actualLinkData = linkMapper.createLinkData(request, chatId, linkId);
-
-        assertThat(actualLinkData.id()).isEqualTo(null);
-        assertThat(actualLinkData.linkId()).isEqualTo(linkId);
-        assertThat(actualLinkData.chatId()).isEqualTo(chatId);
-        assertThat(actualLinkData.tags().size()).isEqualTo(request.tags().size());
-        assertThat(actualLinkData.filters().size()).isEqualTo(request.filters().size());
+        assertThat(actualResponse.tags().size()).isEqualTo(1);
+        assertThat(actualResponse.tags().getFirst()).isEqualTo(expectedTags.getFirst());
+        assertThat(actualResponse.filters().size()).isEqualTo(1);
+        assertThat(actualResponse.filters().getFirst()).isEqualTo(expectedFilters.getFirst());
     }
 }
