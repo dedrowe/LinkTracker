@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Map;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record Comment(User owner, long creationDate, String body) {
@@ -16,5 +17,9 @@ public record Comment(User owner, long creationDate, String body) {
         return "Автор: " + this.owner().displayName() + "\n" + "Создан: "
                 + Instant.ofEpochSecond(creationDate()).atZone(ZoneOffset.UTC).toLocalDateTime() + "\n" + "Описание: "
                 + body + "\n";
+    }
+
+    public Map<String, String> getPossibleFilters() {
+        return Map.of("user", owner().displayName());
     }
 }

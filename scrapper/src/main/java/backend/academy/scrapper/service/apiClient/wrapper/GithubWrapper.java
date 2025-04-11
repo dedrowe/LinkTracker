@@ -13,7 +13,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -67,7 +66,7 @@ public class GithubWrapper implements ApiClientWrapper {
                 && ZonedDateTime.parse(lastPull.createdAt()).toLocalDateTime().isAfter(lastUpdate)) {
             sb.append("\nПоследний PR:\n");
             sb.append(lastPull.getInfo(BODY_PREVIEW_LENGTH));
-            result.add(new Update(sb.toString(), setPullFilters(lastPull)));
+            result.add(new Update(sb.toString(), lastPull.getPossibleFilters()));
             sb.delete(0, sb.length());
         }
 
@@ -79,7 +78,7 @@ public class GithubWrapper implements ApiClientWrapper {
                 && ZonedDateTime.parse(lastIssue.createdAt()).toLocalDateTime().isAfter(lastUpdate)) {
             sb.append("\nПоследний Issue:\n");
             sb.append(lastIssue.getInfo(BODY_PREVIEW_LENGTH));
-            result.add(new Update(sb.toString(), setIssueFilters(lastIssue)));
+            result.add(new Update(sb.toString(), lastIssue.getPossibleFilters()));
         }
 
         return result;
@@ -102,20 +101,8 @@ public class GithubWrapper implements ApiClientWrapper {
         if (lastComment != null) {
             sb.append("\nПоследний комментарий:\n");
             sb.append(lastComment.getInfo(BODY_PREVIEW_LENGTH));
-            result.add(new Update(sb.toString(), setCommentFilters(lastComment)));
+            result.add(new Update(sb.toString(), lastComment.getPossibleFilters()));
         }
         return result;
-    }
-
-    private Map<String, String> setIssueFilters(Issue issue) {
-        return Map.of("user", issue.user().login());
-    }
-
-    private Map<String, String> setCommentFilters(Comment comment) {
-        return Map.of("user", comment.user().login());
-    }
-
-    private Map<String, String> setPullFilters(PullRequest pull) {
-        return Map.of("user", pull.user().login());
     }
 }

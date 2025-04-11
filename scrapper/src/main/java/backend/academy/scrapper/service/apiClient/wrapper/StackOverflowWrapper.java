@@ -12,7 +12,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +50,7 @@ public class StackOverflowWrapper implements ApiClientWrapper {
             sb.append("\nПоследний ответ:\n");
             sb.append("Тема вопроса: ").append(question.title()).append("\n");
             sb.append(lastAnswer.getInfo(BODY_PREVIEW_LENGTH));
-            result.add(new Update(sb.toString(), setAnswerFilters(lastAnswer)));
+            result.add(new Update(sb.toString(), lastAnswer.getPossibleFilters()));
             sb.delete(0, sb.length());
         }
 
@@ -64,7 +63,7 @@ public class StackOverflowWrapper implements ApiClientWrapper {
             sb.append("\nПоследний комментарий:\n");
             sb.append("Тема вопроса: ").append(question.title()).append("\n");
             sb.append(lastComment.getInfo(BODY_PREVIEW_LENGTH));
-            result.add(new Update(sb.toString(), setCommentFilters(lastComment)));
+            result.add(new Update(sb.toString(), lastComment.getPossibleFilters()));
         }
 
         return result;
@@ -78,13 +77,5 @@ public class StackOverflowWrapper implements ApiClientWrapper {
         } else {
             throw new ApiCallException("Ресурс не поддерживается", 400, uri.toString());
         }
-    }
-
-    private Map<String, String> setAnswerFilters(Answer answer) {
-        return Map.of("user", answer.owner().displayName());
-    }
-
-    private Map<String, String> setCommentFilters(Comment comment) {
-        return Map.of("user", comment.owner().displayName());
     }
 }
