@@ -15,6 +15,7 @@ public record ScrapperConfig(
         @Valid GithubCredentials github,
         @Valid StackOverflowCredentials stackOverflow,
         @Valid UpdatesChecker updatesChecker,
+        @Valid UpdatesSender updatesSender,
         @Valid Bot bot,
         @NotNull DbAccessType accessType) {
 
@@ -27,6 +28,8 @@ public record ScrapperConfig(
 
     public record UpdatesChecker(
             @Positive int batchSize, @Positive int threadsCount, @PositiveOrZero int checkIntervalSeconds) {}
+
+    public record UpdatesSender(@Positive int batchSize) {}
 
     public enum DbAccessType {
         SQL,

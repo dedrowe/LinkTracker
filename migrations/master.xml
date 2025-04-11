@@ -17,6 +17,7 @@
                 DROP TABLE IF EXISTS links_data;
                 DROP TABLE IF EXISTS links;
                 DROP TABLE IF EXISTS tg_chats;
+                DROP TABLE IF EXISTS outbox;
             </sql>
         </rollback>
     </changeSet>

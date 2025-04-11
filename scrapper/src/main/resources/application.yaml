@@ -10,9 +10,11 @@ app:
     so-base-url: ${SO_URL:https://api.stackexchange.com/2.3}
   access-type: ${ACCESS_TYPE:SQL}
   updates-checker:
-    batch-size: ${BATCH_SIZE:200}
+    batch-size: ${CHECKER_BATCH_SIZE:200}
     threads-count: ${THREADS_COUNT:4}
     check-interval-seconds: ${CHECK_INTERVAL:0}
+  updates-sender:
+    batch-size: ${SENDER_BATCH_SIZE:200}
 
 spring:
   application:

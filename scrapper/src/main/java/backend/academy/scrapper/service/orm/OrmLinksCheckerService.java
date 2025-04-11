@@ -3,12 +3,12 @@ package backend.academy.scrapper.service.orm;
 import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.entity.jpa.JpaLinkData;
-import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.linkdata.JpaLinkDataRepository;
+import backend.academy.scrapper.repository.outbox.OutboxRepository;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
-import backend.academy.scrapper.service.apiClient.TgBotClient;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,27 +21,23 @@ import org.springframework.transaction.annotation.Transactional;
 @ConditionalOnProperty(havingValue = "ORM", prefix = "app", name = "access-type")
 public class OrmLinksCheckerService extends LinksCheckerService {
 
-    private final TgBotClient tgBotClient;
-
-    private final LinkMapper linkMapper;
-
     private final JpaLinkDataRepository jpaLinkDataRepository;
+
+    private final OutboxRepository outboxRepository;
 
     @Autowired
     public OrmLinksCheckerService(
             LinkDispatcher linkDispatcher,
-            LinkMapper linkMapper,
-            TgBotClient tgBotClient,
-            JpaLinkDataRepository jpaLinkDataRepository) {
+            JpaLinkDataRepository jpaLinkDataRepository,
+            OutboxRepository outboxRepository) {
         this.linkDispatcher = linkDispatcher;
-        this.linkMapper = linkMapper;
-        this.tgBotClient = tgBotClient;
         this.jpaLinkDataRepository = jpaLinkDataRepository;
+        this.outboxRepository = outboxRepository;
     }
 
     @Override
     @Transactional
-    public void sendUpdatesForLink(Link link, List<Update> updates) {
+    public void setUpdatesForLink(Link link, List<Update> updates) {
         List<JpaLinkData> linksData = jpaLinkDataRepository.fetchFilters(
                 link.linksData().stream().map(JpaLinkData::id).toList());
         for (JpaLinkData linkData : linksData) {
@@ -57,11 +53,8 @@ public class OrmLinksCheckerService extends LinksCheckerService {
                     }
                 }
                 if (!skip) {
-                    tgBotClient.sendUpdates(linkMapper.createLinkUpdate(
-                            link.id(),
-                            link.link(),
-                            "Получено обновление по ссылке " + link.link() + "\n" + update.description(),
-                            List.of(linkData.tgChat().chatId())));
+                    outboxRepository.create(
+                            new Outbox(link.id(), link.link(), linkData.tgChat().chatId(), update.description()));
                 }
             }
         }

@@ -15,7 +15,7 @@ public abstract class LinksCheckerService {
     protected LinkDispatcher linkDispatcher;
 
     @Transactional
-    public abstract void sendUpdatesForLink(Link link, List<Update> updates);
+    public abstract void setUpdatesForLink(Link link, List<Update> updates);
 
     public void checkResource(String url) {
         try {

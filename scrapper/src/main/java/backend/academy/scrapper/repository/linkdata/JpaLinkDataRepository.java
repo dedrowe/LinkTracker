@@ -55,7 +55,7 @@ public interface JpaLinkDataRepository extends LinkDataRepository, JpaRepository
                     + "where t.tag = :tag and tc.chatId = :chatId and ld.deleted = false")
     List<JpaLinkData> getByTagAndChatId(@Param("tag") String tag, @Param("chatId") long chatId);
 
-    @Query(value = "select ld from JpaLinkData ld join fetch ld.filters where ld.id in :ids")
+    @Query(value = "select ld from JpaLinkData ld left join fetch ld.filters where ld.id in :ids")
     List<JpaLinkData> fetchFilters(@Param("ids") List<Long> ids);
 
     @Override

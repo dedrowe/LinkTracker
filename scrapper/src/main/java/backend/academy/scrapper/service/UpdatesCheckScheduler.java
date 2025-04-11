@@ -65,7 +65,7 @@ public class UpdatesCheckScheduler {
                             try {
                                 List<Update> updates = checker.getLinkUpdate(link);
                                 if (!updates.isEmpty()) {
-                                    checker.sendUpdatesForLink(link, updates);
+                                    checker.setUpdatesForLink(link, updates);
                                 }
                             } finally {
                                 link.lastUpdate(LocalDateTime.now(ZoneOffset.UTC));

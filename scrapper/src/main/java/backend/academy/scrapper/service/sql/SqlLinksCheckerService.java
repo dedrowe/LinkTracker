@@ -5,14 +5,14 @@ import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Filter;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.entity.LinkData;
+import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.entity.TgChat;
-import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
+import backend.academy.scrapper.repository.outbox.OutboxRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
-import backend.academy.scrapper.service.apiClient.TgBotClient;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -33,53 +33,47 @@ public class SqlLinksCheckerService extends LinksCheckerService {
 
     private final LinkDataRepository linkDataRepository;
 
-    private final LinkMapper linkMapper;
-
-    private final TgBotClient tgBotClient;
-
     private final TgChatRepository tgChatRepository;
 
     private final FiltersService filtersService;
+
+    private final OutboxRepository outboxRepository;
 
     // Здесь не получится использовать lombok из-за наследуемого поля linkDispatcher
     public SqlLinksCheckerService(
             LinkDispatcher linkDispatcher,
             int batchSize,
             LinkDataRepository linkDataRepository,
-            LinkMapper linkMapper,
-            TgBotClient tgBotClient,
             TgChatRepository tgChatRepository,
-            FiltersService filtersService) {
+            FiltersService filtersService,
+            OutboxRepository outboxRepository) {
         this.linkDispatcher = linkDispatcher;
         this.batchSize = batchSize;
         this.linkDataRepository = linkDataRepository;
-        this.linkMapper = linkMapper;
-        this.tgBotClient = tgBotClient;
         this.tgChatRepository = tgChatRepository;
         this.filtersService = filtersService;
+        this.outboxRepository = outboxRepository;
     }
 
     @Autowired
     public SqlLinksCheckerService(
             LinkDispatcher linkDispatcher,
             LinkDataRepository linkDataRepository,
-            LinkMapper linkMapper,
-            TgBotClient tgBotClient,
             TgChatRepository tgChatRepository,
             ScrapperConfig config,
-            FiltersService filtersService) {
+            FiltersService filtersService,
+            OutboxRepository outboxRepository) {
         this.linkDispatcher = linkDispatcher;
         this.linkDataRepository = linkDataRepository;
-        this.linkMapper = linkMapper;
-        this.tgBotClient = tgBotClient;
         this.tgChatRepository = tgChatRepository;
         batchSize = config.updatesChecker().batchSize();
         this.filtersService = filtersService;
+        this.outboxRepository = outboxRepository;
     }
 
     @Override
     @Transactional
-    public void sendUpdatesForLink(Link link, List<Update> updates) {
+    public void setUpdatesForLink(Link link, List<Update> updates) {
         long minId = -1;
         while (true) {
             List<LinkData> linkDataList = linkDataRepository.getByLinkId(link.id(), minId, batchSize);
@@ -87,12 +81,13 @@ public class SqlLinksCheckerService extends LinksCheckerService {
                 break;
             }
 
-            List<Long> ids = linkDataList.stream().map(LinkData::id).toList();
+            List<Long> dataIds = linkDataList.stream().map(LinkData::id).toList();
+            List<Long> chatIds = linkDataList.stream().map(LinkData::chatId).toList();
 
-            List<Filter> filters = filtersService.getAllByDataIds(ids);
+            List<Filter> filters = filtersService.getAllByDataIds(dataIds);
             Map<Long, List<Filter>> filtersMap = filters.stream().collect(Collectors.groupingBy(Filter::dataId));
 
-            List<TgChat> chats = tgChatRepository.getAllByIds(ids);
+            List<TgChat> chats = tgChatRepository.getAllByIds(chatIds);
             Map<Long, TgChat> chatsMap = chats.stream().collect(Collectors.toMap(TgChat::id, Function.identity()));
 
             for (LinkData linkData : linkDataList) {
@@ -108,7 +103,7 @@ public class SqlLinksCheckerService extends LinksCheckerService {
                         }
                     }
                     if (!skip) {
-                        sendUpdatesForLink(link.id(), link.link(), update.description(), linkData, chatsMap);
+                        setUpdatesForLink(link.id(), link.link(), update.description(), linkData, chatsMap);
                     }
                 }
             }
@@ -116,7 +111,7 @@ public class SqlLinksCheckerService extends LinksCheckerService {
         }
     }
 
-    private void sendUpdatesForLink(
+    private void setUpdatesForLink(
             long linkId, String link, String description, LinkData linkData, Map<Long, TgChat> chatsMap) {
         TgChat chat = chatsMap.getOrDefault(linkData.chatId(), null);
 
@@ -127,7 +122,6 @@ public class SqlLinksCheckerService extends LinksCheckerService {
             return;
         }
 
-        tgBotClient.sendUpdates(linkMapper.createLinkUpdate(
-                linkId, link, "Получено обновление по ссылке " + link + "\n" + description, List.of(chat.chatId())));
+        outboxRepository.create(new Outbox(linkId, link, chat.chatId(), description));
     }
 }
