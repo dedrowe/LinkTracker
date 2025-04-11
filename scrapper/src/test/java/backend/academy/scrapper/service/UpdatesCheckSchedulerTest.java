@@ -63,7 +63,7 @@ public class UpdatesCheckSchedulerTest {
     private void checkIterate(InOrder order, int count) {
         for (int i = 0; i < count; i++) {
             order.verify(checkerService, times(1)).getLinkUpdate(any());
-            order.verify(checkerService, times(1)).sendUpdatesForLink(any(), any());
+            order.verify(checkerService, times(1)).setUpdatesForLink(any(), any());
         }
     }
 }

@@ -12,16 +12,16 @@ import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Link;
+import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.entity.jdbc.JdbcFilter;
 import backend.academy.scrapper.entity.jdbc.JdbcLinkData;
 import backend.academy.scrapper.exceptionHandling.exceptions.WrongServiceException;
-import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
+import backend.academy.scrapper.repository.outbox.OutboxRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDispatcher;
-import backend.academy.scrapper.service.apiClient.TgBotClient;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
 import java.time.LocalDateTime;
@@ -39,10 +39,6 @@ public class SqlLinksCheckerServiceTest {
 
     private final LinkDataRepository linkDataRepository = mock(LinkDataRepository.class);
 
-    private final LinkMapper linkMapper = mock(LinkMapper.class);
-
-    private final TgBotClient tgBotClient = mock(TgBotClient.class);
-
     private final TgChatRepository tgChatRepository = mock(TgChatRepository.class);
 
     private final ApiClientWrapper clientWrapper = mock(ApiClientWrapper.class);
@@ -51,8 +47,10 @@ public class SqlLinksCheckerServiceTest {
 
     private final FiltersService filtersService = mock(FiltersService.class);
 
+    private final OutboxRepository outboxRepository = mock(OutboxRepository.class);
+
     private final SqlLinksCheckerService updatesCheckerService = new SqlLinksCheckerService(
-            linkDispatcher, batchSize, linkDataRepository, linkMapper, tgBotClient, tgChatRepository, filtersService);
+            linkDispatcher, batchSize, linkDataRepository, tgChatRepository, filtersService, outboxRepository);
 
     @Test
     public void notificationsCountTest() {
@@ -63,16 +61,16 @@ public class SqlLinksCheckerServiceTest {
         when(tgChatRepository.getAllByIds(any())).thenReturn(List.of(new TgChat(1L, 123L)));
         when(filtersService.getAllByDataIds(any())).thenReturn(List.of());
 
-        updatesCheckerService.sendUpdatesForLink(
+        updatesCheckerService.setUpdatesForLink(
                 new Link(1L, "test", LocalDateTime.now()),
                 List.of(new Update("test", Map.of()), new Update("test", Map.of())));
 
-        InOrder order = inOrder(linkDataRepository, filtersService, tgChatRepository, tgBotClient);
+        InOrder order = inOrder(linkDataRepository, filtersService, tgChatRepository, outboxRepository);
 
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
         order.verify(filtersService).getAllByDataIds(any());
         order.verify(tgChatRepository).getAllByIds(any());
-        order.verify(tgBotClient, times(8)).sendUpdates(any());
+        order.verify(outboxRepository, times(8)).create(new Outbox(1L, "test", 123L, "test"));
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
 
         order.verifyNoMoreInteractions();
@@ -89,17 +87,17 @@ public class SqlLinksCheckerServiceTest {
         when(tgChatRepository.getAllByIds(any())).thenReturn(List.of(new TgChat(1L, 123L)));
         when(filtersService.getAllByDataIds(any())).thenReturn(List.of(new JdbcFilter(2L, "test:test")));
 
-        updatesCheckerService.sendUpdatesForLink(
+        updatesCheckerService.setUpdatesForLink(
                 new Link(1L, "test", LocalDateTime.now()), List.of(new Update("test", Map.of("test", "test"))));
 
-        InOrder order = inOrder(linkDataRepository, filtersService, tgChatRepository, tgBotClient);
+        InOrder order = inOrder(linkDataRepository, filtersService, tgChatRepository, outboxRepository);
 
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
         order.verify(filtersService).getAllByDataIds(any());
         order.verify(tgChatRepository).getAllByIds(any());
-        order.verify(tgBotClient, times(2)).sendUpdates(any());
+        order.verify(outboxRepository, times(2)).create(new Outbox(1L, "test", 123L, "test"));
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
-        order.verify(tgBotClient, times(1)).sendUpdates(any());
+        order.verify(outboxRepository, times(1)).create(new Outbox(1L, "test", 123L, "test"));
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
 
         order.verifyNoMoreInteractions();
