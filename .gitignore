@@ -2,6 +2,7 @@
 !**/src/main/**
 !**/src/test/**
 data
+redis-cache
 *.env*
 
 ### Maven ###
