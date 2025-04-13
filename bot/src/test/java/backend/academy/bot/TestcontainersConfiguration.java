@@ -10,7 +10,7 @@ import org.testcontainers.utility.DockerImageName;
 
 // isolated from the "scrapper" module's containers!
 @TestConfiguration(proxyBeanMethods = false)
-class TestcontainersConfiguration {
+public class TestcontainersConfiguration {
 
     @Bean
     @RestartScope
