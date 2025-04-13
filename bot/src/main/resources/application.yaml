@@ -3,6 +3,8 @@ app:
     token: ${TELEGRAM_TOKEN} # env variable
   scrapper:
     url: ${SCRAPPER_URL:http://localhost:8081}
+  redis:
+    ttl-minutes: ${REDIS_TTL_MINUTES:60}
 
 spring:
   application:
