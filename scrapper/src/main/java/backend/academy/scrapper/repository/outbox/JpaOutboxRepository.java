@@ -16,8 +16,9 @@ public interface JpaOutboxRepository extends OutboxRepository, CrudRepository<Ou
     @Transactional
     @Modifying
     @Query(
-            value = "delete from outbox where id in (select id from outbox where id > :minId limit :limit for update nowait)\n"
-                    + "            returning *",
+            value =
+                    "delete from outbox where id in (select id from outbox where id > :minId limit :limit for update nowait)\n"
+                            + "            returning *",
             nativeQuery = true)
     List<Outbox> getAllWithDeletion(@Param("minId") long minId, @Param("limit") long limit);
 

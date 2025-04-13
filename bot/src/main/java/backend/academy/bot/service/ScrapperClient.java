@@ -12,6 +12,7 @@ import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import java.time.Duration;
 
 @Service
 @Slf4j
@@ -39,7 +39,8 @@ public class ScrapperClient {
     private final Duration ttlMinutes;
 
     @Autowired
-    public ScrapperClient(BotConfig config, RestClient.Builder clientBuilder, RedisTemplate<String, ListLinkResponse> redisTemplate) {
+    public ScrapperClient(
+            BotConfig config, RestClient.Builder clientBuilder, RedisTemplate<String, ListLinkResponse> redisTemplate) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.scrapper().url())
@@ -49,7 +50,11 @@ public class ScrapperClient {
         redis = redisTemplate;
     }
 
-    public ScrapperClient(RestClient client, ObjectMapper mapper, RedisTemplate<String, ListLinkResponse> redisTemplate, Duration ttlMinutes) {
+    public ScrapperClient(
+            RestClient client,
+            ObjectMapper mapper,
+            RedisTemplate<String, ListLinkResponse> redisTemplate,
+            Duration ttlMinutes) {
         this.client = client;
         this.mapper = mapper;
         this.redis = redisTemplate;

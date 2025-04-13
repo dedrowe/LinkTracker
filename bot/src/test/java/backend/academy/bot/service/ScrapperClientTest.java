@@ -26,6 +26,8 @@ import backend.academy.shared.exceptions.ApiCallException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,8 +42,6 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.web.client.RestClient;
 import org.testcontainers.containers.GenericContainer;
-import java.time.Duration;
-import java.util.List;
 
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
@@ -66,7 +66,8 @@ public class ScrapperClientTest {
     public ScrapperClientTest(@Qualifier("redisContainer") GenericContainer<?> redisContainer) {
         redisContainer.start();
 
-        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisContainer.getHost(), redisContainer.getMappedPort(6379));
+        LettuceConnectionFactory lettuceConnectionFactory =
+                new LettuceConnectionFactory(redisContainer.getHost(), redisContainer.getMappedPort(6379));
         lettuceConnectionFactory.afterPropertiesSet();
 
         RedisTemplate<String, ListLinkResponse> template = new RedisTemplate<>();
@@ -75,16 +76,15 @@ public class ScrapperClientTest {
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
         template.afterPropertiesSet();
 
-
         this.redisTemplate = spy(template);
         this.valueOperations = spy(template.opsForValue());
         scrapperClient = new ScrapperClient(
-            RestClient.builder()
-                .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
-                .build(),
-            new ObjectMapper(),
-            redisTemplate,
-            ttl);
+                RestClient.builder()
+                        .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
+                        .build(),
+                new ObjectMapper(),
+                redisTemplate,
+                ttl);
     }
 
     @BeforeEach
@@ -92,7 +92,6 @@ public class ScrapperClientTest {
         redisTemplate.getConnectionFactory().getConnection().flushDb();
         wireMockServer.start();
         configureFor(mockServerAddress, wireMockServer.port());
-
     }
 
     @AfterEach
@@ -102,7 +101,8 @@ public class ScrapperClientTest {
 
     @Test
     public void getLinksFromCacheTest() {
-        ListLinkResponse expectedResult = new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of(), List.of())), 1);
+        ListLinkResponse expectedResult =
+                new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of(), List.of())), 1);
         redisTemplate.opsForValue().set("links:1", expectedResult);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
@@ -117,10 +117,10 @@ public class ScrapperClientTest {
     public void setLinksToCacheTest() {
         ListLinkResponse expectedResult = new ListLinkResponse(List.of(), 0);
         stubFor(get(urlPathMatching("/links*"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(200)
-                .withBody("{\"links\":[], \"size\": 0}")));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(200)
+                        .withBody("{\"links\":[], \"size\": 0}")));
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         ListLinkResponse actualResult = scrapperClient.getLinks(1L);
@@ -131,16 +131,18 @@ public class ScrapperClientTest {
 
     @Test
     public void trackLinkInvalidateTest() {
-        ListLinkResponse expectedResult = new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of("1"), List.of())), 1);
-        ListLinkResponse response = new ListLinkResponse(List.of(new LinkResponse(1L, "link2", List.of("2"), List.of())), 1);
+        ListLinkResponse expectedResult =
+                new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of("1"), List.of())), 1);
+        ListLinkResponse response =
+                new ListLinkResponse(List.of(new LinkResponse(1L, "link2", List.of("2"), List.of())), 1);
         redisTemplate.opsForValue().set("links:1", expectedResult);
         redisTemplate.opsForValue().set("links-tags:1/1", expectedResult);
         redisTemplate.opsForValue().set("links-tags:1/2", response);
         stubFor(post(urlPathMatching("/links*"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(200)
-                .withBody("{\"id\": 1, \"url\": \"link\", \"tags\": [\"1\"], \"filters\": []}")));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(200)
+                        .withBody("{\"id\": 1, \"url\": \"link\", \"tags\": [\"1\"], \"filters\": []}")));
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         scrapperClient.trackLink(1, new AddLinkRequest("link", List.of("1"), List.of()));
@@ -154,16 +156,18 @@ public class ScrapperClientTest {
 
     @Test
     public void untrackLinkInvalidateTest() {
-        ListLinkResponse expectedResult = new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of("1"), List.of())), 1);
-        ListLinkResponse response = new ListLinkResponse(List.of(new LinkResponse(1L, "link2", List.of("2"), List.of())), 1);
+        ListLinkResponse expectedResult =
+                new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of("1"), List.of())), 1);
+        ListLinkResponse response =
+                new ListLinkResponse(List.of(new LinkResponse(1L, "link2", List.of("2"), List.of())), 1);
         redisTemplate.opsForValue().set("links:1", expectedResult);
         redisTemplate.opsForValue().set("links-tags:1/1", expectedResult);
         redisTemplate.opsForValue().set("links-tags:1/2", response);
         stubFor(delete(urlPathMatching("/links*"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(200)
-                .withBody("{\"id\": 1, \"url\": \"link\", \"tags\": [\"1\"], \"filters\": []}")));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(200)
+                        .withBody("{\"id\": 1, \"url\": \"link\", \"tags\": [\"1\"], \"filters\": []}")));
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         scrapperClient.untrackLink(1, new RemoveLinkRequest("link"));
@@ -177,7 +181,8 @@ public class ScrapperClientTest {
 
     @Test
     public void getLinksByTagFromCacheTest() {
-        ListLinkResponse expectedResult = new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of(), List.of())), 1);
+        ListLinkResponse expectedResult =
+                new ListLinkResponse(List.of(new LinkResponse(1L, "link", List.of(), List.of())), 1);
         redisTemplate.opsForValue().set("links-tags:1/1", expectedResult);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
@@ -192,10 +197,10 @@ public class ScrapperClientTest {
     public void setLinksByTagToCacheTest() {
         ListLinkResponse expectedResult = new ListLinkResponse(List.of(), 0);
         stubFor(get(urlPathMatching("/links*"))
-            .willReturn(aResponse()
-                .withHeader("Content-Type", "application/json")
-                .withStatus(200)
-                .withBody("{\"links\":[], \"size\": 0}")));
+                .willReturn(aResponse()
+                        .withHeader("Content-Type", "application/json")
+                        .withStatus(200)
+                        .withBody("{\"links\":[], \"size\": 0}")));
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
         ListLinkResponse actualResult = scrapperClient.getLinksByTag(1L, "1");
