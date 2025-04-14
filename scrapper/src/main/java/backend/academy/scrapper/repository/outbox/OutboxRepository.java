@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface OutboxRepository {
 
-    List<Outbox> getAllWithDeletion(long minId, long limit);
+    List<Outbox> getAllWithDeletion(long limit);
 
     void create(Outbox outbox);
 }

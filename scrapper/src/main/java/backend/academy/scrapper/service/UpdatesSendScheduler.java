@@ -41,9 +41,8 @@ public class UpdatesSendScheduler {
     @Transactional
     @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
     public void sendUpdates() {
-        long minId = -1;
         while (true) {
-            List<Outbox> outboxList = repository.getAllWithDeletion(minId, batchSize);
+            List<Outbox> outboxList = repository.getAllWithDeletion(batchSize);
             if (outboxList.isEmpty()) {
                 break;
             }

@@ -4,6 +4,7 @@ import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.repository.linkdata.LinkDataRepository;
 import backend.academy.scrapper.repository.tgchat.TgChatRepository;
+import backend.academy.shared.dto.TgChatUpdateDto;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,12 @@ public class TgChatService {
         TgChat tgChat = checkOptional(tgChatRepository.getByChatId(chatId), chatId);
         linkDataRepository.deleteByChatId(tgChat.id());
         tgChatRepository.delete(tgChat);
+    }
+
+    public void updateTgChat(long id, TgChatUpdateDto tgChatUpdateDto) {
+        TgChat chat = getByChatId(id);
+        chat.digest(tgChatUpdateDto.digest());
+        tgChatRepository.update(chat);
     }
 
     /**

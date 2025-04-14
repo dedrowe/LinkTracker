@@ -7,6 +7,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,11 +42,16 @@ public class Outbox {
     @Column(name = "description", nullable = false)
     private String description;
 
-    public Outbox(long linkId, String link, long chatId, String description) {
+    @Column(name = "send_time", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime sendTime;
+
+    public Outbox(long linkId, String link, long chatId, String description, LocalDateTime sendTime) {
         this.linkId = linkId;
         this.link = link;
         this.chatId = chatId;
         this.description = description;
+        this.sendTime = sendTime;
     }
 
     @Override
@@ -52,11 +61,12 @@ public class Outbox {
         return linkId == outbox.linkId
                 && chatId == outbox.chatId
                 && Objects.equals(link, outbox.link)
-                && Objects.equals(description, outbox.description);
+                && Objects.equals(description, outbox.description)
+                && sendTime.toEpochSecond(ZoneOffset.UTC) == outbox.sendTime.toEpochSecond(ZoneOffset.UTC);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(linkId, link, chatId, description);
+        return Objects.hash(linkId, link, chatId, description, sendTime);
     }
 }

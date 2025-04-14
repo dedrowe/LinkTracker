@@ -1,6 +1,8 @@
 package backend.academy.scrapper.repository.outbox;
 
 import backend.academy.scrapper.entity.Outbox;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,13 +16,18 @@ public interface JpaOutboxRepository extends OutboxRepository, CrudRepository<Ou
 
     @Override
     @Transactional
+    default List<Outbox> getAllWithDeletion(long limit) {
+        return getAllWithDeletion(limit, LocalDateTime.now(ZoneOffset.UTC));
+    }
+
+    @Transactional
     @Modifying
     @Query(
             value =
-                    "delete from outbox where id in (select id from outbox where id > :minId limit :limit for update nowait)\n"
+                    "delete from outbox where id in (select id from outbox where send_time <= :curTime limit :limit for update nowait)\n"
                             + "            returning *",
             nativeQuery = true)
-    List<Outbox> getAllWithDeletion(@Param("minId") long minId, @Param("limit") long limit);
+    List<Outbox> getAllWithDeletion(@Param("limit") long limit, @Param("curTime") LocalDateTime curTime);
 
     @Override
     @Transactional

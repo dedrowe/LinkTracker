@@ -54,6 +54,17 @@ public class JdbcTgChatRepository implements TgChatRepository {
     }
 
     @Override
+    public void update(TgChat tgChat) {
+        String query = "update tg_chats set digest = :digest where id = :id and deleted = false";
+
+        jdbcClient
+                .sql(query)
+                .param("digest", tgChat.digest())
+                .param("id", tgChat.id())
+                .update();
+    }
+
+    @Override
     public void deleteById(long id) {
         String query = "update tg_chats set deleted = true where id = :id";
 

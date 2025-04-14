@@ -9,6 +9,9 @@ import backend.academy.scrapper.repository.linkdata.JpaLinkDataRepository;
 import backend.academy.scrapper.repository.outbox.OutboxRepository;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +56,17 @@ public class OrmLinksCheckerService extends LinksCheckerService {
                     }
                 }
                 if (!skip) {
+                    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+                    LocalTime curTime = now.toLocalTime();
+                    now = now.toLocalDate().atStartOfDay();
+                    if (linkData.tgChat().digest() != null) {
+                        now = now.plusSeconds(linkData.tgChat().digest().toSecondOfDay());
+                        if (curTime.isAfter(linkData.tgChat().digest())) {
+                            now = now.plusDays(1);
+                        }
+                    }
                     outboxRepository.create(
-                            new Outbox(link.id(), link.link(), linkData.tgChat().chatId(), update.description()));
+                            new Outbox(link.id(), link.link(), linkData.tgChat().chatId(), update.description(), now));
                 }
             }
         }

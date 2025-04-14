@@ -9,6 +9,7 @@ import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import backend.academy.shared.dto.ListTagLinkCount;
 import backend.academy.shared.dto.RemoveLinkRequest;
+import backend.academy.shared.dto.TgChatUpdateDto;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,6 +86,12 @@ public class ScrapperClient {
         retry(() -> setStatusHandler(
                         client.delete().uri("/tg-chat/{id}", chatId).retrieve())
                 .toBodilessEntity());
+    }
+
+    public void updateChat(long chatId, TgChatUpdateDto dto) {
+        retry(() -> setStatusHandler(
+                        client.put().uri("/tg-chat/{id}", chatId).body(dto).retrieve()))
+                .toBodilessEntity();
     }
 
     public ListLinkResponse getLinks(long chatId) {

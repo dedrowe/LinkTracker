@@ -9,6 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -40,6 +43,10 @@ public class TgChat {
     @OneToMany(mappedBy = "tgChat")
     private List<JpaLinkData> linksData;
 
+    @Column(name = "digest")
+    @Temporal(TemporalType.TIME)
+    private LocalTime digest;
+
     public TgChat(long chatId) {
         this.chatId = chatId;
     }
@@ -59,7 +66,12 @@ public class TgChat {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         TgChat tgChat = (TgChat) o;
-        return chatId == tgChat.chatId && deleted == tgChat.deleted;
+        return chatId == tgChat.chatId
+                && deleted == tgChat.deleted
+                && (digest == null && tgChat.digest == null
+                        || digest != null
+                                && tgChat.digest != null
+                                && digest.toSecondOfDay() == tgChat.digest.toSecondOfDay());
     }
 
     @Override

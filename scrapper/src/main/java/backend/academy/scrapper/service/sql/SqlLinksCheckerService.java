@@ -13,6 +13,9 @@ import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -122,6 +125,15 @@ public class SqlLinksCheckerService extends LinksCheckerService {
             return;
         }
 
-        outboxRepository.create(new Outbox(linkId, link, chat.chatId(), description));
+        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LocalTime curTime = now.toLocalTime();
+        now = now.toLocalDate().atStartOfDay();
+        if (chat.digest() != null) {
+            now = now.plusSeconds(chat.digest().toSecondOfDay());
+            if (curTime.isAfter(chat.digest())) {
+                now = now.plusDays(1);
+            }
+        }
+        outboxRepository.create(new Outbox(linkId, link, chat.chatId(), description, now));
     }
 }

@@ -14,6 +14,8 @@ public interface TgChatRepository {
 
     void create(TgChat tgChat);
 
+    void update(TgChat tgChat);
+
     void deleteById(long id);
 
     void delete(TgChat tgChat);
