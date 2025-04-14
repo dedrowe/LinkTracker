@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.outbox.OutboxRepository;
-import backend.academy.scrapper.service.apiClient.TgBotClient;
+import backend.academy.scrapper.service.botClient.HttpTgBotClient;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ public class UpdatesSendSchedulerTest {
 
     private final OutboxRepository outboxRepository = mock(OutboxRepository.class);
 
-    private final TgBotClient tgBotClient = mock(TgBotClient.class);
+    private final HttpTgBotClient tgBotClient = mock(HttpTgBotClient.class);
 
     private final LinkMapper linkMapper = mock(LinkMapper.class);
 

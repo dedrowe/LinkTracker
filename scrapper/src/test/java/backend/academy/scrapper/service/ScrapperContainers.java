@@ -12,6 +12,7 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.KafkaContainer;
 
 @Testcontainers
 public class ScrapperContainers {
@@ -19,9 +20,13 @@ public class ScrapperContainers {
     @ServiceConnection
     protected static final PostgreSQLContainer<?> postgres;
 
+    @ServiceConnection
+    protected static final KafkaContainer kafka = new KafkaContainer("apache/kafka-native:4.0.0");
+
     static {
         postgres = new PostgreSQLContainer<>("postgres:17-alpine");
         postgres.start();
+        kafka.start();
         try (Connection connection =
                 DriverManager.getConnection(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {
             Database database =
