@@ -4,7 +4,7 @@ import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.outbox.OutboxRepository;
-import backend.academy.scrapper.service.apiClient.TgBotClient;
+import backend.academy.scrapper.service.botClient.TgBotClient;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

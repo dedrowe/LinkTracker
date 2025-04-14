@@ -6,7 +6,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.kafka.core.KafkaAdmin;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
@@ -17,7 +19,9 @@ public record ScrapperConfig(
         @Valid UpdatesChecker updatesChecker,
         @Valid UpdatesSender updatesSender,
         @Valid Bot bot,
-        @NotNull DbAccessType accessType) {
+        @Valid KafkaProperties kafka,
+        @NotNull DbAccessType accessType,
+        @NotNull MessageTransport transport) {
 
     public record Bot(@NotEmpty String url) {}
 
@@ -31,8 +35,26 @@ public record ScrapperConfig(
 
     public record UpdatesSender(@Positive int batchSize) {}
 
+    public record KafkaProperties(
+            @NotEmpty String topic,
+            @NotEmpty String dltTopic,
+            @NotEmpty String txId,
+            @Positive int partitions,
+            @Positive short replicas) {}
+
+    public enum MessageTransport {
+        HTTP,
+        KAFKA
+    }
+
     public enum DbAccessType {
         SQL,
         ORM
+    }
+
+    public KafkaAdmin.NewTopics createTopics() {
+        return new KafkaAdmin.NewTopics(
+                new NewTopic(kafka.topic, kafka.partitions, kafka.replicas),
+                new NewTopic(kafka.dltTopic, kafka.partitions, kafka.replicas));
     }
 }
