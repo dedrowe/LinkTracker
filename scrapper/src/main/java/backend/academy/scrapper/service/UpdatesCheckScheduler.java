@@ -78,10 +78,11 @@ public class UpdatesCheckScheduler {
                 for (int i = 0; i < results.size(); i++) {
                     try {
                         results.get(i).get();
-                    } catch (ExecutionException | InterruptedException e) {
+                    } catch (ExecutionException e) {
                         MDC.put("link", links.get(i).link());
                         log.error("Произошла ошибка при получении обновлений", e.getCause());
                         MDC.remove("link");
+                    } catch (InterruptedException ignored) {
                     }
                 }
             } catch (InterruptedException ignored) {
