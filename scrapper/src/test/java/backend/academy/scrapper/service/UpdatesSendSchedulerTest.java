@@ -10,6 +10,8 @@ import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.outbox.OutboxRepository;
 import backend.academy.scrapper.service.botClient.HttpTgBotClient;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,26 +32,28 @@ public class UpdatesSendSchedulerTest {
     private final UpdatesSendScheduler scheduler =
             new UpdatesSendScheduler(batchSize, outboxRepository, tgBotClient, linkMapper);
 
+    private final LocalDateTime testTime = LocalDateTime.now(ZoneOffset.UTC).minusHours(1);
+
     @Test
     public void sendUpdatesTest() {
-        when(outboxRepository.getAllWithDeletion(anyLong(), anyLong()))
+        when(outboxRepository.getAllWithDeletion(anyLong()))
                 .thenReturn(
                         List.of(
-                                new Outbox(1L, "link1", 1L, "test1"),
-                                new Outbox(1L, "link1", 2L, "test1"),
-                                new Outbox(2L, "link2", 2L, "test2")),
+                                new Outbox(1L, "link1", 1L, "test1", testTime),
+                                new Outbox(1L, "link1", 2L, "test1", testTime),
+                                new Outbox(2L, "link2", 2L, "test2", testTime)),
                         List.of());
 
         InOrder order = inOrder(outboxRepository, tgBotClient, linkMapper);
 
         scheduler.sendUpdates();
 
-        order.verify(outboxRepository).getAllWithDeletion(anyLong(), anyLong());
+        order.verify(outboxRepository).getAllWithDeletion(anyLong());
         order.verify(linkMapper, times(1))
                 .createLinkUpdate(1L, "link1", "Получено обновление по ссылке link1\ntest1", List.of(1L, 2L));
         order.verify(linkMapper, times(1))
                 .createLinkUpdate(2L, "link2", "Получено обновление по ссылке link2\ntest2", List.of(2L));
-        order.verify(outboxRepository).getAllWithDeletion(anyLong(), anyLong());
+        order.verify(outboxRepository).getAllWithDeletion(anyLong());
 
         order.verifyNoMoreInteractions();
     }

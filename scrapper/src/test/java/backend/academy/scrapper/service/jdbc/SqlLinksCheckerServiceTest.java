@@ -25,6 +25,8 @@ import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,10 @@ public class SqlLinksCheckerServiceTest {
 
     private final OutboxRepository outboxRepository = mock(OutboxRepository.class);
 
+    private final LocalDateTime testDateTime = LocalDateTime.now(ZoneOffset.UTC).minusHours(2);
+
+    private final LocalTime testTime = testDateTime.toLocalTime();
+
     private final SqlLinksCheckerService updatesCheckerService = new SqlLinksCheckerService(
             linkDispatcher, batchSize, linkDataRepository, tgChatRepository, filtersService, outboxRepository);
 
@@ -58,7 +64,7 @@ public class SqlLinksCheckerServiceTest {
 
         when(linkDataRepository.getByLinkId(eq(1L), anyLong(), anyLong()))
                 .thenReturn(List.of(linkData, linkData, linkData), List.of(linkData), List.of());
-        when(tgChatRepository.getAllByIds(any())).thenReturn(List.of(new TgChat(1L, 123L)));
+        when(tgChatRepository.getAllByIds(any())).thenReturn(List.of(new TgChat(1L, 123L, false, List.of(), testTime)));
         when(filtersService.getAllByDataIds(any())).thenReturn(List.of());
 
         updatesCheckerService.setUpdatesForLink(
@@ -70,7 +76,7 @@ public class SqlLinksCheckerServiceTest {
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
         order.verify(filtersService).getAllByDataIds(any());
         order.verify(tgChatRepository).getAllByIds(any());
-        order.verify(outboxRepository, times(8)).create(new Outbox(1L, "test", 123L, "test"));
+        order.verify(outboxRepository, times(8)).create(new Outbox(1L, "test", 123L, "test", testDateTime.plusDays(1)));
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
 
         order.verifyNoMoreInteractions();
@@ -84,7 +90,7 @@ public class SqlLinksCheckerServiceTest {
 
         when(linkDataRepository.getByLinkId(eq(1L), anyLong(), anyLong()))
                 .thenReturn(List.of(linkData1, linkData2, linkData1), List.of(linkData1), List.of());
-        when(tgChatRepository.getAllByIds(any())).thenReturn(List.of(new TgChat(1L, 123L)));
+        when(tgChatRepository.getAllByIds(any())).thenReturn(List.of(new TgChat(1L, 123L, false, List.of(), testTime)));
         when(filtersService.getAllByDataIds(any())).thenReturn(List.of(new JdbcFilter(2L, "test:test")));
 
         updatesCheckerService.setUpdatesForLink(
@@ -95,9 +101,9 @@ public class SqlLinksCheckerServiceTest {
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
         order.verify(filtersService).getAllByDataIds(any());
         order.verify(tgChatRepository).getAllByIds(any());
-        order.verify(outboxRepository, times(2)).create(new Outbox(1L, "test", 123L, "test"));
+        order.verify(outboxRepository, times(2)).create(new Outbox(1L, "test", 123L, "test", testDateTime.plusDays(1)));
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
-        order.verify(outboxRepository, times(1)).create(new Outbox(1L, "test", 123L, "test"));
+        order.verify(outboxRepository, times(1)).create(new Outbox(1L, "test", 123L, "test", testDateTime.plusDays(1)));
         order.verify(linkDataRepository).getByLinkId(anyLong(), anyLong(), anyLong());
 
         order.verifyNoMoreInteractions();

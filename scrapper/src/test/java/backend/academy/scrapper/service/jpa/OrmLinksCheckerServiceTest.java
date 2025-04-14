@@ -18,6 +18,8 @@ import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.scrapper.service.orm.OrmLinksCheckerService;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -36,13 +38,17 @@ public class OrmLinksCheckerServiceTest {
 
     private final OutboxRepository outboxRepository = mock(OutboxRepository.class);
 
+    private final LocalDateTime testDateTime = LocalDateTime.now(ZoneOffset.UTC).minusHours(2);
+
+    private final LocalTime testTime = testDateTime.toLocalTime();
+
     private final JpaLinkData linkData = new JpaLinkData(
             1L,
             1L,
             1L,
             false,
             new Link("string"),
-            new TgChat(1L),
+            new TgChat(1L, 1L, false, List.of(), testTime),
             List.of(new JpaFilter(null, "user:test")),
             List.of());
 
@@ -60,7 +66,7 @@ public class OrmLinksCheckerServiceTest {
                 List.of(new Update("test", Map.of()), new Update("test", Map.of())));
 
         order.verify(jpaLinkDataRepository).fetchFilters(any());
-        order.verify(outboxRepository, times(2)).create(new Outbox(1L, "link", 1L, "test"));
+        order.verify(outboxRepository, times(2)).create(new Outbox(1L, "link", 1L, "test", testDateTime.plusDays(1)));
         order.verifyNoMoreInteractions();
     }
 
@@ -75,7 +81,7 @@ public class OrmLinksCheckerServiceTest {
                 List.of(new Update("test", Map.of("user", "test")), new Update("test", Map.of("user", "test1"))));
 
         order.verify(jpaLinkDataRepository).fetchFilters(any());
-        order.verify(outboxRepository, times(1)).create(new Outbox(1L, "link", 1L, "test"));
+        order.verify(outboxRepository, times(1)).create(new Outbox(1L, "link", 1L, "test", testDateTime.plusDays(1)));
         order.verifyNoMoreInteractions();
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(
         classes = {
+            DigestCommand.class,
             GetLinksCommand.class,
             HelpCommand.class,
             RegisterChatCommand.class,
@@ -43,6 +44,11 @@ public class HelpCommandTest {
                 """
             Этот бот предназначен для отслеживания обновлений со ссылок различных сервисов.
             Ниже приведет список доступных команд.
+            /digest - Установка режима дайджеста (все обновления будут приходить раз в сутки).
+            Использование:
+            /digest ЧЧ:ММ - включение дайджеста, время указывается по UTC(GMT)
+            /digest off - выключение дайджеста
+
             /list - Получение списка всех отслеживаемых ссылок, дополнительно можно указать тэг, чтобы получить все ссылки с этим тэгом
             /start - Регистрация чата (выполняется автоматически при создании чата с ботом)
             /track - Регистрация ссылки для отслеживания, синтаксис: /track <link>

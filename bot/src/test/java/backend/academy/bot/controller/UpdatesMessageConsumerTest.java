@@ -2,7 +2,6 @@ package backend.academy.bot.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -79,9 +78,11 @@ public class UpdatesMessageConsumerTest {
         LinkUpdate expectedResult = new LinkUpdate(1, "test", "description", List.of(1L));
         CountDownLatch latch = new CountDownLatch(1);
         doAnswer(inv -> {
-            latch.countDown();
-            return null;
-        }).when(updatesService).sendUpdates(expectedResult);
+                    latch.countDown();
+                    return null;
+                })
+                .when(updatesService)
+                .sendUpdates(expectedResult);
 
         template.send(UPDATES, expectedResult).toCompletableFuture().join();
         template.flush();
