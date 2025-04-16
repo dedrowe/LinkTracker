@@ -79,16 +79,6 @@ public class KafkaConfig {
         return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(props));
     }
 
-    @Bean(name = "dltKafkaTemplate")
-    public KafkaTemplate<Object, Object> dltKafkaTemplate() {
-        Map<String, Object> props = properties.buildProducerProperties(null);
-
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, LinkUpdatesSerializer.class);
-        props.put(ProducerConfig.ACKS_CONFIG, "0");
-        return new KafkaTemplate<>(new DefaultKafkaProducerFactory<>(props));
-    }
-
     public static class LinkUpdatesDeserializer extends JsonDeserializer<LinkUpdate> {}
 
     public static class LinkUpdatesSerializer extends JsonSerializer<LinkUpdate> {}
