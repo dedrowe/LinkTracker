@@ -31,34 +31,42 @@ public class ScrapperClient {
 
     private static final String LINKS_TAGS_CACHE_PREFIX = "links-tags:";
 
+    private static final String LINKS_TAGS_COUNT_PREFIX = "tags-count:";
+
     private final RestClient client;
 
     private final ObjectMapper mapper;
 
-    private final RedisTemplate<String, ListLinkResponse> redis;
+    private final RedisTemplate<String, ListLinkResponse> redisListLinkResponse;
+
+    private final RedisTemplate<String, ListTagLinkCount> redisTagLinkCount;
 
     private final Duration ttlMinutes;
 
     @Autowired
     public ScrapperClient(
-            BotConfig config, RestClient.Builder clientBuilder, RedisTemplate<String, ListLinkResponse> redisTemplate) {
+            BotConfig config, RestClient.Builder clientBuilder, RedisTemplate<String, ListLinkResponse> redisTemplate,
+            RedisTemplate<String, ListTagLinkCount> redisTagLinkCount) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.scrapper().url())
                 .build();
         ttlMinutes = Duration.ofMinutes(config.redis().ttlMinutes());
         mapper = new ObjectMapper();
-        redis = redisTemplate;
+        redisListLinkResponse = redisTemplate;
+        this.redisTagLinkCount = redisTagLinkCount;
     }
 
     public ScrapperClient(
             RestClient client,
             ObjectMapper mapper,
             RedisTemplate<String, ListLinkResponse> redisTemplate,
+            RedisTemplate<String, ListTagLinkCount> redisTagLinkCount,
             Duration ttlMinutes) {
         this.client = client;
         this.mapper = mapper;
-        this.redis = redisTemplate;
+        this.redisListLinkResponse = redisTemplate;
+        this.redisTagLinkCount = redisTagLinkCount;
         this.ttlMinutes = ttlMinutes;
     }
 
@@ -95,7 +103,7 @@ public class ScrapperClient {
     }
 
     public ListLinkResponse getLinks(long chatId) {
-        ListLinkResponse response = redis.opsForValue().get(LINKS_CACHE_PREFIX + chatId);
+        ListLinkResponse response = redisListLinkResponse.opsForValue().get(LINKS_CACHE_PREFIX + chatId);
         if (response != null) {
             return response;
         }
@@ -107,7 +115,7 @@ public class ScrapperClient {
                         .retrieve())
                 .toEntity(ListLinkResponse.class)
                 .getBody());
-        redis.opsForValue().set(LINKS_CACHE_PREFIX + chatId, response, ttlMinutes);
+        redisListLinkResponse.opsForValue().set(LINKS_CACHE_PREFIX + chatId, response, ttlMinutes);
         return response;
     }
 
@@ -121,9 +129,10 @@ public class ScrapperClient {
                         .retrieve())
                 .toEntity(LinkResponse.class)
                 .getBody());
-        redis.delete(LINKS_CACHE_PREFIX + chatId);
+        redisListLinkResponse.delete(LINKS_CACHE_PREFIX + chatId);
+        redisTagLinkCount.delete(LINKS_TAGS_COUNT_PREFIX + chatId);
         for (String tag : response.tags()) {
-            redis.delete(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
+            redisListLinkResponse.delete(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
         }
     }
 
@@ -137,14 +146,19 @@ public class ScrapperClient {
                         .retrieve())
                 .toEntity(LinkResponse.class)
                 .getBody());
-        redis.delete(LINKS_CACHE_PREFIX + chatId);
+        redisListLinkResponse.delete(LINKS_CACHE_PREFIX + chatId);
+        redisTagLinkCount.delete(LINKS_TAGS_COUNT_PREFIX + chatId);
         for (String tag : response.tags()) {
-            redis.delete(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
+            redisListLinkResponse.delete(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
         }
     }
 
     public ListTagLinkCount getTagLinksCount(long chatId) {
-        return retry(() -> setStatusHandler(client.get()
+        ListTagLinkCount response = redisTagLinkCount.opsForValue().get(LINKS_TAGS_COUNT_PREFIX + chatId);
+        if (response != null) {
+            return response;
+        }
+        response = retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links/tags")
                                 .queryParam("Tg-Chat-Id", chatId)
@@ -152,10 +166,12 @@ public class ScrapperClient {
                         .retrieve())
                 .toEntity(ListTagLinkCount.class)
                 .getBody());
+        redisTagLinkCount.opsForValue().set(LINKS_TAGS_COUNT_PREFIX + chatId, response, ttlMinutes);
+        return response;
     }
 
     public ListLinkResponse getLinksByTag(long chatId, String tag) {
-        ListLinkResponse response = redis.opsForValue().get(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
+        ListLinkResponse response = redisListLinkResponse.opsForValue().get(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
         if (response != null) {
             return response;
         }
@@ -168,7 +184,7 @@ public class ScrapperClient {
                         .retrieve())
                 .toEntity(ListLinkResponse.class)
                 .getBody());
-        redis.opsForValue().set(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag, response, ttlMinutes);
+        redisListLinkResponse.opsForValue().set(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag, response, ttlMinutes);
         return response;
     }
 }
