@@ -69,7 +69,8 @@ public class ScrapperClientTest {
     private final ScrapperClient scrapperClient;
 
     @Autowired
-    public ScrapperClientTest(@Qualifier("redisContainer") GenericContainer<?> redisContainer) {
+    public ScrapperClientTest(@Qualifier("redisContainer") GenericContainer<?> redisContainer,
+                              ObjectMapper mapper) {
         redisContainer.start();
 
         LettuceConnectionFactory lettuceConnectionFactory =
@@ -96,7 +97,7 @@ public class ScrapperClientTest {
                 RestClient.builder()
                         .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
                         .build(),
-                new ObjectMapper(),
+            mapper,
             listLinkRedisTemplate,
             tagLinkCountRedisTemplate,
                 ttl);
