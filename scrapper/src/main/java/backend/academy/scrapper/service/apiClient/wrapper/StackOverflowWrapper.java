@@ -5,10 +5,10 @@ import backend.academy.scrapper.dto.stackOverflow.Answer;
 import backend.academy.scrapper.dto.stackOverflow.Comment;
 import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,7 +40,7 @@ public class StackOverflowWrapper implements ApiClientWrapper {
         Question question = client.getQuestionUpdate(uri);
         List<Update> result = new ArrayList<>();
 
-        long updatedAt = lastUpdate.toEpochSecond(ZoneOffset.UTC);
+        long updatedAt = UtcDateTimeProvider.toUTCTimestamp(lastUpdate);
 
         Answer lastAnswer = question.answers().stream()
                 .max(Comparator.comparing(Answer::lastActivityDate))

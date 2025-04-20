@@ -4,11 +4,10 @@ import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.LinkRepository;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -55,7 +54,7 @@ public class UpdatesCheckScheduler {
         while (true) {
             try {
                 List<Link> links = linkRepository.getNotChecked(
-                        batchSize, LocalDateTime.now(ZoneOffset.UTC), linksCheckInterval.getSeconds());
+                        batchSize, UtcDateTimeProvider.now(), linksCheckInterval.getSeconds());
                 if (links.isEmpty()) {
                     break;
                 }
@@ -68,7 +67,7 @@ public class UpdatesCheckScheduler {
                                     checker.setUpdatesForLink(link, updates);
                                 }
                             } finally {
-                                link.lastUpdate(LocalDateTime.now(ZoneOffset.UTC));
+                                link.lastUpdate(UtcDateTimeProvider.now());
                                 link.checking(false);
                                 linkRepository.update(link);
                             }

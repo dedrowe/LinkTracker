@@ -15,11 +15,11 @@ import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,7 +125,7 @@ public class SqlLinksCheckerService extends LinksCheckerService {
             return;
         }
 
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime now = UtcDateTimeProvider.now();
         LocalTime curTime = now.toLocalTime();
         now = now.toLocalDate().atStartOfDay();
         if (chat.digest() != null) {

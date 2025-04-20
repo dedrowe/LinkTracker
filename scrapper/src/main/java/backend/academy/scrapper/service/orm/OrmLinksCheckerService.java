@@ -11,8 +11,8 @@ import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.List;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -56,7 +56,7 @@ public class OrmLinksCheckerService extends LinksCheckerService {
                     }
                 }
                 if (!skip) {
-                    LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+                    LocalDateTime now = UtcDateTimeProvider.now();
                     LocalTime curTime = now.toLocalTime();
                     now = now.toLocalDate().atStartOfDay();
                     if (linkData.tgChat().digest() != null) {

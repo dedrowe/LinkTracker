@@ -1,9 +1,8 @@
 package backend.academy.scrapper.repository.outbox;
 
 import backend.academy.scrapper.entity.Outbox;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,7 +30,7 @@ public class JdbcOutboxRepository implements OutboxRepository {
         return jdbcClient
                 .sql(query)
                 .param("limit", limit)
-                .param("timeNow", LocalDateTime.now(ZoneOffset.UTC))
+                .param("timeNow", UtcDateTimeProvider.now())
                 .query(Outbox.class)
                 .list();
     }

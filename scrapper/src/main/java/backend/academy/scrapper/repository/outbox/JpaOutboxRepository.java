@@ -2,8 +2,8 @@ package backend.academy.scrapper.repository.outbox;
 
 import backend.academy.scrapper.entity.Outbox;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +17,7 @@ public interface JpaOutboxRepository extends OutboxRepository, CrudRepository<Ou
     @Override
     @Transactional
     default List<Outbox> getAllWithDeletion(long limit) {
-        return getAllWithDeletion(limit, LocalDateTime.now(ZoneOffset.UTC));
+        return getAllWithDeletion(limit, UtcDateTimeProvider.now());
     }
 
     @Transactional

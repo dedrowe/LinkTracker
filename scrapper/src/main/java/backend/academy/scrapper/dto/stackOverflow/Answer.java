@@ -1,11 +1,10 @@
 package backend.academy.scrapper.dto.stackOverflow;
 
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +22,7 @@ public record Answer(
             body = body.substring(0, maxBodyLength) + "...";
         }
         return "Автор: " + this.owner().displayName() + "\n" + "Создан: "
-                + Instant.ofEpochSecond(lastActivityDate())
-                        .atZone(ZoneOffset.UTC)
-                        .toLocalDateTime() + "\n" + "Описание: "
-                + body + "\n";
+                + UtcDateTimeProvider.of(lastActivityDate())  + "\n" + "Описание: " + body + "\n";
     }
 
     public Map<String, String> getPossibleFilters() {
