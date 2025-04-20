@@ -1,4 +1,4 @@
-package backend.academy.bot.controller;
+package backend.academy.bot.updatesInput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;

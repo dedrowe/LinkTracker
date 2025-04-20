@@ -1,4 +1,4 @@
-package backend.academy.bot.controller;
+package backend.academy.bot.updatesInput;
 
 import backend.academy.bot.service.UpdatesService;
 import backend.academy.shared.dto.LinkUpdate;
