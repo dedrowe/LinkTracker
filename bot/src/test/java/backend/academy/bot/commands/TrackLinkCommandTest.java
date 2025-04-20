@@ -11,7 +11,8 @@ import static org.mockito.Mockito.when;
 import backend.academy.bot.dto.LinkState;
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
 import backend.academy.bot.service.LinkMapper;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.bot.stateStorage.TrackStateStorage;
 import backend.academy.bot.stateStorage.state.LinkTrackState;
 import com.pengrad.telegrambot.model.Chat;
@@ -32,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class TrackLinkCommandTest {
 
     @Mock
-    private ScrapperClient client;
+    private ScrapperClientWrapper client;
 
     @Mock
     private TrackStateStorage trackStateStorage;

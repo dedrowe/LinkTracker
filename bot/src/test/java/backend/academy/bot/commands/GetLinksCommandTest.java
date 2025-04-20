@@ -5,7 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import com.pengrad.telegrambot.model.Chat;
@@ -24,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class GetLinksCommandTest {
 
     @Mock
-    private ScrapperClient client;
+    private ScrapperClientWrapper client;
 
     @InjectMocks
     private GetLinksCommand commandExecutor;

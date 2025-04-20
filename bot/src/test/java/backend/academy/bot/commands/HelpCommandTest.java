@@ -3,7 +3,8 @@ package backend.academy.bot.commands;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.bot.service.LinkMapper;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.bot.stateStorage.TrackStateStorage;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -20,14 +21,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             TrackLinkCommand.class,
             UntrackLinkCommand.class,
             GetTagLinksCountCommand.class,
-            ScrapperClient.class,
+            ScrapperClientWrapper.class,
             TrackStateStorage.class,
             LinkMapper.class
         })
 public class HelpCommandTest {
 
     @MockitoBean
-    private ScrapperClient scrapperClient;
+    private ScrapperClientWrapper scrapperClient;
 
     @MockitoBean
     private TrackStateStorage trackStateStorage;

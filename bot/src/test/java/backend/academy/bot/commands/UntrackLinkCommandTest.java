@@ -5,7 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -23,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class UntrackLinkCommandTest {
 
     @Mock
-    private ScrapperClient client;
+    private ScrapperClientWrapper client;
 
     @InjectMocks
     private UntrackLinkCommand commandExecutor;
