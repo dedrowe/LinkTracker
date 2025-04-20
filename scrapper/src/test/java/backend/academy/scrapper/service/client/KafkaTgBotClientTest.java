@@ -1,16 +1,12 @@
 package backend.academy.scrapper.service.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import backend.academy.scrapper.service.ScrapperContainers;
 import backend.academy.scrapper.service.botClient.KafkaTgBotClient;
 import backend.academy.shared.dto.LinkUpdate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,8 +29,6 @@ public class KafkaTgBotClientTest extends ScrapperContainers {
 
     private final String topic = "updates";
 
-    private final String dltTopic = "updates-dlt";
-
     private final KafkaTgBotClient client;
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -51,11 +45,11 @@ public class KafkaTgBotClientTest extends ScrapperContainers {
         DefaultKafkaProducerFactory<Long, String> producerFactory = new DefaultKafkaProducerFactory<>(producerProps);
         producerFactory.setTransactionIdPrefix("tx-test-");
         kafkaTemplate = new KafkaTemplate<>(producerFactory);
-        this.client = new KafkaTgBotClient(kafkaTemplate, topic, dltTopic, new ObjectMapper());
+        this.client = new KafkaTgBotClient(kafkaTemplate, topic, new ObjectMapper());
 
         try (AdminClient adminClient = AdminClient.create(Map.of("bootstrap.servers", kafka.getBootstrapServers()))) {
             adminClient
-                    .createTopics(List.of(new NewTopic(topic, 1, (short) 1), new NewTopic(dltTopic, 1, (short) 1)))
+                    .createTopics(List.of(new NewTopic(topic, 1, (short) 1)))
                     .all()
                     .get();
         } catch (Exception ignored) {
@@ -77,30 +71,6 @@ public class KafkaTgBotClientTest extends ScrapperContainers {
             assertThat(actualResult.key()).isEqualTo(expectedResult.id());
             assertThat((mapper.readValue(actualResult.value(), LinkUpdate.class)))
                     .isEqualTo(expectedResult);
-        }
-    }
-
-    @Test
-    public void sendUpdatesDltTest() throws Exception {
-        try (KafkaConsumer<Long, String> consumer = createConsumer()) {
-            LinkUpdate expectedResult = new LinkUpdate(1, "test", "description", List.of(1L));
-            ObjectMapper mockMapper = mock(ObjectMapper.class);
-            KafkaTgBotClient client1 = new KafkaTgBotClient(kafkaTemplate, topic, dltTopic, mockMapper);
-            when(mockMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("asd") {});
-            consumer.subscribe(Collections.singletonList(dltTopic));
-
-            kafkaTemplate.executeInTransaction(ops -> {
-                client1.sendUpdates(expectedResult);
-                return true;
-            });
-            ConsumerRecord<Long, String> actualResult = KafkaTestUtils.getSingleRecord(consumer, dltTopic);
-
-            assertThat(actualResult.key()).isEqualTo(expectedResult.id());
-            assertThat(actualResult.value()).isEqualTo(expectedResult.toString());
-            consumer.subscribe(Collections.singletonList(topic));
-            assertThat(KafkaTestUtils.getRecords(consumer, Duration.ofSeconds(2))
-                            .records(topic))
-                    .isEmpty();
         }
     }
 
