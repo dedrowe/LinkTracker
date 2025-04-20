@@ -26,6 +26,7 @@ public class LinkDataRepositoryTest extends AbstractJdbcTest {
         client.sql("ALTER SEQUENCE links_data_id_seq RESTART WITH 1").update();
         client.sql("ALTER SEQUENCE links_id_seq RESTART WITH 1").update();
         client.sql("ALTER SEQUENCE tg_chats_id_seq RESTART WITH 1").update();
+        client.sql("ALTER SEQUENCE tags_id_seq RESTART WITH 1").update();
 
         client.sql("INSERT INTO tg_chats (chat_id, deleted) VALUES (1, false)").update();
         client.sql(
