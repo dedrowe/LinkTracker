@@ -14,6 +14,7 @@ import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestClient;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class ScrapperClient {
 
     private static final String LINKS_CACHE_PREFIX = "links:";
@@ -46,28 +48,16 @@ public class ScrapperClient {
     @Autowired
     public ScrapperClient(
             BotConfig config, RestClient.Builder clientBuilder, RedisTemplate<String, ListLinkResponse> redisTemplate,
-            RedisTemplate<String, ListTagLinkCount> redisTagLinkCount) {
+            RedisTemplate<String, ListTagLinkCount> redisTagLinkCount,
+            ObjectMapper mapper) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.scrapper().url())
                 .build();
         ttlMinutes = Duration.ofMinutes(config.redis().ttlMinutes());
-        mapper = new ObjectMapper();
+        this.mapper = mapper;
         redisListLinkResponse = redisTemplate;
         this.redisTagLinkCount = redisTagLinkCount;
-    }
-
-    public ScrapperClient(
-            RestClient client,
-            ObjectMapper mapper,
-            RedisTemplate<String, ListLinkResponse> redisTemplate,
-            RedisTemplate<String, ListTagLinkCount> redisTagLinkCount,
-            Duration ttlMinutes) {
-        this.client = client;
-        this.mapper = mapper;
-        this.redisListLinkResponse = redisTemplate;
-        this.redisTagLinkCount = redisTagLinkCount;
-        this.ttlMinutes = ttlMinutes;
     }
 
     private RestClient.ResponseSpec setStatusHandler(RestClient.ResponseSpec responseSpec) {
