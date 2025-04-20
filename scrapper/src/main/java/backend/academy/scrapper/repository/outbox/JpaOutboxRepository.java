@@ -24,7 +24,7 @@ public interface JpaOutboxRepository extends OutboxRepository, CrudRepository<Ou
     @Modifying
     @Query(
             value =
-                    "delete from outbox where id in (select id from outbox where send_time <= :curTime limit :limit for update nowait)\n"
+                    "delete from outbox where id in (select id from outbox where send_time <= :curTime limit :limit for update skip locked)\n"
                             + "            returning *",
             nativeQuery = true)
     List<Outbox> getAllWithDeletion(@Param("limit") long limit, @Param("curTime") LocalDateTime curTime);

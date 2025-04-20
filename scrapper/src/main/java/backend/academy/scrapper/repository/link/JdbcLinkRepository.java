@@ -48,7 +48,7 @@ public class JdbcLinkRepository implements LinkRepository {
         update links
         set checking = true
         where id in (select id from links where deleted = false and last_update < :curTime and checking = false
-            limit :limit for update nowait)
+            limit :limit for update skip locked)
         returning *
         """;
 

@@ -24,7 +24,7 @@ public class JdbcOutboxRepository implements OutboxRepository {
     public List<Outbox> getAllWithDeletion(long limit) {
         String query =
                 """
-            delete from outbox where id in (select id from outbox where send_time <= :timeNow limit :limit for update nowait)
+            delete from outbox where id in (select id from outbox where send_time <= :timeNow limit :limit for update skip locked)
             returning *;
             """;
 
