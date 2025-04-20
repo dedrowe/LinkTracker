@@ -3,7 +3,6 @@ package backend.academy.bot.commands;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.bot.service.LinkMapper;
-import backend.academy.bot.service.apiClient.ScrapperClient;
 import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.bot.stateStorage.TrackStateStorage;
 import java.util.Optional;
@@ -25,6 +24,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             TrackStateStorage.class,
             LinkMapper.class
         })
+@SuppressWarnings("UnusedVariable")
 public class HelpCommandTest {
 
     @MockitoBean

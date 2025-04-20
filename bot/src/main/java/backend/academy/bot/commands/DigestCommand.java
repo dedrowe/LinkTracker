@@ -31,6 +31,7 @@ public class DigestCommand extends TgBotCommand {
     }
 
     @Override
+    @SuppressWarnings("StringSplitter")
     public Optional<String> execute(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
@@ -44,7 +45,8 @@ public class DigestCommand extends TgBotCommand {
             try {
                 digest = LocalTime.parse(command[1], TIME_FORMAT);
             } catch (DateTimeParseException e) {
-                throw new InvalidCommandSyntaxException(e.getMessage(), update.message().text(), INVALID_SYNTAX_MESSAGE);
+                throw new InvalidCommandSyntaxException(
+                        e.getMessage(), update.message().text(), INVALID_SYNTAX_MESSAGE);
             }
         }
         client.updateChat(update.message().chat().id(), new TgChatUpdateDto(digest));

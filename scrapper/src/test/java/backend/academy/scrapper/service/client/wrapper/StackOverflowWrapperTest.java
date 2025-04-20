@@ -56,9 +56,7 @@ public class StackOverflowWrapperTest {
                         + answer.getInfo(expectedBody.length()),
                 Map.of("user", user.displayName()));
 
-        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
-                uri,
-            UtcDateTimeProvider.of(expectedUpdate));
+        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(uri, UtcDateTimeProvider.of(expectedUpdate));
 
         assertThat(actualResult).containsExactly(expectedResult);
     }
@@ -73,9 +71,7 @@ public class StackOverflowWrapperTest {
                         + comment.getInfo(expectedBody.length()),
                 Map.of("user", user.displayName()));
 
-        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
-                uri,
-            UtcDateTimeProvider.of(expectedUpdate));
+        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(uri, UtcDateTimeProvider.of(expectedUpdate));
 
         assertThat(actualResult).containsExactly(expectedResult);
     }
@@ -112,6 +108,7 @@ public class StackOverflowWrapperTest {
                 "https://stackoverflow.com/questions/",
                 "https://stackoverflow.com"
             })
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
     public void getWrongUrlUpdateTest(String url) {
         URI uri = URI.create(url);
 

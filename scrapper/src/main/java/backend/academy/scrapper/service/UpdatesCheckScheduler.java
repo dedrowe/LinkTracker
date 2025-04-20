@@ -50,11 +50,12 @@ public class UpdatesCheckScheduler {
     }
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
+    @SuppressWarnings("EmptyCatch")
     public void checkUpdates() {
         while (true) {
             try {
                 List<Link> links = linkRepository.getNotChecked(
-                        batchSize, UtcDateTimeProvider.now(), linksCheckInterval.getSeconds());
+                        batchSize, UtcDateTimeProvider.now(), linksCheckInterval.toSeconds());
                 if (links.isEmpty()) {
                     break;
                 }

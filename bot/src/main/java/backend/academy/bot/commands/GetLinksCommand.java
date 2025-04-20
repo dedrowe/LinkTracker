@@ -19,6 +19,7 @@ public class GetLinksCommand extends TgBotCommand {
     }
 
     @Override
+    @SuppressWarnings("StringSplitter")
     public Optional<String> execute(Update update) {
         String[] command = update.message().text().split(" ");
         StringBuilder sb = new StringBuilder();

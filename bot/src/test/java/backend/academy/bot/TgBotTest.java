@@ -70,7 +70,6 @@ public class TgBotTest {
 
     @Test
     public void processValidCommandWithoutResponseTest() {
-        String expectedResult = "example response";
         when(dispatcher.dispatchCommand(any())).thenReturn(Optional.of(command));
         when(command.execute(any())).thenReturn(Optional.empty());
         TgBot.TgUpdatesListener listener = tgBot.new TgUpdatesListener();

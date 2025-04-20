@@ -8,11 +8,11 @@ import backend.academy.shared.dto.ListLinkResponse;
 import backend.academy.shared.dto.ListTagLinkCount;
 import backend.academy.shared.dto.RemoveLinkRequest;
 import backend.academy.shared.dto.TgChatUpdateDto;
+import java.time.Duration;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import java.time.Duration;
 
 @Component
 @AllArgsConstructor
@@ -34,9 +34,10 @@ public class ScrapperClientWrapper {
 
     @Autowired
     public ScrapperClientWrapper(
-        ScrapperClient client,
-        BotConfig config, RedisTemplate<String, ListLinkResponse> redisTemplate,
-        RedisTemplate<String, ListTagLinkCount> redisTagLinkCount) {
+            ScrapperClient client,
+            BotConfig config,
+            RedisTemplate<String, ListLinkResponse> redisTemplate,
+            RedisTemplate<String, ListTagLinkCount> redisTagLinkCount) {
         this.client = client;
         ttlMinutes = Duration.ofMinutes(config.redis().ttlMinutes());
         redisListLinkResponse = redisTemplate;
@@ -95,7 +96,8 @@ public class ScrapperClientWrapper {
     }
 
     public ListLinkResponse getLinksByTag(long chatId, String tag) {
-        ListLinkResponse response = redisListLinkResponse.opsForValue().get(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
+        ListLinkResponse response =
+                redisListLinkResponse.opsForValue().get(LINKS_TAGS_CACHE_PREFIX + chatId + "/" + tag);
         if (response != null) {
             return response;
         }

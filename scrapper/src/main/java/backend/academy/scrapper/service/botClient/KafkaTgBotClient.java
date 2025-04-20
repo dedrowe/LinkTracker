@@ -33,6 +33,7 @@ public class KafkaTgBotClient implements TgBotClient {
 
     @Override
     @Transactional
+    @SuppressWarnings("FutureReturnValueIgnored")
     public void sendUpdates(LinkUpdate updates) {
         try {
             String json = mapper.writeValueAsString(updates);

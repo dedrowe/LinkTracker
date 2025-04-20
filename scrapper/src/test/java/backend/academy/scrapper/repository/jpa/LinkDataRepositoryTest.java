@@ -8,10 +8,10 @@ import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.repository.linkdata.JpaLinkDataRepository;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -246,8 +246,6 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
     @Test
     public void createDeletedTest() {
-        long chatId = tgChat2.id();
-        long linkId = link2.id();
         JpaLinkData expectedResult = new JpaLinkData(2L, link2, tgChat2);
 
         repository.create(expectedResult);

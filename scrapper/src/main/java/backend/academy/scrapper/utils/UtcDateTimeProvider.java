@@ -4,9 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-/**
- * Класс предназначен для создания и преобразования LocalDateTime с часовым поясом UTC
- */
+/** Класс предназначен для создания и преобразования LocalDateTime с часовым поясом UTC */
 public class UtcDateTimeProvider {
 
     private static final ZoneOffset UTC = ZoneOffset.UTC;
@@ -18,9 +16,7 @@ public class UtcDateTimeProvider {
     }
 
     public static LocalDateTime of(long timestamp) {
-        return Instant.ofEpochSecond(timestamp)
-            .atZone(UTC)
-            .toLocalDateTime();
+        return Instant.ofEpochSecond(timestamp).atZone(UTC).toLocalDateTime();
     }
 
     public static long toUTCTimestamp(LocalDateTime localDateTime) {

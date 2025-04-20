@@ -64,14 +64,13 @@ public class TgChat {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        TgChat tgChat = (TgChat) o;
+        if (!(o instanceof TgChat tgChat)) return false;
         return chatId == tgChat.chatId
                 && deleted == tgChat.deleted
-                && (digest == null && tgChat.digest == null
-                        || digest != null
+                && ((digest == null && tgChat.digest == null)
+                        || (digest != null
                                 && tgChat.digest != null
-                                && digest.toSecondOfDay() == tgChat.digest.toSecondOfDay());
+                                && digest.toSecondOfDay() == tgChat.digest.toSecondOfDay()));
     }
 
     @Override

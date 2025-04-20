@@ -17,7 +17,7 @@ public class UntrackLinkCommand extends TgBotCommand {
     }
 
     @Override
-    @SuppressWarnings("PMD.UnusedLocalVariable")
+    @SuppressWarnings("StringSplitter")
     public Optional<String> execute(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {

@@ -28,9 +28,9 @@ public class ScrapperClientTest {
             WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
     private final ScrapperClient scrapperClient = new ScrapperClient(
-        RestClient.builder()
-            .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
-            .build(),
+            RestClient.builder()
+                    .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
+                    .build(),
             new ObjectMapper());
 
     @BeforeEach

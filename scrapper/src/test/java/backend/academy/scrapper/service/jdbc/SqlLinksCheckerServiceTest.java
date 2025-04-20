@@ -24,17 +24,18 @@ import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("JavaTimeDefaultTimeZone")
 public class SqlLinksCheckerServiceTest {
 
     private final LinkDispatcher linkDispatcher = mock(LinkDispatcher.class);

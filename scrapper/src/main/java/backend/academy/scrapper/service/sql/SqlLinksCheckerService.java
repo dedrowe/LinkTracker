@@ -13,13 +13,13 @@ import backend.academy.scrapper.repository.tgchat.TgChatRepository;
 import backend.academy.scrapper.service.FiltersService;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +76,7 @@ public class SqlLinksCheckerService extends LinksCheckerService {
 
     @Override
     @Transactional
+    @SuppressWarnings("StringSplitter")
     public void setUpdatesForLink(Link link, List<Update> updates) {
         long minId = -1;
         while (true) {

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
-import backend.academy.bot.service.apiClient.ScrapperClient;
 import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.TgChatUpdateDto;
 import com.pengrad.telegrambot.model.Chat;
@@ -45,7 +44,7 @@ public class DigestCommandTest {
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(1L);
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         String expectedResult = "Дайджест изменен";
 
@@ -62,7 +61,7 @@ public class DigestCommandTest {
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(1L);
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         String expectedResult = "Дайджест изменен";
 
@@ -76,7 +75,7 @@ public class DigestCommandTest {
     public void InvalidCommandTest() {
         String command = "/digest";
         when(update.message()).thenReturn(message);
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         assertThatThrownBy(() -> commandExecutor.execute(update)).isInstanceOf(InvalidCommandSyntaxException.class);
     }
@@ -85,7 +84,7 @@ public class DigestCommandTest {
     public void InvalidTimeFormatTest() {
         String command = "/digest 10.00";
         when(update.message()).thenReturn(message);
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         assertThatThrownBy(() -> commandExecutor.execute(update)).isInstanceOf(InvalidCommandSyntaxException.class);
     }

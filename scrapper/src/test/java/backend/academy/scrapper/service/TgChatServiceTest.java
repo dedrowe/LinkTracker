@@ -50,6 +50,7 @@ public class TgChatServiceTest {
     }
 
     @Test
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
     public void updateTest() {
         when(tgChatRepository.getByChatId(anyLong())).thenReturn(Optional.of(new TgChat(1L, 123)));
 

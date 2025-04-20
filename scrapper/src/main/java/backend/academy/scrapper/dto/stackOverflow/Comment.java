@@ -13,8 +13,8 @@ public record Comment(User owner, long creationDate, String body) {
         if (body.length() > maxBodyLength) {
             body = body.substring(0, maxBodyLength) + "...";
         }
-        return "Автор: " + this.owner().displayName() + "\n" + "Создан: "
-                + UtcDateTimeProvider.of(creationDate()) + "\n" + "Описание: " + body + "\n";
+        return "Автор: " + this.owner().displayName() + "\n" + "Создан: " + UtcDateTimeProvider.of(creationDate())
+                + "\n" + "Описание: " + body + "\n";
     }
 
     public Map<String, String> getPossibleFilters() {

@@ -48,8 +48,7 @@ public class Tag {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Tag tag1 = (Tag) o;
+        if (!(o instanceof Tag tag1)) return false;
         return Objects.equals(tag, tag1.tag);
     }
 

@@ -35,6 +35,7 @@ public class KafkaTgBotClientTest extends ScrapperContainers {
 
     private final KafkaTemplate<Long, String> kafkaTemplate;
 
+    @SuppressWarnings("EmptyCatch")
     public KafkaTgBotClientTest() {
         Map<String, Object> producerProps = new HashMap<>();
         producerProps.put("bootstrap.servers", kafka.getBootstrapServers());
@@ -69,8 +70,7 @@ public class KafkaTgBotClientTest extends ScrapperContainers {
             ConsumerRecord<Long, String> actualResult = KafkaTestUtils.getSingleRecord(consumer, topic);
 
             assertThat(actualResult.key()).isEqualTo(expectedResult.id());
-            assertThat((mapper.readValue(actualResult.value(), LinkUpdate.class)))
-                    .isEqualTo(expectedResult);
+            assertThat(mapper.readValue(actualResult.value(), LinkUpdate.class)).isEqualTo(expectedResult);
         }
     }
 

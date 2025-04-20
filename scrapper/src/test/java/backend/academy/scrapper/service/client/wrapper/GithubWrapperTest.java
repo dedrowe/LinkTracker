@@ -114,6 +114,7 @@ public class GithubWrapperTest {
                 "https://github.com/-1/",
                 "https://github.com/-1",
             })
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
     public void getWrongUrlUpdateTest(String url) {
         URI uri = URI.create(url);
 

@@ -35,6 +35,7 @@ public class RetryWrapper {
      * @return Результат запроса
      * @param <T> Тип результата запроса
      */
+    @SuppressWarnings("EmptyCatch")
     public static <T> T retry(Callable<T> callable, int retryCount) {
         int count = 1;
         while (count < retryCount) {

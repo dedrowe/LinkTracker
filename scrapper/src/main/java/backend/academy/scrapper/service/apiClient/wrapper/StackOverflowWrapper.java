@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 @Component("stackoverflow.com")
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("StringSplitter")
 public class StackOverflowWrapper implements ApiClientWrapper {
 
     private static final int BODY_PREVIEW_LENGTH = 200;

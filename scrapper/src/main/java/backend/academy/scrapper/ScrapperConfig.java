@@ -36,10 +36,7 @@ public record ScrapperConfig(
     public record UpdatesSender(@Positive int batchSize) {}
 
     public record KafkaProperties(
-            @NotEmpty String topic,
-            @NotEmpty String txId,
-            @Positive int partitions,
-            @Positive short replicas) {}
+            @NotEmpty String topic, @NotEmpty String txId, @Positive int partitions, @Positive short replicas) {}
 
     public enum MessageTransport {
         HTTP,
@@ -52,7 +49,6 @@ public record ScrapperConfig(
     }
 
     public KafkaAdmin.NewTopics createTopics() {
-        return new KafkaAdmin.NewTopics(
-                new NewTopic(kafka.topic, kafka.partitions, kafka.replicas));
+        return new KafkaAdmin.NewTopics(new NewTopic(kafka.topic, kafka.partitions, kafka.replicas));
     }
 }

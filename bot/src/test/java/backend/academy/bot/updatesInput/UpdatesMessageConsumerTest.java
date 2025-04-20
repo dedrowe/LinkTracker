@@ -63,6 +63,7 @@ public class UpdatesMessageConsumerTest {
     private final KafkaTemplate<Long, String> stringTemplate = stringKafkaTemplate();
 
     @BeforeAll
+    @SuppressWarnings("EmptyCatch")
     static void beforeAll() {
         try (AdminClient adminClient = AdminClient.create(Map.of("bootstrap.servers", kafka.getBootstrapServers()))) {
             adminClient
@@ -92,6 +93,7 @@ public class UpdatesMessageConsumerTest {
     }
 
     @Test
+    @SuppressWarnings("FutureReturnValueIgnored")
     public void getUpdateToDltTest() {
         String expectedResult = "test";
 

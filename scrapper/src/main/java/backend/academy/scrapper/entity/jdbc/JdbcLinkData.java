@@ -70,8 +70,7 @@ public class JdbcLinkData implements LinkData {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        JdbcLinkData that = (JdbcLinkData) o;
+        if (!(o instanceof JdbcLinkData that)) return false;
         return deleted == that.deleted && Objects.equals(linkId, that.linkId) && Objects.equals(chatId, that.chatId);
     }
 

@@ -27,7 +27,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, ListTagLinkCount> ListTagLinkCountRedisTemplate() {
+    public RedisTemplate<String, ListTagLinkCount> listTagLinkCountRedisTemplate() {
         RedisTemplate<String, ListTagLinkCount> template = new RedisTemplate<>();
         template.setConnectionFactory(lettuceConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());

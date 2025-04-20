@@ -32,6 +32,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
             TrackStateStorage.class,
             TgCommandsDispatcher.class
         })
+@SuppressWarnings("UnusedVariable")
 public class TgCommandsDispatcherTest {
 
     @MockitoBean

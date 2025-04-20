@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.JdbcLinkRepository;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +74,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
                 .param("lastUpdate", expectedResult.lastUpdate())
                 .update();
 
-        List<Link> actualResult = repository.getNotChecked(10L, testTimestamp, linksCheckInterval.getSeconds());
+        List<Link> actualResult = repository.getNotChecked(10L, testTimestamp, linksCheckInterval.toSeconds());
 
         assertThat(actualResult).containsExactly(expectedResult);
         assertThat(actualResult.getFirst().checking()).isTrue();

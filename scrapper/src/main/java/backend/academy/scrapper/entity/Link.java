@@ -71,8 +71,7 @@ public class Link {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Link link1 = (Link) o;
+        if (!(o instanceof Link link1)) return false;
         return Objects.equals(link, link1.link) && deleted == link1.deleted;
     }
 

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import backend.academy.bot.dto.LinkState;
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
 import backend.academy.bot.service.LinkMapper;
-import backend.academy.bot.service.apiClient.ScrapperClient;
 import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.bot.stateStorage.TrackStateStorage;
 import backend.academy.bot.stateStorage.state.LinkTrackState;
@@ -30,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("UnusedVariable")
 public class TrackLinkCommandTest {
 
     @Mock
@@ -70,7 +70,7 @@ public class TrackLinkCommandTest {
         expectedState.state(LinkTrackState.TAGS);
         String expectedResult = "Введите через пробел тэги для ссылки, введите /skip для пропуска";
 
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         Optional<String> actualResult = commandExecutor.execute(update);
 
@@ -82,7 +82,7 @@ public class TrackLinkCommandTest {
     public void setLinkInvalidCommandTest() {
         String command = "/track";
 
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         assertThatThrownBy(() -> commandExecutor.execute(update)).isInstanceOf(InvalidCommandSyntaxException.class);
         assertThatThrownBy(() -> commandExecutor.execute(update))
@@ -98,7 +98,7 @@ public class TrackLinkCommandTest {
         String expectedResult =
                 "Введите через пробел фильтры для ссылки в формате key:value, введите /skip для пропуска";
 
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
         when(trackStateStorage.containsState(anyLong())).thenReturn(true);
         when(trackStateStorage.getState(anyLong())).thenReturn(state);
 
@@ -117,7 +117,7 @@ public class TrackLinkCommandTest {
         String expectedResult =
                 "Введите через пробел фильтры для ссылки в формате key:value, введите /skip для пропуска";
 
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
         when(trackStateStorage.containsState(anyLong())).thenReturn(true);
         when(trackStateStorage.getState(anyLong())).thenReturn(state);
 
@@ -136,7 +136,7 @@ public class TrackLinkCommandTest {
         state.state(LinkTrackState.FILTERS);
         String expectedResult = "Ссылка успешно добавлена";
 
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
         when(trackStateStorage.containsState(anyLong())).thenReturn(true);
         when(trackStateStorage.getState(anyLong())).thenReturn(state);
 
@@ -155,7 +155,7 @@ public class TrackLinkCommandTest {
         state.state(LinkTrackState.FILTERS);
         String expectedResult = "Ссылка успешно добавлена";
 
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
         when(trackStateStorage.containsState(anyLong())).thenReturn(true);
         when(trackStateStorage.getState(anyLong())).thenReturn(state);
 
@@ -173,7 +173,7 @@ public class TrackLinkCommandTest {
         LinkState state = new LinkState();
         state.state(LinkTrackState.FILTERS);
 
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
         when(trackStateStorage.containsState(anyLong())).thenReturn(true);
         when(trackStateStorage.getState(anyLong())).thenReturn(state);
 

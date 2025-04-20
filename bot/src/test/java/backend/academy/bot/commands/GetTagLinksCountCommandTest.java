@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-import backend.academy.bot.service.apiClient.ScrapperClient;
 import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.ListTagLinkCount;
 import backend.academy.shared.dto.TagLinkCount;

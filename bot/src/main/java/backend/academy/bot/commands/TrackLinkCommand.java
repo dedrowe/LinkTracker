@@ -38,6 +38,7 @@ public class TrackLinkCommand extends TgBotCommand {
         };
     }
 
+    @SuppressWarnings("StringSplitter")
     private Optional<String> setLink(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
@@ -64,6 +65,7 @@ public class TrackLinkCommand extends TgBotCommand {
         return Optional.of("Введите через пробел фильтры для ссылки в формате key:value, введите /skip для пропуска");
     }
 
+    @SuppressWarnings("StringSplitter")
     private Optional<String> setFilters(Update update, LinkState linkState) {
         String[] command = update.message().text().split(" ");
         if (!command[0].equals("/skip")) {

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
-import backend.academy.bot.service.apiClient.ScrapperClient;
 import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
@@ -21,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("UnusedVariable")
 public class UntrackLinkCommandTest {
 
     @Mock
@@ -48,7 +48,7 @@ public class UntrackLinkCommandTest {
     public void validCommandParseTest(String command) {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(1L);
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         String expectedMessage = "Ссылка успешно удалена";
 
@@ -60,7 +60,7 @@ public class UntrackLinkCommandTest {
 
     @Test
     public void invalidCommandParseTest() {
-        when(update.message().text()).thenReturn("/untrack");
+        when(message.text()).thenReturn("/untrack");
 
         assertThatThrownBy(() -> commandExecutor.execute(update)).isInstanceOf(InvalidCommandSyntaxException.class);
     }

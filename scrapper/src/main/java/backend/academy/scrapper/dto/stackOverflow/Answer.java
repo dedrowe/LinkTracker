@@ -21,8 +21,8 @@ public record Answer(
         if (body.length() > maxBodyLength) {
             body = body.substring(0, maxBodyLength) + "...";
         }
-        return "Автор: " + this.owner().displayName() + "\n" + "Создан: "
-                + UtcDateTimeProvider.of(lastActivityDate())  + "\n" + "Описание: " + body + "\n";
+        return "Автор: " + this.owner().displayName() + "\n" + "Создан: " + UtcDateTimeProvider.of(lastActivityDate())
+                + "\n" + "Описание: " + body + "\n";
     }
 
     public Map<String, String> getPossibleFilters() {

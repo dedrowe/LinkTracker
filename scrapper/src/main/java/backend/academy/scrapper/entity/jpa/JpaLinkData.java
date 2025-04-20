@@ -32,6 +32,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Table(name = "links_data")
 @SQLRestriction("deleted = false")
+@SuppressWarnings("UnusedVariable")
 public class JpaLinkData implements LinkData {
 
     @Id
@@ -124,8 +125,7 @@ public class JpaLinkData implements LinkData {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        JpaLinkData that = (JpaLinkData) o;
+        if (!(o instanceof JpaLinkData that)) return false;
         return deleted == that.deleted && Objects.equals(link, that.link) && Objects.equals(tgChat, that.tgChat);
     }
 

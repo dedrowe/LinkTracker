@@ -9,10 +9,10 @@ import backend.academy.scrapper.repository.linkdata.JpaLinkDataRepository;
 import backend.academy.scrapper.repository.outbox.OutboxRepository;
 import backend.academy.scrapper.service.LinkDispatcher;
 import backend.academy.scrapper.service.LinksCheckerService;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,6 +40,7 @@ public class OrmLinksCheckerService extends LinksCheckerService {
 
     @Override
     @Transactional
+    @SuppressWarnings("StringSplitter")
     public void setUpdatesForLink(Link link, List<Update> updates) {
         List<JpaLinkData> linksData = jpaLinkDataRepository.fetchFilters(
                 link.linksData().stream().map(JpaLinkData::id).toList());

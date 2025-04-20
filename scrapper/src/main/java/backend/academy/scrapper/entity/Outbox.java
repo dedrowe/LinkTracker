@@ -56,8 +56,7 @@ public class Outbox {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Outbox outbox = (Outbox) o;
+        if (!(o instanceof Outbox outbox)) return false;
         return linkId == outbox.linkId
                 && chatId == outbox.chatId
                 && Objects.equals(link, outbox.link)

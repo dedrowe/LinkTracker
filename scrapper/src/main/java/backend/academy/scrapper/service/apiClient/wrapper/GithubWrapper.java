@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 @Component("github.com")
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("StringSplitter")
 public class GithubWrapper implements ApiClientWrapper {
 
     private final GithubClient client;

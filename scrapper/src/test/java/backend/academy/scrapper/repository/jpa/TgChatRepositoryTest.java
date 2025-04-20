@@ -124,6 +124,7 @@ public class TgChatRepositoryTest extends AbstractJpaTest {
     }
 
     @Test
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
     public void updateTest() {
         TgChat expectedResult = new TgChat(1L, 1L, false, List.of(), LocalTime.now());
 

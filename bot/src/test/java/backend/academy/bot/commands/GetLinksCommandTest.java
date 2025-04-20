@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-import backend.academy.bot.service.apiClient.ScrapperClient;
 import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
@@ -50,7 +49,7 @@ public class GetLinksCommandTest {
     public void emptyListTest() {
         String command = "/list";
         when(client.getLinks(anyLong())).thenReturn(new ListLinkResponse(List.of(), 0));
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         String expectedResult = "В данный момент никакие ссылки не отслеживаются";
 
@@ -71,7 +70,7 @@ public class GetLinksCommandTest {
                                         1L, "https://example.com", List.of("tag1", "tag2"), List.of("user=user1")),
                                 new LinkResponse(1L, "https://example2.com", List.of("tag3", "tag4"), List.of())),
                         2));
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         String expectedResult =
                 """
@@ -100,7 +99,7 @@ public class GetLinksCommandTest {
                                         1L, "https://example.com", List.of("tag1", "tag2"), List.of("user=user1")),
                                 new LinkResponse(1L, "https://example2.com", List.of("tag3", "tag4"), List.of())),
                         2));
-        when(update.message().text()).thenReturn(command);
+        when(message.text()).thenReturn(command);
 
         String expectedResult =
                 """
