@@ -33,7 +33,7 @@ public class DigestCommand extends TgBotCommand {
     @Override
     public Optional<String> execute(Update update) {
         String[] command = update.message().text().split(" ");
-        if (command.length == 1 || command.length > 2) {
+        if (command.length != 2) {
             throw new InvalidCommandSyntaxException(
                     INVALID_SYNTAX_MESSAGE, update.message().text());
         }
@@ -44,7 +44,7 @@ public class DigestCommand extends TgBotCommand {
             try {
                 digest = LocalTime.parse(command[1], TIME_FORMAT);
             } catch (DateTimeParseException e) {
-                throw new InvalidCommandSyntaxException(INVALID_SYNTAX_MESSAGE, e.getMessage());
+                throw new InvalidCommandSyntaxException(e.getMessage(), update.message().text(), INVALID_SYNTAX_MESSAGE);
             }
         }
         client.updateChat(update.message().chat().id(), new TgChatUpdateDto(digest));
