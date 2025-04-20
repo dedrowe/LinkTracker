@@ -1,6 +1,6 @@
 package backend.academy.bot.commands;
 
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import com.pengrad.telegrambot.model.Update;
 import java.util.Map;
 import java.util.Optional;
@@ -11,7 +11,7 @@ public class HelpCommand extends TgBotCommand {
 
     private final Map<String, TgBotCommand> commands;
 
-    public HelpCommand(ScrapperClient client, Map<String, TgBotCommand> commands) {
+    public HelpCommand(ScrapperClientWrapper client, Map<String, TgBotCommand> commands) {
         super(client, "");
         this.commands = commands;
     }

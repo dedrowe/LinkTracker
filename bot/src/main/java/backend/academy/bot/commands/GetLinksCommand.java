@@ -1,7 +1,7 @@
 package backend.academy.bot.commands;
 
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import com.pengrad.telegrambot.model.Update;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component("/list")
 public class GetLinksCommand extends TgBotCommand {
 
-    public GetLinksCommand(ScrapperClient client) {
+    public GetLinksCommand(ScrapperClientWrapper client) {
         super(
                 client,
                 "Получение списка всех отслеживаемых ссылок, дополнительно можно указать тэг, "

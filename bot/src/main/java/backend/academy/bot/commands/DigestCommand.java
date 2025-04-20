@@ -1,7 +1,7 @@
 package backend.academy.bot.commands;
 
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.TgChatUpdateDto;
 import com.pengrad.telegrambot.model.Update;
 import java.time.LocalTime;
@@ -19,7 +19,7 @@ public class DigestCommand extends TgBotCommand {
     private static final String INVALID_SYNTAX_MESSAGE =
             "Неверный формат команды, ожидается: /digest off или /digest ЧЧ:ММ";
 
-    public DigestCommand(ScrapperClient client) {
+    public DigestCommand(ScrapperClientWrapper client) {
         super(
                 client,
                 """

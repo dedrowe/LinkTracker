@@ -3,7 +3,7 @@ package backend.academy.bot.commands;
 import backend.academy.bot.dto.LinkState;
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
 import backend.academy.bot.service.LinkMapper;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.bot.stateStorage.TrackStateStorage;
 import backend.academy.bot.stateStorage.state.LinkTrackState;
 import com.pengrad.telegrambot.model.Update;
@@ -20,7 +20,7 @@ public class TrackLinkCommand extends TgBotCommand {
 
     private final LinkMapper linkMapper;
 
-    public TrackLinkCommand(ScrapperClient client, TrackStateStorage storage, LinkMapper linkMapper) {
+    public TrackLinkCommand(ScrapperClientWrapper client, TrackStateStorage storage, LinkMapper linkMapper) {
         super(client, "Регистрация ссылки для отслеживания, синтаксис: /track <link>");
         this.storage = storage;
         this.linkMapper = linkMapper;

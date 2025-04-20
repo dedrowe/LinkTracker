@@ -1,6 +1,6 @@
 package backend.academy.bot.commands;
 
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import com.pengrad.telegrambot.model.Update;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component("/start")
 public class RegisterChatCommand extends TgBotCommand {
 
-    public RegisterChatCommand(ScrapperClient client) {
+    public RegisterChatCommand(ScrapperClientWrapper client) {
         super(client, "Регистрация чата (выполняется автоматически при создании чата с ботом)");
     }
 
