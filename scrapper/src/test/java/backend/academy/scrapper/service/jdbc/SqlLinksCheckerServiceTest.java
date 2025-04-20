@@ -26,9 +26,9 @@ import backend.academy.scrapper.service.apiClient.wrapper.ApiClientWrapper;
 import backend.academy.scrapper.service.sql.SqlLinksCheckerService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -51,7 +51,7 @@ public class SqlLinksCheckerServiceTest {
 
     private final OutboxRepository outboxRepository = mock(OutboxRepository.class);
 
-    private final LocalDateTime testDateTime = LocalDateTime.now(ZoneOffset.UTC).minusHours(2);
+    private final LocalDateTime testDateTime = UtcDateTimeProvider.now().minusHours(2);
 
     private final LocalTime testTime = testDateTime.toLocalTime();
 

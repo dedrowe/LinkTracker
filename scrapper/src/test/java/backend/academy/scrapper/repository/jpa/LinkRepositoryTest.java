@@ -5,11 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.JpaLinkRepository;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,7 @@ public class LinkRepositoryTest extends AbstractJpaTest {
 
     private final JpaLinkRepository repository;
 
-    private final LocalDateTime testTimestamp =
-            Instant.ofEpochSecond(1741886605).atZone(ZoneOffset.UTC).toLocalDateTime();
+    private final LocalDateTime testTimestamp = UtcDateTimeProvider.of(1741886605);
 
     private final Duration linksCheckInterval = Duration.ofSeconds(60);
 

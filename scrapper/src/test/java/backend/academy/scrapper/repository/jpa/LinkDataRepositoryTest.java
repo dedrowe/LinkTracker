@@ -8,11 +8,10 @@ import backend.academy.scrapper.entity.Tag;
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.repository.linkdata.JpaLinkDataRepository;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +21,7 @@ public class LinkDataRepositoryTest extends AbstractJpaTest {
 
     private final JpaLinkDataRepository repository;
 
-    private final LocalDateTime testTimestamp =
-            Instant.ofEpochSecond(1741886605).atZone(ZoneOffset.UTC).toLocalDateTime();
+    private final LocalDateTime testTimestamp = UtcDateTimeProvider.of(1741886605);
 
     @Autowired
     public LinkDataRepositoryTest(TestEntityManager entityManager, JpaLinkDataRepository repository) {

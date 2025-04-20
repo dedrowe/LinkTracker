@@ -11,8 +11,8 @@ import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.outbox.OutboxRepository;
 import backend.academy.scrapper.service.botClient.HttpTgBotClient;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -32,7 +32,7 @@ public class UpdatesSendSchedulerTest {
     private final UpdatesSendScheduler scheduler =
             new UpdatesSendScheduler(batchSize, outboxRepository, tgBotClient, linkMapper);
 
-    private final LocalDateTime testTime = LocalDateTime.now(ZoneOffset.UTC).minusHours(1);
+    private final LocalDateTime testTime = UtcDateTimeProvider.now().minusHours(1);
 
     @Test
     public void sendUpdatesTest() {

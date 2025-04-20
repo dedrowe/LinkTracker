@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.repository.outbox.JdbcOutboxRepository;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class OutboxRepositoryTest extends AbstractJdbcTest {
 
     private final JdbcOutboxRepository repository;
 
-    private final LocalDateTime testTime = LocalDateTime.now(ZoneOffset.UTC);
+    private final LocalDateTime testTime = UtcDateTimeProvider.now();
 
     @Autowired
     public OutboxRepositoryTest(JdbcClient client) {

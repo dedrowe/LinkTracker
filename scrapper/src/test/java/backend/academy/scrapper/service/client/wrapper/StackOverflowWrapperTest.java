@@ -13,11 +13,10 @@ import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.User;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import backend.academy.scrapper.service.apiClient.wrapper.StackOverflowWrapper;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import backend.academy.shared.exceptions.ApiCallException;
 import java.net.URI;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -59,7 +58,7 @@ public class StackOverflowWrapperTest {
 
         List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
                 uri,
-                Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime());
+            UtcDateTimeProvider.of(expectedUpdate));
 
         assertThat(actualResult).containsExactly(expectedResult);
     }
@@ -76,7 +75,7 @@ public class StackOverflowWrapperTest {
 
         List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
                 uri,
-                Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime());
+            UtcDateTimeProvider.of(expectedUpdate));
 
         assertThat(actualResult).containsExactly(expectedResult);
     }
@@ -101,9 +100,7 @@ public class StackOverflowWrapperTest {
                         + answerComment.getInfo(expectedCommentBody.length()),
                 Map.of("user", user.displayName()));
 
-        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(
-                uri,
-                Instant.ofEpochSecond(expectedUpdate).atZone(ZoneOffset.UTC).toLocalDateTime());
+        List<Update> actualResult = stackOverflowWrapper.getLastUpdate(uri, UtcDateTimeProvider.of(expectedUpdate));
 
         assertThat(actualResult).containsExactly(update1, update2);
     }
