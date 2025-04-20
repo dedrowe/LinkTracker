@@ -17,7 +17,6 @@ app:
     batch-size: ${SENDER_BATCH_SIZE:200}
   kafka:
     topic: updates
-    dltTopic: updates-dlt
     partitions: 1
     replicas: 1
     tx-id: ${TRANSACTIONAL_ID}

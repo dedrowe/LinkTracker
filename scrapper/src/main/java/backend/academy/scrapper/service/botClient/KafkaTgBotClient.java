@@ -22,15 +22,12 @@ public class KafkaTgBotClient implements TgBotClient {
 
     private final String topic;
 
-    private final String dltTopic;
-
     private final ObjectMapper mapper;
 
     @Autowired
     public KafkaTgBotClient(KafkaTemplate<Long, String> template, ScrapperConfig config, ObjectMapper mapper) {
         this.template = template;
         topic = config.kafka().topic();
-        dltTopic = config.kafka().dltTopic();
         this.mapper = mapper;
     }
 
@@ -41,7 +38,6 @@ public class KafkaTgBotClient implements TgBotClient {
             String json = mapper.writeValueAsString(updates);
             template.send(topic, updates.id(), json);
         } catch (JsonProcessingException e) {
-            template.send(dltTopic, updates.id(), String.valueOf(updates));
             log.error("Ошибка при отправке обновления", e);
         }
     }

@@ -37,7 +37,6 @@ public record ScrapperConfig(
 
     public record KafkaProperties(
             @NotEmpty String topic,
-            @NotEmpty String dltTopic,
             @NotEmpty String txId,
             @Positive int partitions,
             @Positive short replicas) {}
@@ -54,7 +53,6 @@ public record ScrapperConfig(
 
     public KafkaAdmin.NewTopics createTopics() {
         return new KafkaAdmin.NewTopics(
-                new NewTopic(kafka.topic, kafka.partitions, kafka.replicas),
-                new NewTopic(kafka.dltTopic, kafka.partitions, kafka.replicas));
+                new NewTopic(kafka.topic, kafka.partitions, kafka.replicas));
     }
 }
