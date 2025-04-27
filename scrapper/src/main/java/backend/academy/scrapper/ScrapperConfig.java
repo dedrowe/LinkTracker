@@ -20,6 +20,7 @@ public record ScrapperConfig(
         @Valid UpdatesSender updatesSender,
         @Valid Bot bot,
         @Valid KafkaProperties kafka,
+        @Valid RetryProperties retry,
         @NotNull DbAccessType accessType,
         @NotNull MessageTransport transport) {
 
@@ -37,6 +38,8 @@ public record ScrapperConfig(
 
     public record KafkaProperties(
             @NotEmpty String topic, @NotEmpty String txId, @Positive int partitions, @Positive short replicas) {}
+
+    public record RetryProperties(@PositiveOrZero int maxAttempts, @PositiveOrZero int backoff) {}
 
     public enum MessageTransport {
         HTTP,

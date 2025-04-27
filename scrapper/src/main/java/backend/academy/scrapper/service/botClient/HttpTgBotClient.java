@@ -1,11 +1,10 @@
 package backend.academy.scrapper.service.botClient;
 
-import static backend.academy.shared.utils.client.RetryWrapper.retry;
-
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.shared.dto.LinkUpdate;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.nio.charset.StandardCharsets;
+import backend.academy.shared.utils.client.RetryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,22 +21,27 @@ public class HttpTgBotClient implements TgBotClient {
 
     private final RestClient client;
 
+    private final RetryWrapper retryWrapper;
+
     @Autowired
-    public HttpTgBotClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
+    public HttpTgBotClient(ScrapperConfig config, RestClient.Builder clientBuilder,
+                           RetryWrapper retryWrapper) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.bot().url())
                 .build();
+        this.retryWrapper = retryWrapper;
     }
 
-    public HttpTgBotClient(RestClient client) {
+    public HttpTgBotClient(RestClient client, RetryWrapper retryWrapper) {
         this.client = client;
+        this.retryWrapper = retryWrapper;
     }
 
     @Async
     @Override
     public void sendUpdates(LinkUpdate updates) {
-        retry(() -> client.post()
+        retryWrapper.retry(() -> client.post()
                 .uri("/updates")
                 .body(updates)
                 .retrieve()

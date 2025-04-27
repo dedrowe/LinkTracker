@@ -1,6 +1,5 @@
 package backend.academy.scrapper.service.apiClient;
 
-import static backend.academy.shared.utils.client.RetryWrapper.retry;
 
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.github.Comment;
@@ -11,6 +10,7 @@ import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
 import java.util.List;
+import backend.academy.shared.utils.client.RetryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,7 +22,8 @@ import org.springframework.web.client.RestClient;
 public class GithubClient extends ApiClient {
 
     @Autowired
-    public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
+    public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder,
+                        RetryWrapper wrapper) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.github().githubBaseUrl())
@@ -30,14 +31,16 @@ public class GithubClient extends ApiClient {
                 .defaultHeader("Authorization", "Bearer " + config.github().githubToken())
                 .defaultHeader("X-GitHub-Api-Version", "2022-11-28")
                 .build();
+        retryWrapper = wrapper;
     }
 
-    public GithubClient(RestClient client) {
+    public GithubClient(RestClient client, RetryWrapper wrapper) {
         this.client = client;
+        retryWrapper = wrapper;
     }
 
     public Issue getIssue(URI uri) {
-        Issue issue = retry(() -> getRequest(uri).body(Issue.class));
+        Issue issue = retryWrapper.retry(() -> getRequest(uri).body(Issue.class));
         if (issue == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
@@ -45,7 +48,7 @@ public class GithubClient extends ApiClient {
     }
 
     public List<Issue> getIssues(URI uri) {
-        List<Issue> issues = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        List<Issue> issues = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (issues == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
@@ -53,7 +56,7 @@ public class GithubClient extends ApiClient {
     }
 
     public List<Comment> getComments(URI uri) {
-        List<Comment> comments = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        List<Comment> comments = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (comments == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
@@ -61,7 +64,7 @@ public class GithubClient extends ApiClient {
     }
 
     public GHRepository getRepository(URI uri) {
-        GHRepository repository = retry(() -> getRequest(uri).body(GHRepository.class));
+        GHRepository repository = retryWrapper.retry(() -> getRequest(uri).body(GHRepository.class));
         if (repository == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
@@ -69,7 +72,7 @@ public class GithubClient extends ApiClient {
     }
 
     public List<PullRequest> getPullRequests(URI uri) {
-        List<PullRequest> pullRequests = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        List<PullRequest> pullRequests = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (pullRequests == null) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }

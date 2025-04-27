@@ -9,6 +9,9 @@ app:
     topic: updates
     dltTopic: updates-dlt
   transport: kafka
+  retry:
+    max-attempts: 3
+    backoff: 500
 
 spring:
   application:

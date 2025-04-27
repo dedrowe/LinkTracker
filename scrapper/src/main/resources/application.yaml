@@ -21,6 +21,9 @@ app:
     replicas: 1
     tx-id: ${TRANSACTIONAL_ID}
   transport: kafka
+  retry:
+    max-attempts: 3
+    backoff: 500
 
 spring:
   application:

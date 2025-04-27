@@ -1,13 +1,12 @@
 package backend.academy.scrapper.service.apiClient;
 
-import static backend.academy.shared.utils.client.RetryWrapper.retry;
-
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
+import backend.academy.shared.utils.client.RetryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,23 +28,26 @@ public class StackOverflowClient extends ApiClient {
     private static final String REQUEST_FILTER = "!LbeNt-eYI5wF9dcYOL_10T";
 
     @Autowired
-    public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
+    public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder,
+                               RetryWrapper wrapper) {
         key = config.stackOverflow().key();
         accessToken = config.stackOverflow().accessToken();
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.stackOverflow().SOBaseUrl())
                 .build();
+        retryWrapper = wrapper;
     }
 
-    public StackOverflowClient(RestClient client, String key, String accessToken) {
+    public StackOverflowClient(RestClient client, String key, String accessToken, RetryWrapper wrapper) {
         this.client = client;
         this.key = key;
         this.accessToken = accessToken;
+        retryWrapper = wrapper;
     }
 
     public Question getQuestionUpdate(URI uri) {
-        SOResponse responseBody = retry(() -> getRequest(uri).body(SOResponse.class));
+        SOResponse responseBody = retryWrapper.retry(() -> getRequest(uri).body(SOResponse.class));
         if (responseBody == null || responseBody.items().isEmpty()) {
             throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }

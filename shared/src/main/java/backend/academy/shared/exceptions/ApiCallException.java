@@ -15,4 +15,9 @@ public class ApiCallException extends BaseException {
         super(description, message, code);
         this.url = url;
     }
+
+    public ApiCallException(String description, String message, int code, String url, Throwable cause) {
+        super(description, message, code, cause);
+        this.url = url;
+    }
 }
