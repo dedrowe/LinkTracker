@@ -19,7 +19,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.retry.annotation.EnableRetry;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestClient;
@@ -30,8 +29,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.configureFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
-@ContextConfiguration(classes = {RetryWrapper.class})
+@SpringBootTest(classes = {RetryWrapper.class})
 @EnableRetry
 public class RetryTest {
 
