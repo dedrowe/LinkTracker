@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import backend.academy.scrapper.service.botClient.HttpTgBotClient;
 import backend.academy.scrapper.service.botClient.TgBotClient;
 import backend.academy.shared.dto.LinkUpdate;
+import backend.academy.shared.utils.client.RetryWrapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.util.List;
@@ -35,7 +36,7 @@ public class HttpTgBotClientTest {
             WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
     private final TgBotClient tgBotClient =
-            new HttpTgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort));
+            new HttpTgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), new RetryWrapper());
 
     @BeforeEach
     void setUp() {

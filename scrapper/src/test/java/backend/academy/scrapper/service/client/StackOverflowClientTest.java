@@ -15,6 +15,7 @@ import backend.academy.scrapper.dto.stackOverflow.Comment;
 import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.service.apiClient.StackOverflowClient;
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.utils.client.RetryWrapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.net.URI;
@@ -38,7 +39,7 @@ public class StackOverflowClientTest {
     private final String accessToken = "123";
 
     private final StackOverflowClient stackOverflowClient = new StackOverflowClient(
-            RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), key, accessToken);
+            RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), key, accessToken, new RetryWrapper());
 
     @BeforeEach
     void setUp() {
