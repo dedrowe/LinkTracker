@@ -7,6 +7,7 @@ import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
 import backend.academy.shared.utils.client.RetryWrapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,7 @@ public class StackOverflowClient extends ApiClient {
         retryWrapper = wrapper;
     }
 
+    @CircuitBreaker(name = "external-services")
     public Question getQuestionUpdate(URI uri) {
         SOResponse responseBody = retryWrapper.retry(() -> getRequest(uri).body(SOResponse.class));
         if (responseBody == null || responseBody.items().isEmpty()) {

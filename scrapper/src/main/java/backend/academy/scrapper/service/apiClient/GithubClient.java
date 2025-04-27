@@ -11,6 +11,7 @@ import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
 import java.util.List;
 import backend.academy.shared.utils.client.RetryWrapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -39,6 +40,7 @@ public class GithubClient extends ApiClient {
         retryWrapper = wrapper;
     }
 
+    @CircuitBreaker(name = "external-services")
     public Issue getIssue(URI uri) {
         Issue issue = retryWrapper.retry(() -> getRequest(uri).body(Issue.class));
         if (issue == null) {
@@ -47,6 +49,7 @@ public class GithubClient extends ApiClient {
         return issue;
     }
 
+    @CircuitBreaker(name = "external-services")
     public List<Issue> getIssues(URI uri) {
         List<Issue> issues = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (issues == null) {
@@ -55,6 +58,7 @@ public class GithubClient extends ApiClient {
         return issues;
     }
 
+    @CircuitBreaker(name = "external-services")
     public List<Comment> getComments(URI uri) {
         List<Comment> comments = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (comments == null) {
@@ -63,6 +67,7 @@ public class GithubClient extends ApiClient {
         return comments;
     }
 
+    @CircuitBreaker(name = "external-services")
     public GHRepository getRepository(URI uri) {
         GHRepository repository = retryWrapper.retry(() -> getRequest(uri).body(GHRepository.class));
         if (repository == null) {
@@ -71,6 +76,7 @@ public class GithubClient extends ApiClient {
         return repository;
     }
 
+    @CircuitBreaker(name = "external-services")
     public List<PullRequest> getPullRequests(URI uri) {
         List<PullRequest> pullRequests = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (pullRequests == null) {
