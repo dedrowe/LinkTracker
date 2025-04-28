@@ -3,7 +3,7 @@ package backend.academy.scrapper.service.apiClient;
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
-import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.exceptions.NotRetryApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import java.net.URI;
 import backend.academy.shared.utils.client.RetryWrapper;
@@ -51,7 +51,7 @@ public class StackOverflowClient extends ApiClient {
     public Question getQuestionUpdate(URI uri) {
         SOResponse responseBody = retryWrapper.retry(() -> getRequest(uri).body(SOResponse.class));
         if (responseBody == null || responseBody.items().isEmpty()) {
-            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+            throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return responseBody.items().getFirst();
     }

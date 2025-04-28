@@ -72,6 +72,8 @@ resilience4j:
   circuitbreaker:
     instances:
       external-services:
+        ignore-exceptions:
+          - backend.academy.shared.exceptions.NotRetryApiCallException
         sliding-window-size: 10
         minimum-number-of-calls: 5
         failure-rate-threshold: 80

@@ -29,7 +29,8 @@ public class RetryWrapper {
         try {
             return callable.call();
         } catch (ApiCallException e) {
-            if (!HttpStatus.valueOf(e.code()).is5xxServerError()) {
+            HttpStatus responseStatus = HttpStatus.valueOf(e.code());
+            if (!responseStatus.is5xxServerError() && responseStatus.value() != HttpStatus.TOO_MANY_REQUESTS.value()) {
                 throw new NotRetryApiCallException(e);
             }
             throw e;
