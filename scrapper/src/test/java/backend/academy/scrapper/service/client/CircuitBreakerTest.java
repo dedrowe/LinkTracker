@@ -7,6 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 
 import backend.academy.scrapper.service.apiClient.GithubClient;
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.exceptions.NotRetryApiCallException;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -14,10 +15,10 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -70,21 +71,43 @@ public class CircuitBreakerTest {
         wireMockServer.stop();
     }
 
-    @Test
-    public void circuitBreakerTest() {
+    @ParameterizedTest
+    @ValueSource(strings = {"500", "429"})
+    public void circuitBreakerTest(int code) {
         String wireMockUrl = "/-1/-1/issues";
         stubFor(get(urlPathMatching(wireMockUrl))
             .willReturn(aResponse()
-                .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .withBody("Internal Server Error")
+                .withStatus(code)
+                .withBody("error")
                 .withFixedDelay(500))
         );
         CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("external-services");
+        circuitBreaker.reset();
 
         for (int i = 0; i < retriesCount; i++) {
             assertThatThrownBy(() -> githubClient.getIssues(URI.create(issuesUrl))).isInstanceOf(ApiCallException.class);
         }
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
         assertThatThrownBy(() -> githubClient.getIssues(URI.create(issuesUrl))).isInstanceOf(CallNotPermittedException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"400", "403"})
+    public void circuitBreakerNotWork4xxResponseTest(int code) {
+        String wireMockUrl = "/-1/-1/issues";
+        stubFor(get(urlPathMatching(wireMockUrl))
+            .willReturn(aResponse()
+                .withStatus(code)
+                .withBody("error")
+                .withFixedDelay(500))
+        );
+        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("external-services");
+        circuitBreaker.reset();
+
+        for (int i = 0; i < retriesCount; i++) {
+            assertThatThrownBy(() -> githubClient.getIssues(URI.create(issuesUrl))).isInstanceOf(NotRetryApiCallException.class);
+        }
+        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+        assertThatThrownBy(() -> githubClient.getIssues(URI.create(issuesUrl))).isInstanceOf(NotRetryApiCallException.class);
     }
 }
