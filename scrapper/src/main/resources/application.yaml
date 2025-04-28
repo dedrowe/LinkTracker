@@ -24,6 +24,8 @@ app:
   retry:
     max-attempts: 3
     backoff: 500
+  rate-limit:
+    limit: 600 #10 в секунду
 
 spring:
   application:
