@@ -2,6 +2,7 @@ package backend.academy.bot.updatesInput;
 
 import backend.academy.bot.service.UpdatesService;
 import backend.academy.shared.dto.LinkUpdate;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -28,7 +29,7 @@ public class UpdatesMessageConsumer {
             autoCreateTopics = "false",
             kafkaTemplate = "defaultKafkaTemplate",
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
-            include = Exception.class)
+            include = JsonProcessingException.class)
     public void consume(ConsumerRecord<Long, LinkUpdate> record, Acknowledgment ack) {
         updatesService.sendUpdates(record.value());
         ack.acknowledge();
