@@ -5,6 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 
+import backend.academy.scrapper.service.ScrapperContainers;
 import backend.academy.scrapper.service.apiClient.GithubClient;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.exceptions.NotRetryApiCallException;
@@ -29,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class CircuitBreakerTest {
+public class CircuitBreakerTest extends ScrapperContainers {
 
     private final GithubClient githubClient;
 
