@@ -1,5 +1,6 @@
 package backend.academy.scrapper.controller;
 
+import backend.academy.scrapper.rateLimiter.RateLimit;
 import backend.academy.scrapper.service.TgChatService;
 import backend.academy.shared.dto.TgChatUpdateDto;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +21,14 @@ public class TgChatController {
     private final TgChatService tgChatService;
 
     @PostMapping("/{id}")
+    @RateLimit
     public ResponseEntity<Void> registerTgChat(@PathVariable("id") long id) {
         tgChatService.registerTgChat(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
+    @RateLimit
     public ResponseEntity<Void> updateTgChat(
             @PathVariable("id") long id, @RequestBody TgChatUpdateDto tgChatUpdateDto) {
         tgChatService.updateTgChat(id, tgChatUpdateDto);
@@ -33,6 +36,7 @@ public class TgChatController {
     }
 
     @DeleteMapping("/{id}")
+    @RateLimit
     public ResponseEntity<Void> deleteTgChat(@PathVariable("id") long id) {
         tgChatService.deleteTgChat(id);
         return ResponseEntity.ok().build();

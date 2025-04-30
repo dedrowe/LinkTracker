@@ -1,4 +1,4 @@
-package backend.academy.scrapper.filter;
+package backend.academy.scrapper.rateLimiter;
 
 import backend.academy.scrapper.ScrapperConfig;
 import io.github.resilience4j.ratelimiter.RateLimiter;
@@ -21,23 +21,13 @@ public class IpRateLimiter {
     public IpRateLimiter(ScrapperConfig config) {
         rateLimiterConfig = RateLimiterConfig.custom()
             .limitForPeriod(config.rateLimit().limit())
-            .limitRefreshPeriod(Duration.ofMinutes(1))
+            .limitRefreshPeriod(Duration.ofSeconds(config.rateLimit().RefreshPeriodSeconds()))
             .build();
         registry = RateLimiterRegistry.of(rateLimiterConfig);
         rateLimiters = new ConcurrentHashMap<>();
     }
 
-    private RateLimiter getBucket(String ip, String endpoint) {
+    public RateLimiter getRateLimiter(String ip, String endpoint) {
         return rateLimiters.computeIfAbsent(ip + "-" + endpoint, ignored -> registry.rateLimiter(ip + "-" + endpoint, rateLimiterConfig));
-    }
-
-    public boolean tryExecute(String ip, String endpoint, Runnable task) {
-        RateLimiter rateLimiter = getBucket(ip, endpoint);
-        try {
-            rateLimiter.executeRunnable(task);
-            return true;
-        } catch (Exception ignored) {
-            return false;
-        }
     }
 }

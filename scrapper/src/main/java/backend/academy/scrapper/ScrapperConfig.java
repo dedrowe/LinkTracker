@@ -42,7 +42,7 @@ public record ScrapperConfig(
 
     public record RetryProperties(@PositiveOrZero int maxAttempts, @PositiveOrZero int backoff) {}
 
-    public record RateLimiterProperties(@Positive int limit) {}
+    public record RateLimiterProperties(@Positive int limit, @Positive int RefreshPeriodSeconds) {}
 
     public enum MessageTransport {
         HTTP,
