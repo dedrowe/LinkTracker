@@ -10,7 +10,6 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -38,7 +37,6 @@ public class HttpTgBotClient implements TgBotClient {
         this.retryWrapper = retryWrapper;
     }
 
-    @Async
     @Override
     public void sendUpdates(LinkUpdate updates) {
         retryWrapper.retry(() -> client.post()
