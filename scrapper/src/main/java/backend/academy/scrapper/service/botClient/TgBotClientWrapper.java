@@ -13,29 +13,30 @@ public class TgBotClientWrapper {
 
     private final TgBotClient secondaryTgBotClient;
 
-    public TgBotClientWrapper(ScrapperConfig config,
-                              @Qualifier("httpTgBotClient") TgBotClient httpTgBotClient,
-                              @Qualifier("kafkaTgBotClient") TgBotClient kafkaTgBotClient) {
-        switch (config.transport()) {
-            case HTTP -> {
-                primaryTgBotClient = httpTgBotClient;
-                secondaryTgBotClient = kafkaTgBotClient;
-            }
+    public TgBotClientWrapper(
+            ScrapperConfig config,
+            @Qualifier("httpTgBotClient") TgBotClient httpTgBotClient,
+            @Qualifier("kafkaTgBotClient") TgBotClient kafkaTgBotClient) {
+        ScrapperConfig.MessageTransport transport = config.transport();
+        switch (transport) {
             case KAFKA -> {
                 primaryTgBotClient = kafkaTgBotClient;
                 secondaryTgBotClient = httpTgBotClient;
             }
-            default -> throw new IllegalStateException("Способ отправки обновлений не выбран");
+            default -> {
+                primaryTgBotClient = httpTgBotClient;
+                secondaryTgBotClient = kafkaTgBotClient;
+            }
         }
     }
 
-    @Retry(name="updates-sender", fallbackMethod = "sendUpdatesFallback")
+    @Retry(name = "updates-sender", fallbackMethod = "sendUpdatesFallback")
     public void sendUpdates(LinkUpdate update) {
         primaryTgBotClient.sendUpdates(update);
     }
 
-    @Retry(name="updates-sender")
-    @SuppressWarnings({"UnusedVariable", "UnusedMethod"})
+    @Retry(name = "updates-sender")
+    @SuppressWarnings({"UnusedVariable", "UnusedMethod", "PMD.UnusedPrivateMethod", "PMD.UnusedFormalParameter"})
     private void sendUpdatesFallback(LinkUpdate update, Exception e) throws Exception {
         secondaryTgBotClient.sendUpdates(update);
     }

@@ -1,8 +1,8 @@
 package backend.academy.shared.utils.client;
 
 import backend.academy.shared.exceptions.ApiCallException;
-import java.util.concurrent.Callable;
 import backend.academy.shared.exceptions.NotRetryApiCallException;
+import java.util.concurrent.Callable;
 import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -22,9 +22,9 @@ public class RetryWrapper {
      * @param <T> Тип результата запроса
      */
     @Retryable(
-        maxAttemptsExpression = "${app.retry.max-attempts:3}", backoff = @Backoff(delayExpression = "${app.retry.backoff:500}"),
-        noRetryFor = NotRetryApiCallException.class
-    )
+            maxAttemptsExpression = "${app.retry.max-attempts:3}",
+            backoff = @Backoff(delayExpression = "${app.retry.backoff:500}"),
+            noRetryFor = NotRetryApiCallException.class)
     public <T> T retry(Callable<T> callable) {
         try {
             return callable.call();

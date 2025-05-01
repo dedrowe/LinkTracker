@@ -5,9 +5,9 @@ import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
 import backend.academy.shared.exceptions.NotRetryApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
-import java.net.URI;
 import backend.academy.shared.utils.client.RetryWrapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,8 +29,7 @@ public class StackOverflowClient extends ApiClient {
     private static final String REQUEST_FILTER = "!LbeNt-eYI5wF9dcYOL_10T";
 
     @Autowired
-    public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder,
-                               RetryWrapper wrapper) {
+    public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder, RetryWrapper wrapper) {
         key = config.stackOverflow().key();
         accessToken = config.stackOverflow().accessToken();
         client = clientBuilder

@@ -39,7 +39,10 @@ public class StackOverflowClientTest {
     private final String accessToken = "123";
 
     private final StackOverflowClient stackOverflowClient = new StackOverflowClient(
-            RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), key, accessToken, new RetryWrapper());
+            RestClient.create("http://" + mockServerAddress + ":" + mockServerPort),
+            key,
+            accessToken,
+            new RetryWrapper());
 
     @BeforeEach
     void setUp() {

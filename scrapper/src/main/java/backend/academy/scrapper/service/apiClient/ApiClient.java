@@ -1,9 +1,9 @@
 package backend.academy.scrapper.service.apiClient;
 
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.utils.client.RetryWrapper;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import backend.academy.shared.utils.client.RetryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;

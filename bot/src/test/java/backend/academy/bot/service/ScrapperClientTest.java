@@ -32,7 +32,8 @@ public class ScrapperClientTest {
             RestClient.builder()
                     .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
                     .build(),
-            new ObjectMapper(), new RetryWrapper());
+            new ObjectMapper(),
+            new RetryWrapper());
 
     @BeforeEach
     void setUp() {

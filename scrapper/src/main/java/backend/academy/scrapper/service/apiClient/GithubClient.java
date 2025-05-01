@@ -1,6 +1,5 @@
 package backend.academy.scrapper.service.apiClient;
 
-
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.github.Comment;
 import backend.academy.scrapper.dto.github.GHRepository;
@@ -8,10 +7,10 @@ import backend.academy.scrapper.dto.github.Issue;
 import backend.academy.scrapper.dto.github.PullRequest;
 import backend.academy.shared.exceptions.NotRetryApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
-import java.net.URI;
-import java.util.List;
 import backend.academy.shared.utils.client.RetryWrapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.net.URI;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,8 +22,7 @@ import org.springframework.web.client.RestClient;
 public class GithubClient extends ApiClient {
 
     @Autowired
-    public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder,
-                        RetryWrapper wrapper) {
+    public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder, RetryWrapper wrapper) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.github().githubBaseUrl())
@@ -78,7 +76,8 @@ public class GithubClient extends ApiClient {
 
     @CircuitBreaker(name = "external-services")
     public List<PullRequest> getPullRequests(URI uri) {
-        List<PullRequest> pullRequests = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        List<PullRequest> pullRequests =
+                retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (pullRequests == null) {
             throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }

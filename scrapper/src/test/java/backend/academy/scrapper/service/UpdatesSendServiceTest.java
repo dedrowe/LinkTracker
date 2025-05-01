@@ -38,11 +38,10 @@ public class UpdatesSendServiceTest {
     @Test
     public void sendUpdatesTest() {
         when(outboxRepository.getAllWithDeletion(anyLong()))
-                .thenReturn(
-                        List.of(
-                                new Outbox(1L, "link1", 1L, "test1", testTime),
-                                new Outbox(1L, "link1", 2L, "test1", testTime),
-                                new Outbox(2L, "link2", 2L, "test2", testTime)));
+                .thenReturn(List.of(
+                        new Outbox(1L, "link1", 1L, "test1", testTime),
+                        new Outbox(1L, "link1", 2L, "test1", testTime),
+                        new Outbox(2L, "link2", 2L, "test2", testTime)));
 
         InOrder order = inOrder(outboxRepository, clientWrapper, linkMapper);
 

@@ -3,6 +3,7 @@ package backend.academy.scrapper.rateLimiter;
 import backend.academy.scrapper.exceptionHandling.exceptions.RateLimitExceededException;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -21,7 +22,9 @@ public class RateLimitAspect {
 
     @Around("@annotation(rateLimit)")
     public Object limit(ProceedingJoinPoint joinPoint, RateLimit rateLimit) throws Throwable {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes)
+                        Objects.requireNonNull(RequestContextHolder.getRequestAttributes()))
+                .getRequest();
         String ip = request.getRemoteAddr();
         String endpoint = request.getRequestURI();
 
@@ -30,7 +33,8 @@ public class RateLimitAspect {
         if (rateLimiter.acquirePermission()) {
             return joinPoint.proceed();
         } else {
-            throw new RateLimitExceededException(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), HttpStatus.TOO_MANY_REQUESTS.value());
+            throw new RateLimitExceededException(
+                    HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), HttpStatus.TOO_MANY_REQUESTS.value());
         }
     }
 }

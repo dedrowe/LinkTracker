@@ -35,8 +35,8 @@ public class GithubClientTest {
     private final WireMockServer wireMockServer = new WireMockServer(
             WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
-    private final GithubClient githubClient =
-            new GithubClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), new RetryWrapper());
+    private final GithubClient githubClient = new GithubClient(
+            RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), new RetryWrapper());
 
     @BeforeEach
     void setUp() {

@@ -1,7 +1,10 @@
 package backend.academy.scrapper.service.client;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import backend.academy.scrapper.service.ScrapperContainers;
 import jakarta.annotation.PostConstruct;
+import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestClient;
-import java.net.URI;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RateLimiterTest extends ScrapperContainers {
@@ -21,7 +22,7 @@ public class RateLimiterTest extends ScrapperContainers {
 
     private RestClient restClient;
 
-    private final static long LIMIT = 10;
+    private static final long LIMIT = 10;
 
     @LocalServerPort
     private int port;
@@ -46,14 +47,20 @@ public class RateLimiterTest extends ScrapperContainers {
         String url = "/links?Tg-Chat-Id=1";
 
         for (int i = 0; i < LIMIT; i++) {
-            ResponseEntity<String> response = restClient.get().uri(URI.create(url)).retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, (request, httpResponse) -> {})
-                .toEntity(String.class);
+            ResponseEntity<String> response = restClient
+                    .get()
+                    .uri(URI.create(url))
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, (request, httpResponse) -> {})
+                    .toEntity(String.class);
             assertThat(response.getStatusCode().value()).isEqualTo(400);
         }
-        ResponseEntity<String> response = restClient.get().uri(URI.create(url)).retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError, (request, httpResponse) -> {})
-            .toEntity(String.class);
+        ResponseEntity<String> response = restClient
+                .get()
+                .uri(URI.create(url))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, httpResponse) -> {})
+                .toEntity(String.class);
         assertThat(response.getStatusCode().value()).isEqualTo(429);
     }
 }

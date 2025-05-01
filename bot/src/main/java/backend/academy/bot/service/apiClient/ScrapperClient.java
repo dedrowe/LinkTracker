@@ -33,8 +33,8 @@ public class ScrapperClient {
     private final RetryWrapper retryWrapper;
 
     @Autowired
-    public ScrapperClient(BotConfig config, RestClient.Builder clientBuilder, ObjectMapper mapper,
-                          RetryWrapper retryWrapper) {
+    public ScrapperClient(
+            BotConfig config, RestClient.Builder clientBuilder, ObjectMapper mapper, RetryWrapper retryWrapper) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.scrapper().url())
@@ -59,7 +59,8 @@ public class ScrapperClient {
     }
 
     public void registerChat(long chatId) {
-        retryWrapper.retry(() -> setStatusHandler(client.post().uri("/tg-chat/{id}", chatId).retrieve())
+        retryWrapper.retry(() -> setStatusHandler(
+                        client.post().uri("/tg-chat/{id}", chatId).retrieve())
                 .toBodilessEntity());
     }
 
@@ -70,7 +71,8 @@ public class ScrapperClient {
     }
 
     public void updateChat(long chatId, TgChatUpdateDto dto) {
-        retryWrapper.retry(() -> setStatusHandler(
+        retryWrapper
+                .retry(() -> setStatusHandler(
                         client.put().uri("/tg-chat/{id}", chatId).body(dto).retrieve()))
                 .toBodilessEntity();
     }
