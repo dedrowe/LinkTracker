@@ -80,3 +80,9 @@ resilience4j:
         failure-rate-threshold: 80
         permitted-number-of-calls-in-half-open-state: 4
         wait-duration-in-open-state: 5000ms
+  retry:
+    instances:
+      updates-sender:
+        max-attempts: 3
+        wait-duration:
+          seconds: 1

@@ -4,7 +4,7 @@ import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.entity.Outbox;
 import backend.academy.scrapper.mapper.LinkMapper;
 import backend.academy.scrapper.repository.outbox.OutboxRepository;
-import backend.academy.scrapper.service.botClient.TgBotClient;
+import backend.academy.scrapper.service.botClient.TgBotClientWrapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,18 @@ public class UpdatesSendService {
 
     private final OutboxRepository repository;
 
-    private final TgBotClient tgBotClient;
+    private final TgBotClientWrapper clientWrapper;
 
     private final LinkMapper linkMapper;
 
     @Autowired
     public UpdatesSendService(
-        ScrapperConfig config, OutboxRepository repository, TgBotClient tgBotClient, LinkMapper linkMapper) {
+        ScrapperConfig config, OutboxRepository repository,
+        TgBotClientWrapper clientWrapper,
+        LinkMapper linkMapper) {
         batchSize = config.updatesSender().batchSize();
         this.repository = repository;
-        this.tgBotClient = tgBotClient;
+        this.clientWrapper = clientWrapper;
         this.linkMapper = linkMapper;
     }
 
@@ -49,7 +51,7 @@ public class UpdatesSendService {
                 Collectors.mapping(Outbox::chatId, Collectors.toList())));
 
         for (Map.Entry<OutboxGrouping, List<Long>> entry : outboxMap.entrySet()) {
-            tgBotClient.sendUpdates(linkMapper.createLinkUpdate(
+            clientWrapper.sendUpdates(linkMapper.createLinkUpdate(
                 entry.getKey().linkId(),
                 entry.getKey().link(),
                 "Получено обновление по ссылке " + entry.getKey().link() + "\n"
