@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -13,7 +12,6 @@ public class UpdatesSendScheduler {
 
     private final UpdatesSendService service;
 
-    @Transactional
     @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
     public void sendUpdates() {
         boolean sent = true;
