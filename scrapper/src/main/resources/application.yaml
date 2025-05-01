@@ -27,6 +27,9 @@ app:
   rate-limit:
     limit: 600 #10 в секунду
     refresh-period-seconds: 60
+  timeout:
+    connection: 200
+    read: 1500
 
 spring:
   application:

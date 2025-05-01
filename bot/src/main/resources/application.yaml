@@ -12,6 +12,9 @@ app:
   retry:
     max-attempts: 3
     backoff: 500
+  timeout:
+    connection: 200
+    read: 6000
 
 spring:
   application:

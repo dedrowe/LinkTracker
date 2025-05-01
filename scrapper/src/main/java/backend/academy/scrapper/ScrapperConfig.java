@@ -22,6 +22,7 @@ public record ScrapperConfig(
         @Valid KafkaProperties kafka,
         @Valid RetryProperties retry,
         @Valid RateLimiterProperties rateLimit,
+        @Valid TimeoutProperties timeout,
         @NotNull DbAccessType accessType,
         @NotNull MessageTransport transport) {
 
@@ -43,6 +44,8 @@ public record ScrapperConfig(
     public record RetryProperties(@PositiveOrZero int maxAttempts, @PositiveOrZero int backoff) {}
 
     public record RateLimiterProperties(@Positive int limit, @Positive int refreshPeriodSeconds) {}
+
+    public record TimeoutProperties(@Positive int connection, @Positive int read) {}
 
     public enum MessageTransport {
         HTTP,

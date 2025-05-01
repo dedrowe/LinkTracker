@@ -17,6 +17,7 @@ public record BotConfig(
         @Valid Redis redis,
         @Valid KafkaProperties kafka,
         @Valid RetryProperties retry,
+        @Valid TimeoutProperties timeout,
         @NotNull MessageTransport transport) {
 
     public record Telegram(@NotEmpty String token) {}
@@ -28,6 +29,8 @@ public record BotConfig(
     public record KafkaProperties(@NotEmpty String topic, @NotEmpty String dltTopic) {}
 
     public record RetryProperties(@PositiveOrZero int maxAttempts, @PositiveOrZero int backoff) {}
+
+    public record TimeoutProperties(@Positive int connection, @Positive int read) {}
 
     public enum MessageTransport {
         HTTP,
