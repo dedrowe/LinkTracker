@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("JavaTimeDefaultTimeZone")
 public class LinkDataServiceTest {
 
     private final LinkDataRepository linkDataRepository = mock(LinkDataRepository.class);

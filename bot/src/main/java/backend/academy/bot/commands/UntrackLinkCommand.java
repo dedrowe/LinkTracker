@@ -1,7 +1,7 @@
 package backend.academy.bot.commands;
 
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.RemoveLinkRequest;
 import com.pengrad.telegrambot.model.Update;
 import java.util.Optional;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UntrackLinkCommand extends TgBotCommand {
 
-    public UntrackLinkCommand(ScrapperClient client) {
+    public UntrackLinkCommand(ScrapperClientWrapper client) {
         super(client, "Отмена отслеживания ссылки, синтаксис: /untrack <link>");
     }
 
     @Override
-    @SuppressWarnings("PMD.UnusedLocalVariable")
+    @SuppressWarnings("StringSplitter")
     public Optional<String> execute(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {

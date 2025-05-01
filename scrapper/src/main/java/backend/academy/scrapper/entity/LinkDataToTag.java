@@ -45,8 +45,7 @@ public class LinkDataToTag {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        LinkDataToTag that = (LinkDataToTag) o;
+        if (!(o instanceof LinkDataToTag that)) return false;
         return dataId == that.dataId && tagId == that.tagId;
     }
 

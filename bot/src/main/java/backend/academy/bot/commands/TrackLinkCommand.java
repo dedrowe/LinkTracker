@@ -3,7 +3,7 @@ package backend.academy.bot.commands;
 import backend.academy.bot.dto.LinkState;
 import backend.academy.bot.exceptionHandling.exceptions.InvalidCommandSyntaxException;
 import backend.academy.bot.service.LinkMapper;
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.bot.stateStorage.TrackStateStorage;
 import backend.academy.bot.stateStorage.state.LinkTrackState;
 import com.pengrad.telegrambot.model.Update;
@@ -20,7 +20,7 @@ public class TrackLinkCommand extends TgBotCommand {
 
     private final LinkMapper linkMapper;
 
-    public TrackLinkCommand(ScrapperClient client, TrackStateStorage storage, LinkMapper linkMapper) {
+    public TrackLinkCommand(ScrapperClientWrapper client, TrackStateStorage storage, LinkMapper linkMapper) {
         super(client, "Регистрация ссылки для отслеживания, синтаксис: /track <link>");
         this.storage = storage;
         this.linkMapper = linkMapper;
@@ -38,6 +38,7 @@ public class TrackLinkCommand extends TgBotCommand {
         };
     }
 
+    @SuppressWarnings("StringSplitter")
     private Optional<String> setLink(Update update) {
         String[] command = update.message().text().split(" ");
         if (command.length != 2) {
@@ -64,6 +65,7 @@ public class TrackLinkCommand extends TgBotCommand {
         return Optional.of("Введите через пробел фильтры для ссылки в формате key:value, введите /skip для пропуска");
     }
 
+    @SuppressWarnings("StringSplitter")
     private Optional<String> setFilters(Update update, LinkState linkState) {
         String[] command = update.message().text().split(" ");
         if (!command[0].equals("/skip")) {

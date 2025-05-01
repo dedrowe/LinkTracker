@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.repository.tgchat.JdbcTgChatRepository;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,6 +115,21 @@ public class TgChatRepositoryTest extends AbstractJdbcTest {
         assertThat(actualResult.id()).isEqualTo(expectedResult.id());
         assertThat(actualResult.chatId()).isEqualTo(expectedResult.chatId());
         assertThat(actualResult.deleted()).isEqualTo(expectedResult.deleted());
+    }
+
+    @Test
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
+    public void updateTest() {
+        TgChat expectedResult = new TgChat(1L, 1L, false, List.of(), LocalTime.now());
+
+        repository.update(expectedResult);
+
+        TgChat actualResult = client.sql("select * from tg_chats where id = ?")
+                .param(expectedResult.id())
+                .query(TgChat.class)
+                .single();
+
+        assertThat(actualResult).isEqualTo(expectedResult);
     }
 
     @Test

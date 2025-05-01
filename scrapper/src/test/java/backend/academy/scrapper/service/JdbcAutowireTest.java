@@ -14,6 +14,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest
+@SuppressWarnings("UnusedVariable")
 public class JdbcAutowireTest extends ScrapperContainers {
 
     private final FiltersRepository filtersRepository;

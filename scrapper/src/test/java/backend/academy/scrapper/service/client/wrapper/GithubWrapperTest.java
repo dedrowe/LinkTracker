@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.dto.github.Comment;
 import backend.academy.scrapper.dto.github.Issue;
 import backend.academy.scrapper.dto.github.PullRequest;
@@ -16,7 +17,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,55 +49,60 @@ public class GithubWrapperTest {
     @Test
     public void getRepositoryUpdateWithPRTest() {
         URI uri = URI.create("https://github.com/-1/-1");
-        String expectedResult = "\nПоследний PR:\n" + pr.getInfo(expectedBody.length());
+        Update expectedResult =
+                new Update("\nПоследний PR:\n" + pr.getInfo(expectedBody.length()), Map.of("user", user.login()));
         when(githubClient.getIssues(any())).thenReturn(List.of());
         when(githubClient.getPullRequests(any())).thenReturn(List.of(pr));
 
-        Optional<String> actualResult = githubWrapper.getLastUpdate(
+        List<Update> actualResult = githubWrapper.getLastUpdate(
                 uri, ZonedDateTime.parse(expectedUpdate).toLocalDateTime());
 
-        assertThat(actualResult.get()).isEqualTo(expectedResult);
+        assertThat(actualResult).containsExactly(expectedResult);
     }
 
     @Test
     public void getRepositoryUpdateWithIssueTest() {
         URI uri = URI.create("https://github.com/-1/-1");
-        String expectedResult = "\nПоследний Issue:\n" + issue.getInfo(expectedBody.length());
+        Update expectedResult =
+                new Update("\nПоследний Issue:\n" + issue.getInfo(expectedBody.length()), Map.of("user", user.login()));
         when(githubClient.getIssues(any())).thenReturn(List.of(issue));
         when(githubClient.getPullRequests(any())).thenReturn(List.of());
 
-        Optional<String> actualResult = githubWrapper.getLastUpdate(
+        List<Update> actualResult = githubWrapper.getLastUpdate(
                 uri, ZonedDateTime.parse(expectedUpdate).toLocalDateTime());
 
-        assertThat(actualResult.get()).isEqualTo(expectedResult);
+        assertThat(actualResult).containsExactly(expectedResult);
     }
 
     @Test
     public void getRepositoryUpdateWithPRAndIssueTest() {
         URI uri = URI.create("https://github.com/-1/-1");
-        String expectedResult = "\nПоследний PR:\n" + pr.getInfo(expectedBody.length()) + "\nПоследний Issue:\n"
-                + issue.getInfo(expectedBody.length());
+        Update update1 =
+                new Update("\nПоследний PR:\n" + pr.getInfo(expectedBody.length()), Map.of("user", user.login()));
+        Update update2 =
+                new Update("\nПоследний Issue:\n" + issue.getInfo(expectedBody.length()), Map.of("user", user.login()));
         when(githubClient.getIssues(any())).thenReturn(List.of(issue));
         when(githubClient.getPullRequests(any())).thenReturn(List.of(pr));
 
-        Optional<String> actualResult = githubWrapper.getLastUpdate(
+        List<Update> actualResult = githubWrapper.getLastUpdate(
                 uri, ZonedDateTime.parse(expectedUpdate).toLocalDateTime());
 
-        assertThat(actualResult.get()).isEqualTo(expectedResult);
+        assertThat(actualResult).containsExactly(update1, update2);
     }
 
     @Test
     public void getIssueUpdateTest() {
         Comment comment = new Comment(0, user, lastUpdate, lastUpdate, expectedBody);
         URI uri = URI.create("https://github.com/-1/-1/issues/-1");
-        String expectedResult = "\nПоследний комментарий:\n" + comment.getInfo(expectedBody.length());
+        Update update1 = new Update(
+                "\nПоследний комментарий:\n" + comment.getInfo(expectedBody.length()), Map.of("user", user.login()));
         when(githubClient.getIssue(any())).thenReturn(issue);
         when(githubClient.getComments(any())).thenReturn(List.of(comment));
 
-        Optional<String> actualResult = githubWrapper.getLastUpdate(
+        List<Update> actualResult = githubWrapper.getLastUpdate(
                 uri, ZonedDateTime.parse(expectedUpdate).toLocalDateTime());
 
-        assertThat(actualResult.get()).isEqualTo(expectedResult);
+        assertThat(actualResult).containsExactly(update1);
     }
 
     @ParameterizedTest
@@ -108,6 +114,7 @@ public class GithubWrapperTest {
                 "https://github.com/-1/",
                 "https://github.com/-1",
             })
+    @SuppressWarnings("JavaTimeDefaultTimeZone")
     public void getWrongUrlUpdateTest(String url) {
         URI uri = URI.create(url);
 

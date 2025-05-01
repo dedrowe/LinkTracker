@@ -1,6 +1,6 @@
 package backend.academy.bot.commands;
 
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import backend.academy.shared.dto.ListTagLinkCount;
 import backend.academy.shared.dto.TagLinkCount;
 import com.pengrad.telegrambot.model.Update;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component("/tags")
 public class GetTagLinksCountCommand extends TgBotCommand {
 
-    public GetTagLinksCountCommand(ScrapperClient client) {
+    public GetTagLinksCountCommand(ScrapperClientWrapper client) {
         super(client, "Получение списка тэгов и количества отслеживаемых ссылок с этими тэгами");
     }
 

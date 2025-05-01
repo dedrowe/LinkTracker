@@ -45,13 +45,10 @@ public class JdbcLinkRepository implements LinkRepository {
     public List<Link> getNotChecked(long limit, LocalDateTime curTime, long checkInterval) {
         String query =
                 """
-        with limited as (
-            select id from links where deleted = false and last_update < :curTime and checking = false
-            limit :limit
-        )
         update links
         set checking = true
-        where id in (select id from limited)
+        where id in (select id from links where deleted = false and last_update < :curTime and checking = false
+            limit :limit for update skip locked)
         returning *
         """;
 

@@ -7,9 +7,8 @@ import backend.academy.scrapper.entity.TgChat;
 import backend.academy.scrapper.entity.jpa.JpaFilter;
 import backend.academy.scrapper.entity.jpa.JpaLinkData;
 import backend.academy.scrapper.repository.filters.JpaFiltersRepository;
-import java.time.Instant;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +19,7 @@ public class FiltersRepositoryTest extends AbstractJpaTest {
 
     private final JpaFiltersRepository repository;
 
-    private final LocalDateTime testTimestamp =
-            Instant.ofEpochSecond(1741886605).atZone(ZoneOffset.UTC).toLocalDateTime();
+    private final LocalDateTime testTimestamp = UtcDateTimeProvider.of(1741886605);
 
     @Autowired
     public FiltersRepositoryTest(TestEntityManager entityManager, JpaFiltersRepository repository) {

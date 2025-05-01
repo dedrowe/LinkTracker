@@ -1,6 +1,7 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,13 @@ public class JdbcTgChatRepository implements TgChatRepository {
     }
 
     @Override
+    public List<TgChat> getAllByIds(List<Long> ids) {
+        String query = "select * from tg_chats where id in (:ids)";
+
+        return jdbcClient.sql(query).param("ids", ids).query(TgChat.class).list();
+    }
+
+    @Override
     public void create(TgChat tgChat) {
         String query =
                 """
@@ -43,6 +51,17 @@ public class JdbcTgChatRepository implements TgChatRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient.sql(query).param("chatId", tgChat.chatId()).update(keyHolder);
         tgChat.id(keyHolder.getKeyAs(Long.class));
+    }
+
+    @Override
+    public void update(TgChat tgChat) {
+        String query = "update tg_chats set digest = :digest where id = :id and deleted = false";
+
+        jdbcClient
+                .sql(query)
+                .param("digest", tgChat.digest())
+                .param("id", tgChat.id())
+                .update();
     }
 
     @Override

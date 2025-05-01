@@ -7,7 +7,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.mockito.Mockito.times;
 
-import backend.academy.scrapper.service.apiClient.TgBotClient;
+import backend.academy.scrapper.service.botClient.HttpTgBotClient;
+import backend.academy.scrapper.service.botClient.TgBotClient;
 import backend.academy.shared.dto.LinkUpdate;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -24,7 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClient;
 
 @ExtendWith(MockitoExtension.class)
-public class TgBotClientTest {
+public class HttpTgBotClientTest {
 
     private final String mockServerAddress = "localhost";
 
@@ -34,7 +35,7 @@ public class TgBotClientTest {
             WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
     private final TgBotClient tgBotClient =
-            new TgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort));
+            new HttpTgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort));
 
     @BeforeEach
     void setUp() {

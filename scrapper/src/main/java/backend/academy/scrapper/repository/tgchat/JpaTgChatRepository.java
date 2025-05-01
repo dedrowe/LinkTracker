@@ -1,6 +1,8 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +23,10 @@ public interface JpaTgChatRepository extends TgChatRepository, JpaRepository<TgC
     Optional<TgChat> getByChatId(long chatId);
 
     @Override
+    @Query(value = "select t from TgChat t where t.id in :ids")
+    List<TgChat> getAllByIds(@Param("ids") List<Long> ids);
+
+    @Override
     @Transactional
     default void create(TgChat tgChat) {
         Optional<TgChat> data = getByChatIdWithDeleted(tgChat.chatId());
@@ -28,6 +34,17 @@ public interface JpaTgChatRepository extends TgChatRepository, JpaRepository<TgC
         save(tgChat);
         flush();
     }
+
+    @Override
+    @Transactional
+    default void update(TgChat tgChat) {
+        update(tgChat.id(), tgChat.digest());
+    }
+
+    @Modifying
+    @Transactional
+    @Query(value = "update TgChat t set t.digest = :digest where t.id = :id and t.deleted = false")
+    void update(@Param("id") long id, @Param("digest") LocalTime digest);
 
     @Query(value = "select t from TgChat t where t.chatId = :chatId")
     Optional<TgChat> getByChatIdWithDeleted(@Param("chatId") long chatId);

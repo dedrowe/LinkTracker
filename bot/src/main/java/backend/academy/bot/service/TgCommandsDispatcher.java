@@ -20,6 +20,7 @@ public class TgCommandsDispatcher {
         return commands;
     }
 
+    @SuppressWarnings("StringSplitter")
     public Optional<TgBotCommand> dispatchCommand(Update update) {
         String command = update.message().text().split(" ")[0];
         TgBotCommand tgBotCommand = commands.getOrDefault(command, null);

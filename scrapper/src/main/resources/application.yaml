@@ -10,9 +10,17 @@ app:
     so-base-url: ${SO_URL:https://api.stackexchange.com/2.3}
   access-type: ${ACCESS_TYPE:SQL}
   updates-checker:
-    batch-size: ${BATCH_SIZE:200}
+    batch-size: ${CHECKER_BATCH_SIZE:200}
     threads-count: ${THREADS_COUNT:4}
     check-interval-seconds: ${CHECK_INTERVAL:0}
+  updates-sender:
+    batch-size: ${SENDER_BATCH_SIZE:200}
+  kafka:
+    topic: updates
+    partitions: 1
+    replicas: 1
+    tx-id: ${TRANSACTIONAL_ID}
+  transport: kafka
 
 spring:
   application:
@@ -32,6 +40,13 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      properties:
+        acks: -1
+        batch.size: 1024
+        linger.ms: 10000
 
 logging:
   structured:

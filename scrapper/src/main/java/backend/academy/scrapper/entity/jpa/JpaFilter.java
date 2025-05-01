@@ -83,8 +83,7 @@ public class JpaFilter implements Filter {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        JpaFilter jpaFilter = (JpaFilter) o;
+        if (!(o instanceof JpaFilter jpaFilter)) return false;
         return Objects.equals(linkData, jpaFilter.linkData) && Objects.equals(filter, jpaFilter.filter);
     }
 

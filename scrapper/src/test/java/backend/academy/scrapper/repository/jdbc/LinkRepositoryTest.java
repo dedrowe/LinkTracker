@@ -4,10 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.JdbcLinkRepository;
+import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +26,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
         repository = new JdbcLinkRepository(client);
     }
 
-    private final LocalDateTime testTimestamp =
-            Instant.ofEpochSecond(1741886605).atZone(ZoneOffset.UTC).toLocalDateTime();
+    private final LocalDateTime testTimestamp = UtcDateTimeProvider.of(1741886605);
 
     @BeforeEach
     void setUp() {
@@ -76,7 +74,7 @@ public class LinkRepositoryTest extends AbstractJdbcTest {
                 .param("lastUpdate", expectedResult.lastUpdate())
                 .update();
 
-        List<Link> actualResult = repository.getNotChecked(10L, testTimestamp, linksCheckInterval.getSeconds());
+        List<Link> actualResult = repository.getNotChecked(10L, testTimestamp, linksCheckInterval.toSeconds());
 
         assertThat(actualResult).containsExactly(expectedResult);
         assertThat(actualResult.getFirst().checking()).isTrue();

@@ -2,6 +2,8 @@
 !**/src/main/**
 !**/src/test/**
 data
+redis-cache
+kafka-data
 *.env*
 
 ### Maven ###

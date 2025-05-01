@@ -1,6 +1,7 @@
 package backend.academy.scrapper.repository.tgchat;
 
 import backend.academy.scrapper.entity.TgChat;
+import java.util.List;
 import java.util.Optional;
 
 public interface TgChatRepository {
@@ -9,7 +10,11 @@ public interface TgChatRepository {
 
     Optional<TgChat> getByChatId(long chatId);
 
+    List<TgChat> getAllByIds(List<Long> ids);
+
     void create(TgChat tgChat);
+
+    void update(TgChat tgChat);
 
     void deleteById(long id);
 

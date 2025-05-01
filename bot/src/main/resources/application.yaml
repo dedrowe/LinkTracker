@@ -3,6 +3,12 @@ app:
     token: ${TELEGRAM_TOKEN} # env variable
   scrapper:
     url: ${SCRAPPER_URL:http://localhost:8081}
+  redis:
+    ttl-minutes: ${REDIS_TTL_MINUTES:60}
+  kafka:
+    topic: updates
+    dltTopic: updates-dlt
+  transport: kafka
 
 spring:
   application:
@@ -15,6 +21,18 @@ spring:
     open-in-view: false
   config:
     import: optional:.env.properties
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      properties:
+        enable.auto.commit: false
+        auto.offset.reset: earliest
+        isolation.level: read_committed
+        fetch.min.bytes: 1024
+        fetch.max.bytes: 1048576
+        fetch.max.wait.ms: 10000
+        max.poll.interval.ms: 10000
+        max.poll.records: 10
 
 logging:
   structured:

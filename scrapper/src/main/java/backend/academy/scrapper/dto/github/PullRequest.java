@@ -2,6 +2,7 @@ package backend.academy.scrapper.dto.github;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import java.util.Map;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record PullRequest(long id, String title, User user, String body, String createdAt) {
@@ -15,5 +16,9 @@ public record PullRequest(long id, String title, User user, String body, String 
                 + this.user().login() + "\n" + "Создан: "
                 + this.createdAt() + "\n" + "Описание: "
                 + body + "\n";
+    }
+
+    public Map<String, String> getPossibleFilters() {
+        return Map.of("user", user().login());
     }
 }

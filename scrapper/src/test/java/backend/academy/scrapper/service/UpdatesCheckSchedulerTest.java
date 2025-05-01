@@ -7,12 +7,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.LinkRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ public class UpdatesCheckSchedulerTest {
                                 new Link(3L, "https://example3.com", LocalDateTime.of(2025, 2, 21, 0, 0))),
                         List.of(new Link(4L, "https://example4.com", LocalDateTime.of(2025, 2, 21, 0, 0))),
                         List.of());
-        when(checkerService.getLinkUpdate(any())).thenReturn(Optional.of(""));
+        when(checkerService.getLinkUpdate(any())).thenReturn(List.of(new Update("test", Map.of())));
         InOrder order = inOrder(linkRepository, checkerService);
 
         scheduler.checkUpdates();
@@ -62,7 +63,7 @@ public class UpdatesCheckSchedulerTest {
     private void checkIterate(InOrder order, int count) {
         for (int i = 0; i < count; i++) {
             order.verify(checkerService, times(1)).getLinkUpdate(any());
-            order.verify(checkerService, times(1)).sendUpdatesForLink(any(), any());
+            order.verify(checkerService, times(1)).setUpdatesForLink(any(), any());
         }
     }
 }

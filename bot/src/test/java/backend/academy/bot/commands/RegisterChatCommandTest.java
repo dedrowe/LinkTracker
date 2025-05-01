@@ -3,7 +3,7 @@ package backend.academy.bot.commands;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import backend.academy.bot.service.ScrapperClient;
+import backend.academy.bot.service.apiClient.wrapper.ScrapperClientWrapper;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
@@ -16,10 +16,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("UnusedVariable")
 public class RegisterChatCommandTest {
 
     @Mock
-    private ScrapperClient client;
+    private ScrapperClientWrapper client;
 
     @InjectMocks
     private RegisterChatCommand commandExecutor;

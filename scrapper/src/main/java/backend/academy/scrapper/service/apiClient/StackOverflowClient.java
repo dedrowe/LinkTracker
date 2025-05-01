@@ -53,6 +53,7 @@ public class StackOverflowClient extends ApiClient {
     }
 
     @Override
+    @SuppressWarnings("StringSplitter")
     protected RestClient.ResponseSpec getRequest(URI uri) {
         String[] pathTokens = uri.getPath().split("/");
         String path;

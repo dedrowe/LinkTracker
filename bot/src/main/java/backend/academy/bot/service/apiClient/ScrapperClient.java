@@ -1,16 +1,19 @@
-package backend.academy.bot.service;
+package backend.academy.bot.service.apiClient;
 
 import static backend.academy.shared.utils.client.RetryWrapper.retry;
 
 import backend.academy.bot.BotConfig;
 import backend.academy.shared.dto.AddLinkRequest;
 import backend.academy.shared.dto.ApiErrorResponse;
+import backend.academy.shared.dto.LinkResponse;
 import backend.academy.shared.dto.ListLinkResponse;
 import backend.academy.shared.dto.ListTagLinkCount;
 import backend.academy.shared.dto.RemoveLinkRequest;
+import backend.academy.shared.dto.TgChatUpdateDto;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -21,6 +24,7 @@ import org.springframework.web.client.RestClient;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class ScrapperClient {
 
     private final RestClient client;
@@ -28,16 +32,11 @@ public class ScrapperClient {
     private final ObjectMapper mapper;
 
     @Autowired
-    public ScrapperClient(BotConfig config, RestClient.Builder clientBuilder) {
+    public ScrapperClient(BotConfig config, RestClient.Builder clientBuilder, ObjectMapper mapper) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder().build())
                 .baseUrl(config.scrapper().url())
                 .build();
-        mapper = new ObjectMapper();
-    }
-
-    public ScrapperClient(RestClient client, ObjectMapper mapper) {
-        this.client = client;
         this.mapper = mapper;
     }
 
@@ -67,6 +66,12 @@ public class ScrapperClient {
                 .toBodilessEntity());
     }
 
+    public void updateChat(long chatId, TgChatUpdateDto dto) {
+        retry(() -> setStatusHandler(
+                        client.put().uri("/tg-chat/{id}", chatId).body(dto).retrieve()))
+                .toBodilessEntity();
+    }
+
     public ListLinkResponse getLinks(long chatId) {
         return retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
@@ -78,26 +83,28 @@ public class ScrapperClient {
                 .getBody());
     }
 
-    public void trackLink(long chatId, AddLinkRequest request) {
-        retry(() -> setStatusHandler(client.post()
+    public LinkResponse trackLink(long chatId, AddLinkRequest request) {
+        return retry(() -> setStatusHandler(client.post()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .body(request)
                         .retrieve())
-                .toBodilessEntity());
+                .toEntity(LinkResponse.class)
+                .getBody());
     }
 
-    public void untrackLink(long chatId, RemoveLinkRequest request) {
-        retry(() -> setStatusHandler(client.method(HttpMethod.DELETE)
+    public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
+        return retry(() -> setStatusHandler(client.method(HttpMethod.DELETE)
                         .uri(uriBuilder -> uriBuilder
                                 .path("/links")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .build())
                         .body(request)
                         .retrieve())
-                .toBodilessEntity());
+                .toEntity(LinkResponse.class)
+                .getBody());
     }
 
     public ListTagLinkCount getTagLinksCount(long chatId) {
@@ -106,9 +113,9 @@ public class ScrapperClient {
                                 .path("/links/tags")
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .build())
-                        .retrieve()))
+                        .retrieve())
                 .toEntity(ListTagLinkCount.class)
-                .getBody();
+                .getBody());
     }
 
     public ListLinkResponse getLinksByTag(long chatId, String tag) {
@@ -118,8 +125,8 @@ public class ScrapperClient {
                                 .queryParam("Tg-Chat-Id", chatId)
                                 .queryParam("tag", tag)
                                 .build())
-                        .retrieve()))
+                        .retrieve())
                 .toEntity(ListLinkResponse.class)
-                .getBody();
+                .getBody());
     }
 }

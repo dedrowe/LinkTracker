@@ -1,6 +1,7 @@
 create table tg_chats (
     id bigserial primary key,
     chat_id bigint unique not null,
+    digest time,
     deleted boolean default false
 );
 
@@ -46,3 +47,14 @@ create table filters (
 );
 
 create index idx_filters_data_id_btree on filters using btree (data_id);
+
+create table outbox (
+    id bigserial primary key,
+    link_id bigserial not null,
+    link varchar(512) not null,
+    chat_id bigint not null,
+    description varchar(512) not null,
+    send_time timestamp not null
+);
+
+create index idx_outbox_send_time_btree on outbox using btree (send_time);

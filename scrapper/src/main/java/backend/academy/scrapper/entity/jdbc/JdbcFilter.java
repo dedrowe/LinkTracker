@@ -47,8 +47,7 @@ public class JdbcFilter implements Filter {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        JdbcFilter that = (JdbcFilter) o;
+        if (!(o instanceof JdbcFilter that)) return false;
         return Objects.equals(dataId, that.dataId) && Objects.equals(filter, that.filter);
     }
 

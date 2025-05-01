@@ -92,7 +92,7 @@ public class TgBot {
                     try (var ignored = MDC.putCloseable("command", ex.command())) {
                         log.warn("Неверный формат команды", ex);
                     }
-                    sendMessage(chatId, ex.getMessage());
+                    sendMessage(chatId, ex.response());
                 } catch (RuntimeException ex) {
                     log.error("Произошла ошибка", ex);
                     sendMessage(chatId, "Произошла ошибка");
