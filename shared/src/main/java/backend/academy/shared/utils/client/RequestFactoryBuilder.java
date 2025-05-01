@@ -7,7 +7,7 @@ public class RequestFactoryBuilder {
 
     private int connectionTimeoutMillis = 200;
 
-    private int readTimeoutMillis = 3000;
+    private int readTimeoutMillis = 1500;
 
     public RequestFactoryBuilder setConnectionTimeout(int connectionTimeoutMillis) {
         this.connectionTimeoutMillis = connectionTimeoutMillis;
