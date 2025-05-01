@@ -36,7 +36,7 @@ public class HttpTgBotClientTest {
             WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
     private final TgBotClient tgBotClient =
-            new HttpTgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), new RetryWrapper());
+            new HttpTgBotClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort));
 
     @BeforeEach
     void setUp() {
