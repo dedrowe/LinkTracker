@@ -66,6 +66,7 @@
         <spotbugs-maven-plugin.version>4.8.6.6</spotbugs-maven-plugin.version>
         <findsecbugs.version>LATEST</findsecbugs.version>
         <spotbugs-slf4j.version>1.5.0</spotbugs-slf4j.version>
+        <resilience4j.version>2.3.0</resilience4j.version>
     </properties>
 
     <dependencyManagement>

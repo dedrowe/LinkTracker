@@ -12,6 +12,7 @@ import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
 import backend.academy.shared.utils.client.RetryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,18 +62,21 @@ public class ScrapperClient {
         });
     }
 
+    @CircuitBreaker(name = "scrapper")
     public void registerChat(long chatId) {
         retryWrapper.retry(() -> setStatusHandler(
                         client.post().uri("/tg-chat/{id}", chatId).retrieve())
                 .toBodilessEntity());
     }
 
+    @CircuitBreaker(name = "scrapper")
     public void deleteChat(long chatId) {
         retryWrapper.retry(() -> setStatusHandler(
                         client.delete().uri("/tg-chat/{id}", chatId).retrieve())
                 .toBodilessEntity());
     }
 
+    @CircuitBreaker(name = "scrapper")
     public void updateChat(long chatId, TgChatUpdateDto dto) {
         retryWrapper
                 .retry(() -> setStatusHandler(
@@ -80,6 +84,7 @@ public class ScrapperClient {
                 .toBodilessEntity();
     }
 
+    @CircuitBreaker(name = "scrapper")
     public ListLinkResponse getLinks(long chatId) {
         return retryWrapper.retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
@@ -91,6 +96,7 @@ public class ScrapperClient {
                 .getBody());
     }
 
+    @CircuitBreaker(name = "scrapper")
     public LinkResponse trackLink(long chatId, AddLinkRequest request) {
         return retryWrapper.retry(() -> setStatusHandler(client.post()
                         .uri(uriBuilder -> uriBuilder
@@ -103,6 +109,7 @@ public class ScrapperClient {
                 .getBody());
     }
 
+    @CircuitBreaker(name = "scrapper")
     public LinkResponse untrackLink(long chatId, RemoveLinkRequest request) {
         return retryWrapper.retry(() -> setStatusHandler(client.method(HttpMethod.DELETE)
                         .uri(uriBuilder -> uriBuilder
@@ -115,6 +122,7 @@ public class ScrapperClient {
                 .getBody());
     }
 
+    @CircuitBreaker(name = "scrapper")
     public ListTagLinkCount getTagLinksCount(long chatId) {
         return retryWrapper.retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
@@ -126,6 +134,7 @@ public class ScrapperClient {
                 .getBody());
     }
 
+    @CircuitBreaker(name = "scrapper")
     public ListLinkResponse getLinksByTag(long chatId, String tag) {
         return retryWrapper.retry(() -> setStatusHandler(client.get()
                         .uri(uriBuilder -> uriBuilder
