@@ -34,9 +34,9 @@ public class StackOverflowClient extends ApiClient {
         accessToken = config.stackOverflow().accessToken();
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder()
-                    .setConnectionTimeout(config.timeout().connection())
-                    .setReadTimeout(config.timeout().read())
-                    .build())
+                        .setConnectionTimeout(config.timeout().connection())
+                        .setReadTimeout(config.timeout().read())
+                        .build())
                 .baseUrl(config.stackOverflow().SOBaseUrl())
                 .build();
         retryWrapper = wrapper;
