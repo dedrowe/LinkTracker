@@ -24,7 +24,10 @@ public class GithubClient extends ApiClient {
     @Autowired
     public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder, RetryWrapper wrapper) {
         client = clientBuilder
-                .requestFactory(new RequestFactoryBuilder().build())
+                .requestFactory(new RequestFactoryBuilder()
+                    .setConnectionTimeout(config.timeout().connection())
+                    .setReadTimeout(config.timeout().read())
+                    .build())
                 .baseUrl(config.github().githubBaseUrl())
                 .defaultHeader("Accept", "application/vnd.github+json")
                 .defaultHeader("Authorization", "Bearer " + config.github().githubToken())

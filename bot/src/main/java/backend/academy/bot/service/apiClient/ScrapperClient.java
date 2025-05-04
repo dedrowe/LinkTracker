@@ -37,6 +37,7 @@ public class ScrapperClient {
             BotConfig config, RestClient.Builder clientBuilder, ObjectMapper mapper, RetryWrapper retryWrapper) {
         client = clientBuilder
                 .requestFactory(new RequestFactoryBuilder()
+                        .setConnectionTimeout(config.timeout().connection())
                         .setReadTimeout(config.timeout().read())
                         .build())
                 .baseUrl(config.scrapper().url())

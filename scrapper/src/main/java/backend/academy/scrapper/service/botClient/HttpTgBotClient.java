@@ -20,7 +20,10 @@ public class HttpTgBotClient implements TgBotClient {
     @Autowired
     public HttpTgBotClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
         client = clientBuilder
-                .requestFactory(new RequestFactoryBuilder().build())
+                .requestFactory(new RequestFactoryBuilder()
+                    .setConnectionTimeout(config.timeout().connection())
+                    .setReadTimeout(config.timeout().read())
+                    .build())
                 .baseUrl(config.bot().url())
                 .build();
     }
