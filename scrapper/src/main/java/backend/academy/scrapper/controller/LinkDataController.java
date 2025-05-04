@@ -1,6 +1,5 @@
 package backend.academy.scrapper.controller;
 
-import backend.academy.scrapper.rateLimiter.RateLimit;
 import backend.academy.scrapper.service.LinkDataService;
 import backend.academy.scrapper.service.TagsService;
 import backend.academy.shared.dto.AddLinkRequest;
@@ -29,7 +28,6 @@ public class LinkDataController {
     private final TagsService tagsService;
 
     @GetMapping
-    @RateLimit
     public ListLinkResponse getByChatId(
             @RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId,
             @RequestParam(value = "tag", required = false) String tag) {
@@ -40,20 +38,17 @@ public class LinkDataController {
     }
 
     @GetMapping("/tags")
-    @RateLimit
     public ListTagLinkCount getTagsLinksCount(@RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId) {
         return tagsService.getTagLinksCountByChatIdSync(chatId);
     }
 
     @PostMapping
-    @RateLimit
     public LinkResponse trackLink(
             @RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId, @RequestBody AddLinkRequest request) {
         return linkDataService.trackLink(chatId, request);
     }
 
     @DeleteMapping
-    @RateLimit
     public LinkResponse untrackLink(
             @RequestParam(TG_CHAT_ID_PARAM_NAME) long chatId, @RequestBody RemoveLinkRequest request) {
         return linkDataService.untrackLink(chatId, request);
