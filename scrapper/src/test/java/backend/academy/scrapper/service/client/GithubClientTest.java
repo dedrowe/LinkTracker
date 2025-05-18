@@ -16,6 +16,7 @@ import backend.academy.scrapper.dto.github.Issue;
 import backend.academy.scrapper.dto.github.PullRequest;
 import backend.academy.scrapper.service.apiClient.GithubClient;
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.utils.client.RetryWrapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import java.net.URI;
@@ -34,8 +35,8 @@ public class GithubClientTest {
     private final WireMockServer wireMockServer = new WireMockServer(
             WireMockConfiguration.options().bindAddress(mockServerAddress).port(mockServerPort));
 
-    private final GithubClient githubClient =
-            new GithubClient(RestClient.create("http://" + mockServerAddress + ":" + mockServerPort));
+    private final GithubClient githubClient = new GithubClient(
+            RestClient.create("http://" + mockServerAddress + ":" + mockServerPort), new RetryWrapper());
 
     @BeforeEach
     void setUp() {

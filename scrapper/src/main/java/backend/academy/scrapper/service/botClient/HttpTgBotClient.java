@@ -1,7 +1,5 @@
 package backend.academy.scrapper.service.botClient;
 
-import static backend.academy.shared.utils.client.RetryWrapper.retry;
-
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.shared.dto.LinkUpdate;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
@@ -9,15 +7,12 @@ import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(havingValue = "http", prefix = "app", name = "transport")
 public class HttpTgBotClient implements TgBotClient {
 
     private final RestClient client;
@@ -25,7 +20,10 @@ public class HttpTgBotClient implements TgBotClient {
     @Autowired
     public HttpTgBotClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
         client = clientBuilder
-                .requestFactory(new RequestFactoryBuilder().build())
+                .requestFactory(new RequestFactoryBuilder()
+                        .setConnectionTimeout(config.timeout().connection())
+                        .setReadTimeout(config.timeout().read())
+                        .build())
                 .baseUrl(config.bot().url())
                 .build();
     }
@@ -34,10 +32,9 @@ public class HttpTgBotClient implements TgBotClient {
         this.client = client;
     }
 
-    @Async
     @Override
     public void sendUpdates(LinkUpdate updates) {
-        retry(() -> client.post()
+        client.post()
                 .uri("/updates")
                 .body(updates)
                 .retrieve()
@@ -53,6 +50,6 @@ public class HttpTgBotClient implements TgBotClient {
                     log.error(body);
                     MDC.remove("code");
                 })
-                .toBodilessEntity());
+                .toBodilessEntity();
     }
 }

@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import backend.academy.bot.service.apiClient.ScrapperClient;
 import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.utils.client.RetryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -31,7 +32,8 @@ public class ScrapperClientTest {
             RestClient.builder()
                     .baseUrl("http://" + mockServerAddress + ":" + mockServerPort)
                     .build(),
-            new ObjectMapper());
+            new ObjectMapper(),
+            new RetryWrapper());
 
     @BeforeEach
     void setUp() {

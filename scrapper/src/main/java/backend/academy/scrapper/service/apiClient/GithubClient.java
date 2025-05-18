@@ -1,14 +1,14 @@
 package backend.academy.scrapper.service.apiClient;
 
-import static backend.academy.shared.utils.client.RetryWrapper.retry;
-
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.github.Comment;
 import backend.academy.scrapper.dto.github.GHRepository;
 import backend.academy.scrapper.dto.github.Issue;
 import backend.academy.scrapper.dto.github.PullRequest;
-import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.exceptions.NotRetryApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
+import backend.academy.shared.utils.client.RetryWrapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.net.URI;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -22,56 +22,67 @@ import org.springframework.web.client.RestClient;
 public class GithubClient extends ApiClient {
 
     @Autowired
-    public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
+    public GithubClient(ScrapperConfig config, RestClient.Builder clientBuilder, RetryWrapper wrapper) {
         client = clientBuilder
-                .requestFactory(new RequestFactoryBuilder().build())
+                .requestFactory(new RequestFactoryBuilder()
+                        .setConnectionTimeout(config.timeout().connection())
+                        .setReadTimeout(config.timeout().read())
+                        .build())
                 .baseUrl(config.github().githubBaseUrl())
                 .defaultHeader("Accept", "application/vnd.github+json")
                 .defaultHeader("Authorization", "Bearer " + config.github().githubToken())
                 .defaultHeader("X-GitHub-Api-Version", "2022-11-28")
                 .build();
+        retryWrapper = wrapper;
     }
 
-    public GithubClient(RestClient client) {
+    public GithubClient(RestClient client, RetryWrapper wrapper) {
         this.client = client;
+        retryWrapper = wrapper;
     }
 
+    @CircuitBreaker(name = "external-services")
     public Issue getIssue(URI uri) {
-        Issue issue = retry(() -> getRequest(uri).body(Issue.class));
+        Issue issue = retryWrapper.retry(() -> getRequest(uri).body(Issue.class));
         if (issue == null) {
-            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+            throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return issue;
     }
 
+    @CircuitBreaker(name = "external-services")
     public List<Issue> getIssues(URI uri) {
-        List<Issue> issues = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        List<Issue> issues = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (issues == null) {
-            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+            throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return issues;
     }
 
+    @CircuitBreaker(name = "external-services")
     public List<Comment> getComments(URI uri) {
-        List<Comment> comments = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        List<Comment> comments = retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (comments == null) {
-            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+            throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return comments;
     }
 
+    @CircuitBreaker(name = "external-services")
     public GHRepository getRepository(URI uri) {
-        GHRepository repository = retry(() -> getRequest(uri).body(GHRepository.class));
+        GHRepository repository = retryWrapper.retry(() -> getRequest(uri).body(GHRepository.class));
         if (repository == null) {
-            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+            throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return repository;
     }
 
+    @CircuitBreaker(name = "external-services")
     public List<PullRequest> getPullRequests(URI uri) {
-        List<PullRequest> pullRequests = retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
+        List<PullRequest> pullRequests =
+                retryWrapper.retry(() -> getRequest(uri).body(new ParameterizedTypeReference<>() {}));
         if (pullRequests == null) {
-            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+            throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return pullRequests;
     }

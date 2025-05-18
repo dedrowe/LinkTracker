@@ -21,6 +21,15 @@ app:
     replicas: 1
     tx-id: ${TRANSACTIONAL_ID}
   transport: kafka
+  retry:
+    max-attempts: 3
+    backoff: 500
+  rate-limit:
+    limit: 600 #10 в секунду
+    refresh-period-seconds: 60
+  timeout:
+    connection: 200
+    read: 1500
 
 spring:
   application:
@@ -62,3 +71,21 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      external-services:
+        ignore-exceptions:
+          - backend.academy.shared.exceptions.NotRetryApiCallException
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 80
+        permitted-number-of-calls-in-half-open-state: 4
+        wait-duration-in-open-state: 5000ms
+  retry:
+    instances:
+      updates-sender:
+        max-attempts: 3
+        wait-duration:
+          seconds: 1

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.LinkRepository;
+import backend.academy.scrapper.scheduling.UpdatesCheckScheduler;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;

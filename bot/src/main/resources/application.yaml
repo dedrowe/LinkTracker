@@ -9,6 +9,12 @@ app:
     topic: updates
     dltTopic: updates-dlt
   transport: kafka
+  retry:
+    max-attempts: 3
+    backoff: 500
+  timeout:
+    connection: 200
+    read: 6000
 
 spring:
   application:
@@ -48,3 +54,15 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      scrapper:
+        ignore-exceptions:
+          - backend.academy.shared.exceptions.NotRetryApiCallException
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 80
+        permitted-number-of-calls-in-half-open-state: 4
+        wait-duration-in-open-state: 5000ms

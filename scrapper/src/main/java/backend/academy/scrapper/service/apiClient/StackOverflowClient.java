@@ -1,12 +1,12 @@
 package backend.academy.scrapper.service.apiClient;
 
-import static backend.academy.shared.utils.client.RetryWrapper.retry;
-
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.stackOverflow.Question;
 import backend.academy.scrapper.dto.stackOverflow.SOResponse;
-import backend.academy.shared.exceptions.ApiCallException;
+import backend.academy.shared.exceptions.NotRetryApiCallException;
 import backend.academy.shared.utils.client.RequestFactoryBuilder;
+import backend.academy.shared.utils.client.RetryWrapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,25 +29,31 @@ public class StackOverflowClient extends ApiClient {
     private static final String REQUEST_FILTER = "!LbeNt-eYI5wF9dcYOL_10T";
 
     @Autowired
-    public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder) {
+    public StackOverflowClient(ScrapperConfig config, RestClient.Builder clientBuilder, RetryWrapper wrapper) {
         key = config.stackOverflow().key();
         accessToken = config.stackOverflow().accessToken();
         client = clientBuilder
-                .requestFactory(new RequestFactoryBuilder().build())
+                .requestFactory(new RequestFactoryBuilder()
+                        .setConnectionTimeout(config.timeout().connection())
+                        .setReadTimeout(config.timeout().read())
+                        .build())
                 .baseUrl(config.stackOverflow().SOBaseUrl())
                 .build();
+        retryWrapper = wrapper;
     }
 
-    public StackOverflowClient(RestClient client, String key, String accessToken) {
+    public StackOverflowClient(RestClient client, String key, String accessToken, RetryWrapper wrapper) {
         this.client = client;
         this.key = key;
         this.accessToken = accessToken;
+        retryWrapper = wrapper;
     }
 
+    @CircuitBreaker(name = "external-services")
     public Question getQuestionUpdate(URI uri) {
-        SOResponse responseBody = retry(() -> getRequest(uri).body(SOResponse.class));
+        SOResponse responseBody = retryWrapper.retry(() -> getRequest(uri).body(SOResponse.class));
         if (responseBody == null || responseBody.items().isEmpty()) {
-            throw new ApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
+            throw new NotRetryApiCallException("Ошибка при обращении по ссылке", 400, uri.toString());
         }
         return responseBody.items().getFirst();
     }

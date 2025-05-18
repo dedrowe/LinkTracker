@@ -1,9 +1,10 @@
-package backend.academy.scrapper.service;
+package backend.academy.scrapper.scheduling;
 
 import backend.academy.scrapper.ScrapperConfig;
 import backend.academy.scrapper.dto.Update;
 import backend.academy.scrapper.entity.Link;
 import backend.academy.scrapper.repository.link.LinkRepository;
+import backend.academy.scrapper.service.LinksCheckerService;
 import backend.academy.scrapper.utils.UtcDateTimeProvider;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;

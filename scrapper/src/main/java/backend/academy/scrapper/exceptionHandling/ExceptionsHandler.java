@@ -2,11 +2,13 @@ package backend.academy.scrapper.exceptionHandling;
 
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkDataException;
 import backend.academy.scrapper.exceptionHandling.exceptions.LinkException;
+import backend.academy.scrapper.exceptionHandling.exceptions.RateLimitExceededException;
 import backend.academy.scrapper.exceptionHandling.exceptions.TgChatException;
 import backend.academy.scrapper.exceptionHandling.exceptions.WrongServiceException;
 import backend.academy.shared.dto.ApiErrorResponse;
 import backend.academy.shared.exceptions.ApiCallException;
 import backend.academy.shared.exceptions.BaseException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -66,6 +68,26 @@ public class ExceptionsHandler {
     public ResponseEntity<ApiErrorResponse> handle(BaseException ex) {
         log.error(LOG_MESSAGE, ex);
         return new ResponseEntity<>(createResponse(ex), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CallNotPermittedException.class)
+    public ResponseEntity<ApiErrorResponse> handle(CallNotPermittedException ex) {
+        log.error(LOG_MESSAGE, ex);
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                "Этот сервис временно недоступен, попробуйте позже",
+                HttpStatus.valueOf(500),
+                ex.getClass().getName(),
+                ex.getMessage(),
+                Arrays.stream(ex.getStackTrace())
+                        .map(StackTraceElement::toString)
+                        .toList());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handle(RateLimitExceededException ex) {
+        log.error(LOG_MESSAGE, ex);
+        return new ResponseEntity<>(createResponse(ex), HttpStatus.TOO_MANY_REQUESTS);
     }
 
     @ExceptionHandler(Exception.class)
